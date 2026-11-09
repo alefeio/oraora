@@ -1,0 +1,154 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+/// Conta Better Auth + papel de domínio. Sem saldo financeiro.
+model User {
+  id            String    @id
+  name          String
+  email         String
+  emailVerified Boolean   @default(false)
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  /// USER | ADMIN — nunca aceito do cliente no cadastro.
+  role          String    @default("USER")
+  banned        Boolean?  @default(false)
+  banReason     String?
+  banExpires    DateTime?
+
+  sessions Session[]
+  accounts Account[]
+
+  auditEvents     AuditEvent[]     @relation("AuditActor")
+  idempotencyKeys IdempotencyRecord[]
+
+  @@unique([email])
+  @@map("user")
+}
+
+model Session {
+  id             String   @id
+  expiresAt      DateTime
+  token          String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  ipAddress      String?
+  userAgent      String?
+  userId         String
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  impersonatedBy String?
+
+  @@unique([token])
+  @@index([userId])
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@index([userId])
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier])
+  @@map("verification")
+}
+
+/// Trilha append-only de ações sensíveis. Campos sensíveis devem chegar já redigidos.
+model AuditEvent {
+  id            String   @id @default(cuid())
+  actorType     String
+  actorUserId   String?
+  actorUser     User?    @relation("AuditActor", fields: [actorUserId], references: [id], onDelete: SetNull)
+  action        String
+  subjectType   String?
+  subjectId     String?
+  correlationId String?
+  metadata      Json?
+  createdAt     DateTime @default(now())
+
+  @@index([actorUserId, createdAt])
+  @@index([action, createdAt])
+  @@index([subjectType, subjectId])
+  @@map("audit_event")
+}
+
+/// Reserva idempotente por escopo. Evita efeitos duplicados em retentativas.
+model IdempotencyRecord {
+  id             String   @id @default(cuid())
+  scope          String
+  key            String
+  requestHash    String
+  status         String   @default("STARTED")
+  responseStatus Int?
+  responseBody   Json?
+  userId         String?
+  user           User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  expiresAt      DateTime?
+
+  @@unique([scope, key])
+  @@index([userId])
+  @@map("idempotency_record")
+}
+
+/// Políticas versionadas (feed, validation, financial, safety, product).
+model PolicyDocument {
+  id          String    @id @default(cuid())
+  domain      String
+  version     Int
+  status      String    @default("draft")
+  document    Json
+  activatedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@unique([domain, version])
+  @@index([domain, status])
+  @@map("policy_document")
+}
+
+/// Outbox para desacoplar contextos no futuro. Sem worker contínuo nesta sprint.
+model OutboxMessage {
+  id            String    @id @default(cuid())
+  type          String
+  aggregateType String
+  aggregateId   String
+  payload       Json
+  occurredAt    DateTime  @default(now())
+  processedAt   DateTime?
+  attempts      Int       @default(0)
+  lastError     String?
+
+  @@index([processedAt, occurredAt])
+  @@index([type, occurredAt])
+  @@map("outbox_message")
+}
