@@ -19,7 +19,12 @@
     "db:migrate:deploy": "prisma migrate deploy",
     "db:studio": "prisma studio",
     "db:seed:foundation": "tsx scripts/seed-foundation-policies.ts",
-    "postinstall": "prisma generate"
+    "db:seed:categories": "tsx scripts/seed-categories.ts",
+    "db:seed:feed-policy": "tsx scripts/seed-feed-policy.ts",
+    "db:seed:fixtures": "tsx scripts/seed-synthetic-fixtures.ts",
+    "db:seed:sprint1": "npm run db:seed:foundation && npm run db:seed:feed-policy && npm run db:seed:categories && npm run db:seed:fixtures",
+    "postinstall": "prisma generate",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@better-auth/prisma-adapter": "^1.7.14",

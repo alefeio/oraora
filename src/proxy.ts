@@ -2,12 +2,16 @@ import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 
 /**
- * Proteção leve de rotas de plataforma.
+ * Proteção leve de rotas autenticadas.
  * Autorização definitiva permanece no servidor (session.ts / API).
  */
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
-  if (!pathname.startsWith("/account")) return NextResponse.next()
+  const protectedPrefixes = ["/account", "/encontrar"]
+  const needsAuth = protectedPrefixes.some(
+    (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),
+  )
+  if (!needsAuth) return NextResponse.next()
 
   const hasSession = request.cookies
     .getAll()
@@ -24,5 +28,5 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/account/:path*"],
+  matcher: ["/account/:path*", "/encontrar", "/encontrar/:path*"],
 }

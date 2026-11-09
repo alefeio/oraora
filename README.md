@@ -29,7 +29,14 @@ npm run dev
 
 Aplicação: http://localhost:3000  
 API de saúde: http://localhost:3000/api/v1/health  
-Cadastro/login: `/signup` e `/login`
+Cadastro/login: `/signup` e `/login`  
+Feed interno: `/encontrar`
+
+Seed da Sprint 1 (somente banco local):
+
+```bash
+npm run db:seed:sprint1
+```
 
 ## Testes e lint
 

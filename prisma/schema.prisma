@@ -27,9 +27,72 @@ model User {
 
   auditEvents     AuditEvent[]     @relation("AuditActor")
   idempotencyKeys IdempotencyRecord[]
+  prayerRequests  PrayerRequest[]
 
   @@unique([email])
   @@map("user")
+}
+
+/// Categorias administráveis de pedidos (não enum rígido).
+model PrayerRequestCategory {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  name        String
+  description String?
+  sortOrder   Int      @default(0)
+  active      Boolean  @default(true)
+  /// none | health | emotional_crisis | grief | addiction | violence | finance
+  safetyClass String   @default("none")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  prayerRequests PrayerRequest[]
+
+  @@index([active, sortOrder])
+  @@map("prayer_request_category")
+}
+
+/// Pedido de oração. authorId é identidade real — nunca no DTO público.
+model PrayerRequest {
+  id     String @id @default(cuid())
+  authorId String
+  author   User   @relation(fields: [authorId], references: [id], onDelete: Restrict)
+
+  categoryId String
+  category   PrayerRequestCategory @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+
+  title      String
+  story      String
+  prayerNeed String
+
+  /// full_name | given_name | initials | anonymous
+  publicIdentityMode String
+  /// Rótulo público congelado na criação (não recalcular a partir do nome civil).
+  publicLabel String
+
+  /// authenticated | restricted | private
+  contentVisibility String @default("authenticated")
+
+  /// open | paused | closed | removed
+  status String @default("open")
+
+  /// Projeção reconstruível; fonte futura = validações de oração.
+  validPrayerCount Int @default(0)
+
+  /// Janela usada pelo feed (criação ou futura atualização).
+  rankedAt DateTime @default(now())
+
+  /// Fixture sintética de ambiente descartável — nunca tratar como pedido real.
+  isSyntheticFixture Boolean @default(false)
+  fixtureKey         String? @unique
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status, contentVisibility, validPrayerCount, rankedAt])
+  @@index([categoryId, status])
+  @@index([authorId, createdAt])
+  @@map("prayer_request")
 }
 
 model Session {

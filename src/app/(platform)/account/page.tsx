@@ -1,9 +1,18 @@
+import { Suspense } from "react"
 import Link from "next/link"
 import { LogoutButton } from "@/components/auth/logout-button"
 import { requireUser } from "@/lib/auth/session"
 import { PRODUCT_DISPLAY_NAME } from "@/lib/config/product"
 
-export default async function AccountPage() {
+export default function AccountPage() {
+  return (
+    <Suspense fallback={<main className="px-6 py-16 text-sm text-zinc-500">Carregando conta…</main>}>
+      <AccountContent />
+    </Suspense>
+  )
+}
+
+async function AccountContent() {
   const session = await requireUser()
 
   return (
@@ -33,9 +42,16 @@ export default async function AccountPage() {
         </div>
       </dl>
       <p className="text-sm text-zinc-600">
-        Pedidos, orações, campanhas e carteira ainda não estão disponíveis nesta fundação.
+        Você já pode explorar o feed de descoberta. Oração, reciprocidade e publicação de pedidos
+        ainda virão nas próximas sprints.
       </p>
       <div className="flex flex-wrap gap-3">
+        <Link
+          href="/encontrar"
+          className="rounded-md bg-zinc-900 px-4 py-2 text-sm font-medium text-white"
+        >
+          Encontrar alguém para orar
+        </Link>
         <Link href="/" className="rounded-md border border-zinc-300 px-4 py-2 text-sm">
           Início
         </Link>

@@ -18,8 +18,14 @@ export default function HomePage() {
       </p>
       <div className="flex flex-wrap gap-3">
         <Link
-          href="/signup"
+          href="/encontrar"
           className="rounded-md bg-zinc-900 px-4 py-2 text-sm font-medium text-white"
+        >
+          Encontrar alguém para orar
+        </Link>
+        <Link
+          href="/signup"
+          className="rounded-md border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-900"
         >
           Criar conta
         </Link>
