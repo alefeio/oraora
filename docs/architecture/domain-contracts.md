@@ -1,23 +1,28 @@
-# Contratos de domínio (ainda não implementados)
+# Contratos de domínio
 
-Estes contratos são regras de produto que o código de domínio deverá proteger em sprints futuras.  
-**Sprint F:** apenas documentação. Nenhuma entidade financeira completa ou fluxo de oração é implementado aqui.
+Regras de produto protegidas no código de domínio. Itens financeiros e de acompanhamento permanecem futuros.
 
-1. Cada novo pedido exige uma oração válida anterior.
-2. A autorização para pedir não poderá ser acumulada indefinidamente.
-3. Oração exige conteúdo individualizado.
+## Sprint 2 — implementados
+
+1. Cada novo pedido exige uma oração válida anterior (`RequestEligibility` open).
+2. A autorização para pedir não acumula: no máximo uma elegibilidade `open` por usuário (índice parcial).
+3. Oração exige conteúdo individualizado; “orei”/“amém” não liberam reciprocidade automaticamente.
 4. O usuário não pode orar pelo próprio pedido.
-5. Toda interação patrocinada elegível precisa possuir orçamento real que sustente o crédito.
-6. O beneficiário recebe o crédito da campanha, não uma transferência direta do intercessor.
-7. Doações via Pix são diferentes de ajuda patrocinada.
-8. Quem doa passa a ser elegível para receber doações, sem limite proporcional ao valor doado.
-9. Avaliações e características positivas ajudam a construir identidade de cuidado.
-10. Não haverá ranking espiritual.
-11. Pedidos com menos orações recebem maior prioridade no feed, respeitando limites temporais.
-12. Privacidade de identidade e visibilidade do conteúdo são controles diferentes.
-13. Atualizações de pedidos não consomem nova autorização de reciprocidade.
-14. Acompanhamento faz parte da experiência central.
-15. Operações com dinheiro exigem transações, idempotência e auditoria.
+5. Aprovação tardia de orações anteriores a uma publicação consumida não reabre elegibilidade.
+6. Criação de pedido e consumo da elegibilidade ocorrem na mesma transação, com `FOR UPDATE`.
+7. Contagem `validPrayerCount` do feed é reconstruível a partir de `PrayerValidation.effects.feedCount`.
+
+## Ainda futuros (Sprint 3+)
+
+- Toda interação patrocinada elegível precisa possuir orçamento real que sustente o crédito.
+- O beneficiário recebe o crédito da campanha, não uma transferência direta do intercessor.
+- Doações via Pix são diferentes de ajuda patrocinada.
+- Quem doa passa a ser elegível para receber doações, sem limite proporcional ao valor doado.
+- Avaliações e características positivas ajudam a construir identidade de cuidado.
+- Não haverá ranking espiritual.
+- Atualizações de pedidos não consomem nova autorização de reciprocidade.
+- Acompanhamento faz parte da experiência central.
+- Operações com dinheiro exigem transações, idempotência e auditoria.
 
 ## Diretriz financeira
 

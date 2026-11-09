@@ -1,6 +1,19 @@
+import { z } from "zod"
 import { failure, ok } from "@/lib/api/http"
 import { requireUserApi } from "@/lib/auth/session"
-import { listFeedPrayerRequests } from "@/modules/prayer-requests"
+import { DomainError } from "@/modules/intercession"
+import { createPrayerRequest, listFeedPrayerRequests } from "@/modules/prayer-requests"
+import { PUBLIC_IDENTITY_MODES } from "@/modules/prayer-requests/types"
+
+const createSchema = z.object({
+  categoryId: z.string().min(1),
+  title: z.string().min(1).max(200),
+  story: z.string().min(1).max(20_000),
+  prayerNeed: z.string().min(1).max(5_000),
+  publicIdentityMode: z.enum(PUBLIC_IDENTITY_MODES),
+  publicLabel: z.string().min(1).max(120),
+  idempotencyKey: z.string().min(8).max(128),
+})
 
 export async function GET(request: Request) {
   const { error } = await requireUserApi()
@@ -23,14 +36,32 @@ export async function GET(request: Request) {
   }
 }
 
-/**
- * Criação pública bloqueada na Sprint 1.
- * Reciprocidade (Sprint 2) será pré-requisito transacional.
- */
-export async function POST() {
-  return failure(
-    403,
-    "A publicação de pedidos ainda não está disponível. É necessário primeiro orar por alguém.",
-    { code: "PRAYER_REQUEST_CREATION_BLOCKED" },
-  )
+export async function POST(request: Request) {
+  const { session, error } = await requireUserApi()
+  if (error) return error
+
+  let json: unknown
+  try {
+    json = await request.json()
+  } catch {
+    return failure(400, "JSON inválido.")
+  }
+
+  const parsed = createSchema.safeParse(json)
+  if (!parsed.success) {
+    return failure(400, "Dados inválidos.", parsed.error.flatten())
+  }
+
+  try {
+    const result = await createPrayerRequest({
+      authorId: session!.user.id,
+      ...parsed.data,
+    })
+    return ok(result, result.reused ? 200 : 201)
+  } catch (err) {
+    if (err instanceof DomainError) {
+      return failure(err.status, err.message, { code: err.code })
+    }
+    return failure(500, "Não foi possível criar o pedido.")
+  }
 }

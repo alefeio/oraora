@@ -28,6 +28,10 @@ model User {
   auditEvents     AuditEvent[]     @relation("AuditActor")
   idempotencyKeys IdempotencyRecord[]
   prayerRequests  PrayerRequest[]
+  prayersAuthored Prayer[]         @relation("PrayerIntercessor")
+  prayersReceived Prayer[]         @relation("PrayerBeneficiary")
+  prayerDecisions PrayerValidation[] @relation("PrayerValidationDecider")
+  requestEligibilities RequestEligibility[]
 
   @@unique([email])
   @@map("user")
@@ -47,6 +51,7 @@ model PrayerRequestCategory {
   updatedAt   DateTime @updatedAt
 
   prayerRequests PrayerRequest[]
+  scriptureLinks CategoryScriptureTopic[]
 
   @@index([active, sortOrder])
   @@map("prayer_request_category")
@@ -89,10 +94,149 @@ model PrayerRequest {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  prayers Prayer[]
+  consumedEligibility RequestEligibility? @relation("EligibilityConsumedByRequest")
+
   @@index([status, contentVisibility, validPrayerCount, rankedAt])
   @@index([categoryId, status])
   @@index([authorId, createdAt])
   @@map("prayer_request")
+}
+
+/// Passagem bíblica enxuta. Sem Bíblia completa. Texto só se licença permitir.
+model ScripturePassage {
+  id              String   @id @default(cuid())
+  referenceLabel  String
+  book            String
+  chapter         Int?
+  verseStart      Int?
+  verseEnd        Int?
+  translationCode String?
+  /// reference_only | public_domain | licensed
+  licenseStatus   String   @default("reference_only")
+  textBody        String?
+  active          Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  topicJoins ScripturePassageTopic[]
+  prayers    Prayer[]
+
+  @@unique([referenceLabel, translationCode])
+  @@index([active, book])
+  @@map("scripture_passage")
+}
+
+model ScriptureTopic {
+  id        String   @id @default(cuid())
+  slug      String   @unique
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  passages   ScripturePassageTopic[]
+  categories CategoryScriptureTopic[]
+
+  @@map("scripture_topic")
+}
+
+model ScripturePassageTopic {
+  passageId String
+  topicId   String
+  passage   ScripturePassage @relation(fields: [passageId], references: [id], onDelete: Cascade)
+  topic     ScriptureTopic   @relation(fields: [topicId], references: [id], onDelete: Cascade)
+
+  @@id([passageId, topicId])
+  @@map("scripture_passage_topic")
+}
+
+model CategoryScriptureTopic {
+  categoryId String
+  topicId    String
+  category   PrayerRequestCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  topic      ScriptureTopic        @relation(fields: [topicId], references: [id], onDelete: Cascade)
+
+  @@id([categoryId, topicId])
+  @@map("category_scripture_topic")
+}
+
+/// Oração enviada. Beneficiário sempre derivado do pedido.
+model Prayer {
+  id            String @id @default(cuid())
+  requestId     String
+  request       PrayerRequest @relation(fields: [requestId], references: [id], onDelete: Restrict)
+  intercessorId String
+  intercessor   User @relation("PrayerIntercessor", fields: [intercessorId], references: [id], onDelete: Restrict)
+  /// Cópia do authorId do pedido no momento do envio.
+  beneficiaryId String
+  beneficiary   User @relation("PrayerBeneficiary", fields: [beneficiaryId], references: [id], onDelete: Restrict)
+
+  /// text | audio | video — apenas text no MVP.
+  medium String @default("text")
+  body   String
+
+  scripturePassageId String?
+  scripturePassage   ScripturePassage? @relation(fields: [scripturePassageId], references: [id], onDelete: SetNull)
+
+  /// submitted | withdrawn
+  status         String @default("submitted")
+  contentHash    String
+  idempotencyKey String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  validation  PrayerValidation?
+  eligibility RequestEligibility?
+
+  @@unique([intercessorId, idempotencyKey])
+  @@index([requestId, createdAt])
+  @@index([intercessorId, createdAt])
+  @@index([beneficiaryId, createdAt])
+  @@map("prayer")
+}
+
+/// Decisão de validação versionada. Separada da oração enviada.
+model PrayerValidation {
+  id            String @id @default(cuid())
+  prayerId      String @unique
+  prayer        Prayer @relation(fields: [prayerId], references: [id], onDelete: Cascade)
+  policyVersion Int
+  /// pending | accepted | rejected | manual_review
+  outcome       String @default("pending")
+  /// { reciprocity, feedCount, solidarity } cada um true|false|null
+  effects       Json
+  signals       Json?
+  rationale     String?
+  decidedAt     DateTime?
+  decidedByUserId String?
+  decidedBy     User? @relation("PrayerValidationDecider", fields: [decidedByUserId], references: [id], onDelete: SetNull)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([outcome, createdAt])
+  @@map("prayer_validation")
+}
+
+/// Direito de pedir — no máximo um open por usuário (índice parcial na migration).
+model RequestEligibility {
+  id                 String  @id @default(cuid())
+  userId             String
+  user               User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  /// prayer | admin_grant
+  sourceType         String
+  sourcePrayerId     String? @unique
+  sourcePrayer       Prayer? @relation(fields: [sourcePrayerId], references: [id], onDelete: SetNull)
+  /// open | consumed | revoked
+  status             String  @default("open")
+  openedAt           DateTime @default(now())
+  consumedAt         DateTime?
+  consumedByRequestId String? @unique
+  consumedByRequest  PrayerRequest? @relation("EligibilityConsumedByRequest", fields: [consumedByRequestId], references: [id], onDelete: SetNull)
+  revokedAt          DateTime?
+  revokeReason       String?
+
+  @@index([userId, status])
+  @@map("request_eligibility")
 }
 
 model Session {

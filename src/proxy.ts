@@ -7,7 +7,7 @@ import type { NextRequest } from "next/server"
  */
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
-  const protectedPrefixes = ["/account", "/encontrar"]
+  const protectedPrefixes = ["/account", "/encontrar", "/pedir", "/oracoes", "/admin"]
   const needsAuth = protectedPrefixes.some(
     (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),
   )
@@ -28,5 +28,13 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/account/:path*", "/encontrar", "/encontrar/:path*"],
+  matcher: [
+    "/account/:path*",
+    "/encontrar",
+    "/encontrar/:path*",
+    "/pedir",
+    "/pedir/:path*",
+    "/oracoes/:path*",
+    "/admin/:path*",
+  ],
 }

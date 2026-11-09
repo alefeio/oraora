@@ -71,17 +71,16 @@ async function PrayerRequestDetailContent({ params }: PageProps) {
         {prayerRequest.feed?.priorityHint ? <span>{prayerRequest.feed.priorityHint}</span> : null}
       </section>
 
-      <div className="space-y-2 rounded-xl border border-zinc-200 bg-zinc-50 p-4">
-        <button
-          type="button"
-          disabled
-          className="w-full rounded-md bg-zinc-300 px-4 py-3 text-sm font-medium text-zinc-600"
+      <div className="space-y-2">
+        <Link
+          href={`/encontrar/${prayerRequest.id}/orar`}
+          className="flex w-full items-center justify-center rounded-md bg-zinc-900 px-4 py-3 text-sm font-medium text-white"
         >
           Quero orar por {prayerRequest.publicLabel}
-        </button>
+        </Link>
         <p className="text-center text-xs leading-5 text-zinc-500">
-          O fluxo de intercessão ainda não foi disponibilizado. Em breve você poderá ler, escolher
-          uma Palavra e escrever uma oração real.
+          Você será guiado a refletir, escolher uma Palavra (opcional) e escrever uma oração
+          individual.
         </p>
       </div>
     </main>

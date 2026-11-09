@@ -1,9 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { toPublicPrayerRequestDto } from "@/modules/prayer-requests/public-dto"
-import {
-  assertCanCreatePrayerRequest,
-  PrayerRequestCreationBlockedError,
-} from "@/modules/prayer-requests/creation-guard"
+import { EligibilityRequiredError } from "@/modules/intercession/errors"
 
 describe("privacy DTO", () => {
   it("não inclui authorId nem campos privados", () => {
@@ -38,10 +35,10 @@ describe("privacy DTO", () => {
   })
 })
 
-describe("creation guard", () => {
-  it("bloqueia criação de pedido por usuário comum", () => {
-    expect(() =>
-      assertCanCreatePrayerRequest({ actorUserId: "user_1", eligibilityId: null }),
-    ).toThrow(PrayerRequestCreationBlockedError)
+describe("creation guard error", () => {
+  it("expõe erro tipado de elegibilidade", () => {
+    const error = new EligibilityRequiredError()
+    expect(error.code).toBe("ELIGIBILITY_REQUIRED")
+    expect(error.status).toBe(403)
   })
 })
