@@ -6,6 +6,7 @@ import { toPrayerDto } from "./dto"
 import {
   maybeOpenEligibilityFromAcceptedPrayer,
   rebuildValidPrayerCount,
+  lockPrayerRequest,
 } from "@/modules/reciprocity/eligibility"
 import { VALIDATION_POLICY_VERSION } from "./submit-prayer"
 
@@ -20,8 +21,11 @@ const TRIVIAL_PATTERNS = [/^orei\.?$/i, /^am[eé]m\.?$/i, /^deus\s+aben[cç]oe\.
 
 export async function decidePrayerValidation(input: DecidePrayerValidationInput) {
   const actor = await prisma.user.findUnique({ where: { id: input.actorUserId } })
-  if (!actor || !isAdminRole(actor.role)) {
-    throw new PrayerNotAllowedError("Apenas administradores podem validar orações.", "ADMIN_REQUIRED")
+  if (!actor || actor.banned || !isAdminRole(actor.role)) {
+    throw new PrayerNotAllowedError(
+      "Apenas administradores podem validar orações.",
+      "ADMIN_REQUIRED",
+    )
   }
 
   const prayer = await prisma.prayer.findUnique({
@@ -37,7 +41,7 @@ export async function decidePrayerValidation(input: DecidePrayerValidationInput)
     )
   }
 
-  if (prayer.validation.outcome === input.outcome && prayer.validation.decidedByUserId) {
+  if (prayer.validation.outcome === input.outcome && prayer.validation.decidedAt) {
     // Idempotente: mesma decisão já registrada.
     return {
       prayer: toPrayerDto(prayer),
@@ -75,8 +79,15 @@ export async function decidePrayerValidation(input: DecidePrayerValidationInput)
       : { reciprocity: false, feedCount: false, solidarity: null }
 
   const result = await prisma.$transaction(async (tx) => {
-    const updatedValidation = await tx.prayerValidation.update({
-      where: { prayerId: prayer.id },
+    // O lock do pedido também serializa decisões de orações diferentes que
+    // alteram a mesma projeção validPrayerCount.
+    await lockPrayerRequest(tx, prayer.requestId)
+
+    const won = await tx.prayerValidation.updateMany({
+      where: {
+        prayerId: prayer.id,
+        outcome: { in: ["pending", "manual_review"] },
+      },
       data: {
         outcome: input.outcome,
         effects,
@@ -86,6 +97,28 @@ export async function decidePrayerValidation(input: DecidePrayerValidationInput)
         policyVersion: VALIDATION_POLICY_VERSION,
       },
     })
+
+    if (won.count !== 1) {
+      const current = await tx.prayerValidation.findUniqueOrThrow({
+        where: { prayerId: prayer.id },
+      })
+      if (current.outcome !== input.outcome) {
+        throw new DomainError(
+          "Esta oração já possui uma decisão diferente. Registre uma revisão auditada explícita.",
+          "VALIDATION_CONFLICT",
+          409,
+        )
+      }
+      const reusedPrayer = await tx.prayer.findUniqueOrThrow({
+        where: { id: prayer.id },
+        include: { validation: true, scripturePassage: true },
+      })
+      return {
+        updatedPrayer: reusedPrayer,
+        eligibilityResult: { opened: false, reason: "unchanged" },
+        reused: true as const,
+      }
+    }
 
     let eligibilityResult: { opened: boolean; reason: string; eligibilityId?: string } = {
       opened: false,
@@ -108,25 +141,27 @@ export async function decidePrayerValidation(input: DecidePrayerValidationInput)
       include: { validation: true, scripturePassage: true },
     })
 
-    return { updatedPrayer, updatedValidation, eligibilityResult }
-  })
+    await recordAuditEvent(
+      {
+        actorType: "admin",
+        actorUserId: input.actorUserId,
+        action: "prayer.validation_decided",
+        subjectType: "prayer",
+        subjectId: prayer.id,
+        metadata: {
+          outcome: input.outcome,
+          eligibility: eligibilityResult,
+        },
+      },
+      tx,
+    )
 
-  await recordAuditEvent({
-    actorType: "admin",
-    actorUserId: input.actorUserId,
-    action: "prayer.validation_decided",
-    subjectType: "prayer",
-    subjectId: prayer.id,
-    metadata: {
-      outcome: input.outcome,
-      eligibility: result.eligibilityResult,
-      // sem texto da oração
-    },
+    return { updatedPrayer, eligibilityResult, reused: false as const }
   })
 
   return {
     prayer: toPrayerDto(result.updatedPrayer),
     eligibility: result.eligibilityResult,
-    reused: false as const,
+    reused: result.reused,
   }
 }

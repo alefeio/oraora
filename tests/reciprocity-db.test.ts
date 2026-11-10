@@ -100,7 +100,6 @@ describe.runIf(enabled)("reciprocity database", () => {
         story: "História real do teste",
         prayerNeed: "Preciso de oração",
         publicIdentityMode: "given_name",
-        publicLabel: "João",
         idempotencyKey: `pub_${randomUUID().slice(0, 12)}`,
       })
       expect(published.prayerRequest.id).toBeTruthy()

@@ -42,9 +42,11 @@ export async function maybeOpenEligibilityFromAcceptedPrayer(
     where: {
       userId: input.userId,
       status: "consumed",
-      consumedAt: { gt: input.prayerCreatedAt },
+      consumedByRequest: {
+        createdAt: { gt: input.prayerCreatedAt },
+      },
     },
-    orderBy: { consumedAt: "desc" },
+    orderBy: { consumedByRequest: { createdAt: "desc" } },
   })
   if (laterConsumption) {
     return { opened: false, reason: "late_validation_after_publish" }
@@ -129,4 +131,15 @@ export async function rebuildValidPrayerCount(tx: Db, requestId: string) {
     data: { validPrayerCount: count },
   })
   return count
+}
+
+/**
+ * Serializa alterações de validação que afetam o mesmo pedido.
+ * Usa UPDATE do Prisma (trava a linha até o fim da TX) — evita $queryRaw no adapter-pg.
+ */
+export async function lockPrayerRequest(tx: Prisma.TransactionClient, requestId: string) {
+  await tx.prayerRequest.update({
+    where: { id: requestId },
+    data: { updatedAt: new Date() },
+  })
 }
