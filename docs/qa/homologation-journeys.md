@@ -1,49 +1,54 @@
 # Roteiro de homologação — jornadas Ora Ora
 
-## Escopo
+Documento operacional complementar a `docs/architecture/preview-homologation.md`.
 
-Jornadas já existentes (sem finanças). Executar primeiro em PostgreSQL local isolado.
+## Pré-requisitos remotos
 
-Homologação remota (Preview) **bloqueada** até:
+| Pré-requisito | Status Gate 2.4 |
+|---|---|
+| Banco Preview ≠ Production | **Não comprovado** |
+| Auth + Resend no Vercel | **Pendente do proprietário** |
+| `migrate deploy` Preview | **Bloqueado** — sem autorização |
+| Seed sintético remoto | **Bloqueado** |
 
-- isolamento físico Preview ≠ Production comprovado;
-- `BETTER_AUTH_SECRET` + Resend configurados;
-- autorização explícita para escrita remota.
+## Usuários sintéticos (não criar remotamente neste gate)
 
-## Jornada 1 — Cadastro
+- `homo.intercessor@example.test` — USER
+- `homo.pedinte@example.test` — USER
+- `homo.admin@example.test` — ADMIN
+- `homo.outsider@example.test` — USER (negativos)
 
-| Passo | Local | Preview |
-|---|---|---|
-| Criar conta | Sim (console email) | Bloqueado sem Resend |
-| Confirmar e-mail | Manual via log local | Bloqueado |
-| Sessão / logout | Sim | Bloqueado sem auth completa |
-| Recuperar acesso | Hook local | Bloqueado sem e-mail real |
+Pedidos/orações: textos genéricos (“pedido de teste de homologação”), **sem** inventar sofrimento real.
 
-## Jornada 2 — Encontrar
+## Jornada 1 — Autenticação
 
-Autenticar → categorias → listar → abrir pedido → anonimato/visibilidade.
+Cadastro → e-mail Resend → verificar → login → logout → reset de senha.  
+Negativo: ambiente sem Resend mantém signup fechado.
 
-Cobertura automatizada local: seeds + testes de privacy/feed + HTTP authz.
+## Jornada 2 — Descoberta
 
-## Jornada 3 — Orar
+Login → `/encontrar` → categorias → card → detalhe → privacidade (`publicLabel`, sem vazar `authorId`).
 
-Pedido elegível → escrever → enviar → estado → bloquear auto-oração.
+## Jornada 3 — Intercessão
 
-Cobertura: `tests/*prayer*`, `idempotency*`, domínio de intercessão.
+Orar → pendente → impedir auto-oração → acompanhar `/oracoes/[id]`.
 
 ## Jornada 4 — Reciprocidade
 
-Pendente não libera; aceite libera uma; publicação consome; sem acúmulo.
-
-Cobertura: `tests/reciprocity-db.test.ts`, `invalidation-db.test.ts`.
+Pendente não libera `/pedir` → aprovação libera uma vez → publicar consome → novo pedido exige nova oração → sem acúmulo.
 
 ## Jornada 5 — Administração
 
-Admin ativo revisa; comum/banido não; invalidação auditável.
+Admin ativo em `/admin/revisao` → comum/banido negados → invalidação com auditoria.
 
-Cobertura: `tests/http-authz.test.ts`, `validation-concurrency-db.test.ts`.
+## Jornada 6 — Consistência
 
-## Resultado Sprint 2.3
+Idempotência; contagens; corrida approve/reject; sem duplicar direitos.
 
-- Local: jornadas 2–5 exercitadas pelos testes DB/HTTP existentes (36+ com novos unitários de e-mail).
-- Preview: **bloqueio de homologação remota** — sem escritas e sem cadastro público funcional até auth+DB prontos.
+## Cobertura local já existente
+
+`RUN_DB_TESTS=1 npm test` — reciprocidade, invalidação, authz HTTP, pedidos, e-mail adapter, guards.
+
+## Resultado Gate 2.4
+
+Roteiro **preparado**. Execução remota **não iniciada**.

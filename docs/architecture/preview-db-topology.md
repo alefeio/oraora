@@ -1,58 +1,91 @@
 # Topologia Preview / Production (banco)
 
-## O que a integração Prisma Postgres na Vercel configura
+## Status Gate 2.4
 
-Quando um banco Prisma Postgres é conectado a um projeto Vercel, a integração costuma definir, por ambiente selecionado:
+| Afirmação | Classificação |
+|---|---|
+| Quatro variáveis Prisma Postgres existem no projeto Vercel `oraora` | **Verificado** |
+| Cada variável está associada a **Preview e Production no mesmo registro** | **Verificado** (`vercel env ls`) |
+| Não há overrides por branch Git nas variáveis listadas | **Verificado** (nenhum `gitBranch` visível na listagem) |
+| Preview e Production são instâncias físicas distintas | **Não comprovado** |
+| Preview e Production compartilham a mesma string/instância | **Evidência forte de compartilhamento de configuração** (um único secret por chave cobrindo ambos os escopos); confirmação inequívoca do `storeId` Prisma exige painel do proprietário |
+| Migrations remotas aplicadas | **Não comprovado / bloqueado** |
+| Escrita remota autorizada | **Bloqueado por segurança** (`REMOTE MIGRATION AUTHORIZATION: NOT GRANTED`) |
+
+## Integração Prisma Postgres → Vercel
+
+Quando um banco Prisma Postgres é conectado, a integração costuma definir:
 
 | Variável | Função típica |
 |---|---|
-| `DATABASE_URL` | Conexão direta (`db.prisma.io`) |
-| `POSTGRES_URL` | Mesmo valor direto |
-| `PRISMA_DATABASE_URL` | Mesmo valor direto |
-| `DATABASE_URL_POOLED` | Conexão pooled (`pooled.db.prisma.io`) |
+| `DATABASE_URL` | Conexão direta (`db.prisma.io`) — CLI / migrations |
+| `POSTGRES_URL` | Alias direto |
+| `PRISMA_DATABASE_URL` | Alias direto |
+| `DATABASE_URL_POOLED` | Runtime serverless (`pooled.db.prisma.io`) |
 
-Fonte: documentação Prisma Postgres + Vercel Marketplace.
+## Inventário Vercel (Gate 2.4)
 
-## Achado nesta sprint
+Projeto: `alefeios-projects/oraora` (`prj_JAOMoEe1NysvI0TprfTRmzwMrKYL`).
 
-No projeto `oraora` (equipe `alefeios-projects`), as quatro variáveis existem nos escopos **Preview** e **Production** (informação fornecida na auditoria).
+Variáveis presentes (nomes apenas):
 
-Isso **não prova isolamento físico**:
+| Nome | Tipo | Escopos |
+|---|---|---|
+| `DATABASE_URL` | Secret | Preview, Production |
+| `DATABASE_URL_POOLED` | Secret | Preview, Production |
+| `POSTGRES_URL` | Secret | Preview, Production |
+| `PRISMA_DATABASE_URL` | Secret | Preview, Production |
 
-- nomes iguais em dois escopos podem apontar ao **mesmo** banco;
-- `DATABASE_ENV` é rótulo e não diferencia instâncias;
-- fingerprints locais em `.env.local` mostram hosts remotos `db.prisma.io` / `pooled.db.prisma.io` coexistindo com Postgres local `127.0.0.1/intercessao_dev`, mas isso não revela se Preview ≠ Production no remoto.
+**Ausentes** na listagem do projeto (Gate 2.4): qualquer variável de autenticação (`BETTER_AUTH_*`, `AUTH_EMAIL_*`, `RESEND_*`, `NEXT_PUBLIC_APP_URL`, etc.).
 
-**Status:** isolamento Preview ↔ Production **não comprovado**.
+Não há variável distinta “só Preview” nem “só Production” para o banco.
 
-## Solução recomendada (sem executar nesta sprint)
+## Evidência de risco
 
-1. Criar **dois** bancos Prisma Postgres distintos (ex.: `oraora-prod` e `oraora-preview`).
-2. Conectar cada um **somente** ao escopo correspondente na integração Vercel (`-e production` / `-e preview`).
-3. Confirmar no painel que fingerprints de host/database diferem entre ambientes (sem expor secrets).
-4. Só então autorizar `migrate deploy` no Preview, com seed sintético não sensível.
-5. Repetir migrate em Production em janela controlada.
+1. Um único registro de secret cobrindo Preview **e** Production é o padrão clássico de **mesmo valor / mesma instância**.
+2. Nomes de host genéricos (`db.prisma.io`) **não** isolam ambientes.
+3. `DATABASE_ENV` **não** prova isolamento (nem está configurado no Vercel).
+4. Sem `storeId` / nome de database distinto por ambiente no painel, **não** se declara isolamento físico.
 
-### Custo potencial
+## Recurso atual a preservar
 
-No plano Free da Prisma Postgres há cota generosa de bancos; o custo adicional típico é zero até extrapolar storage/compute do plano. Em planos pagos, cada banco adicional consome a cota do workspace — validar no painel Prisma antes de criar.
+Manter intacto o banco Prisma Postgres já vinculado à Production (e atualmente também exposto ao Preview via as mesmas secrets).
 
-### Passos (proprietário)
+**Não** desconectar Production sem plano de cutover.
 
-1. Prisma Console → criar database Preview.
-2. Vercel → Settings → Environment Variables / Integration → desassociar Preview do banco de Production se compartilhado.
-3. Associar o novo banco só a Preview.
-4. Redeploy Preview e validar health + schema.
-5. Autorizar por escrito migrations remotas.
+## Solução recomendada (ação do proprietário — não executada)
 
-## Procedimento seguro futuro de migrations remotas
+1. **Preservar** o banco atual como Production.
+2. **Criar** um segundo Prisma Postgres (ex.: `oraora-preview`).
+3. Na integração Vercel / Prisma:
+   - Production → apenas o banco de Production;
+   - Preview → apenas o banco Preview;
+   - remover o compartilhamento Preview+Production nas quatro variáveis.
+4. Confirmar no painel que os identificadores de instância / `storeId` diferem.
+5. Redeploy da branch de Preview.
+6. Só então autorizar `migrate deploy` no Preview.
 
-1. Comprovar isolamento (fingerprints distintos Preview ≠ Production).
-2. Autorização explícita do proprietário.
-3. `migrate deploy` **apenas** no alvo Preview, via CI ou máquina com env Preview.
-4. Smoke de leitura/escrita sintética no Preview.
-5. Só depois, Production, com backup/snapshot disponível.
-6. Nunca `db push` em remoto; nunca seed com dados pessoais reais.
+### Custo / cota
+
+Plano Prisma Free/Starter: múltiplos databases na cota do workspace; custo tipicamente zero até extrapolar storage/compute. Validar cota no console Prisma antes de criar.
+
+### Procedimento exato (proprietário)
+
+1. Abrir [Prisma Console](https://console.prisma.io) → workspace do Ora Ora.
+2. Anotar o nome/ID do database **atual** (preservar como Production).
+3. Create database → nome sugerido `oraora-preview`.
+4. Vercel → Project `oraora` → Settings → Environment Variables / Integrations:
+   - garantir que Preview **não** herda as secrets de Production;
+   - conectar o novo database somente ao ambiente Preview (as quatro variáveis).
+5. Confirmar `vercel env ls`: linhas **separadas** Preview vs Production (não uma linha “Preview, Production”).
+6. Autorizar por escrito o Gate seguinte de migrations Preview.
+
+**Esta etapa está interrompida até a ação acima.** Nenhuma criação/desconexão automática foi feita.
+
+## Runtime da aplicação
+
+- Fora da Vercel: `RUNTIME_DATABASE_URL` / `DATABASE_URL` local (`intercessao_dev`) têm prioridade; pooled remoto não é escolhido automaticamente.
+- Na Vercel: runtime prefere `DATABASE_URL_POOLED`; migrations usam conexão direta.
 
 ## Local
 
