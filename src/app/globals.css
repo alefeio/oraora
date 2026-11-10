@@ -1,26 +1,95 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Marca oficial Ora Ora */
+  --brand-primary: #533e7e;
+  --brand-gold: #f4b25c;
+  --brand-coral: #e78976;
+  --brand-sage: #8fae9a;
+  --brand-cream: #fcf7ee;
+
+  /* Superfícies e texto (contraste WCAG AA) */
+  --background: var(--brand-cream);
+  --foreground: #2a2140;
+  --surface: #ffffff;
+  --surface-muted: #f6f0e6;
+  --border: #e4d9c8;
+  --border-strong: #cbbba3;
+
+  --text-primary: #2a2140;
+  --text-secondary: #5b5270;
+  --text-muted: #7a718c;
+  --text-on-primary: #fcf7ee;
+  --text-on-accent: #2a2140;
+
+  --primary: var(--brand-primary);
+  --primary-hover: #433166;
+  --primary-active: #362652;
+  --primary-disabled: #a89bbd;
+
+  --accent-gold: var(--brand-gold);
+  --accent-coral: var(--brand-coral);
+  --accent-sage: var(--brand-sage);
+
+  --success: #3f6f55;
+  --success-soft: #e7f2eb;
+  --warning: #8a5a12;
+  --warning-soft: #fff3dd;
+  --danger: #9b3b32;
+  --danger-soft: #fdeceb;
+  --info: var(--brand-primary);
+  --info-soft: #efeaf6;
+
+  --focus-ring: #533e7e;
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --shadow-soft: 0 10px 30px rgba(42, 33, 64, 0.06);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-surface: var(--surface);
+  --color-surface-muted: var(--surface-muted);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-muted: var(--text-muted);
+  --color-text-on-primary: var(--text-on-primary);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-active: var(--primary-active);
+  --color-primary-disabled: var(--primary-disabled);
+  --color-accent-gold: var(--accent-gold);
+  --color-accent-coral: var(--accent-coral);
+  --color-accent-sage: var(--accent-sage);
+  --color-brand-cream: var(--brand-cream);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-info-soft: var(--info-soft);
+  --font-sans: var(--font-body);
+  --font-display: var(--font-display);
 }
 
 body {
   background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  color: var(--text-primary);
+  font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-display), var(--font-body), ui-sans-serif, system-ui, sans-serif;
+}
+
+:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
 }
