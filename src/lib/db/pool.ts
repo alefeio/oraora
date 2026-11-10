@@ -13,11 +13,13 @@ function redactDatabaseMessage(message: string) {
 }
 
 function createPool() {
+  const onVercel = Boolean(process.env.VERCEL || process.env.VERCEL_ENV)
   const config: PoolConfig = {
     connectionString: normalizePostgresSslMode(resolveRuntimeDatabaseUrl().url),
-    max: 3,
-    idleTimeoutMillis: 5_000,
-    connectionTimeoutMillis: 5_000,
+    max: onVercel ? 3 : 10,
+    idleTimeoutMillis: onVercel ? 5_000 : 30_000,
+    connectionTimeoutMillis: 10_000,
+    allowExitOnIdle: !onVercel,
   }
   const pool = new Pool(config)
 
@@ -30,7 +32,10 @@ function createPool() {
     })
   })
 
-  attachDatabasePool(pool)
+  // attachDatabasePool é específico do runtime Vercel; em testes locais atrapalha o ciclo de vida do pool.
+  if (onVercel) {
+    attachDatabasePool(pool)
+  }
   return pool
 }
 

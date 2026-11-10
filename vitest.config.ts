@@ -5,6 +5,7 @@ export default defineConfig({
   test: {
     environment: "node",
     include: ["tests/**/*.test.ts"],
+    setupFiles: ["./tests/setup-env.ts"],
     // Evita corrida no pool pg compartilhado (adapter Prisma) entre arquivos DB.
     fileParallelism: false,
   },
