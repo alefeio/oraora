@@ -1,3 +1,5 @@
+import { isHostedRuntime } from "@/lib/auth/email-transport"
+
 export const USER_ROLES = {
   user: "USER",
   admin: "ADMIN",
@@ -32,9 +34,15 @@ export function isAdminRole(role: string | null | undefined): boolean {
   return role === USER_ROLES.admin
 }
 
+/**
+ * Verificação de e-mail:
+ * - Vercel/hospedado: sempre exigida (não contornar ausência de provedor).
+ * - Local: AUTH_REQUIRE_EMAIL_VERIFICATION controla; default false só em development.
+ */
 export function requireEmailVerificationEnabled(
   env: Record<string, string | undefined> = process.env,
 ): boolean {
+  if (isHostedRuntime(env)) return true
   const raw = env.AUTH_REQUIRE_EMAIL_VERIFICATION?.trim().toLowerCase()
   if (raw === "true") return true
   if (raw === "false") return false

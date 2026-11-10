@@ -28,6 +28,22 @@ describe("auth policy", () => {
       }),
     ).toBe(false)
   })
+
+  it("exige verificação de e-mail em qualquer ambiente Vercel", () => {
+    expect(
+      requireEmailVerificationEnabled({
+        VERCEL: "1",
+        NODE_ENV: "production",
+        AUTH_REQUIRE_EMAIL_VERIFICATION: "false",
+      }),
+    ).toBe(true)
+    expect(
+      requireEmailVerificationEnabled({
+        VERCEL_ENV: "preview",
+        AUTH_REQUIRE_EMAIL_VERIFICATION: "false",
+      }),
+    ).toBe(true)
+  })
 })
 
 describe("domain directives", () => {

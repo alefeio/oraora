@@ -2,7 +2,12 @@ import { prismaAdapter } from "@better-auth/prisma-adapter"
 import { betterAuth } from "better-auth"
 import { nextCookies } from "better-auth/next-js"
 import { prisma } from "@/lib/db/prisma"
-import { passwordResetEmail, sendAuthEmail, verificationEmail } from "@/lib/auth/email"
+import {
+  passwordResetEmail,
+  publicSignupEnabled,
+  sendAuthEmail,
+  verificationEmail,
+} from "@/lib/auth/email"
 import {
   MAX_PASSWORD_LENGTH,
   MIN_PASSWORD_LENGTH,
@@ -41,14 +46,21 @@ function trustedOrigins(env: Record<string, string | undefined> = process.env): 
   return [...origins]
 }
 
+/**
+ * Propaga falhas de entrega. Better Auth trata o erro; a UI não deve afirmar que o e-mail foi enviado.
+ * Logs nunca incluem URL/token.
+ */
 async function deliverAuthEmail(to: string, message: { subject: string; html: string; text: string }) {
   try {
     await sendAuthEmail({ to, ...message })
   } catch (error) {
     const name = error instanceof Error ? error.name : "Error"
     console.error("auth email failed", { name })
+    throw error
   }
 }
+
+const signupOpen = publicSignupEnabled()
 
 export const auth = betterAuth({
   database: prismaAdapter(prisma, {
@@ -71,8 +83,8 @@ export const auth = betterAuth({
   },
   emailAndPassword: {
     enabled: true,
-    // Cadastro público obrigatório neste produto (diferente do Kale).
-    disableSignUp: false,
+    // Preview/hospedado sem Resend: cadastro público permanece fechado.
+    disableSignUp: !signupOpen,
     requireEmailVerification: requireEmailVerificationEnabled(),
     resetPasswordTokenExpiresIn: RESET_TOKEN_EXPIRES_IN_SECONDS,
     revokeSessionsOnPasswordReset: true,
