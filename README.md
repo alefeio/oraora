@@ -1,8 +1,8 @@
-# Rede de Intercessão Solidária
+# Ora Ora
 
-Nome de trabalho provisório: **Ora por Mim**.
+**Pessoas que oram umas pelas outras.**
 
-Fundação executável (Sprint F): Next.js 16, Prisma 7, PostgreSQL, Better Auth.
+Aplicação web de intercessão e reciprocidade: Next.js 16, Prisma 7, PostgreSQL, Better Auth.
 
 ## Pré-requisitos
 
@@ -48,8 +48,9 @@ npx tsc --noEmit
 
 ## Documentação
 
+- `docs/brand/identity.md` — identidade visual oficial
 - `docs/product/product-contract.md` — contrato fiel ao PDF
-- `docs/architecture/` — fundação e contratos de domínio
+- `docs/architecture/` — fundação, domínio e limitações de Preview
 - `docs/security/` — autenticação e isolamento de banco
 
 O PDF original permanece fora do Git, em `../Arquivos/`.
@@ -61,6 +62,8 @@ Better Auth com cadastro público, sessão cookie e hooks de verificação/recup
 Em desenvolvimento, e-mails vão para console/`tmp/auth-emails.log`.  
 **Não está pronto para uso público** sem provedor de e-mail real.
 
-## Fora do escopo desta sprint
+## Escopo atual vs. fora
 
-Pedidos, orações, campanhas, carteira, doações, deploy, merge e remote GitHub.
+Disponível localmente: autenticação, pedidos, orações, reciprocidade e revisão administrativa.
+
+Ainda fora: motor financeiro (créditos, carteira, doações, saques), homologação pública e merge na `main`.

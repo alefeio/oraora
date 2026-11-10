@@ -1,8 +1,9 @@
 # Contrato de produto — Rede de Intercessão Solidária
 
-**Nome de trabalho (provisório):** Ora por Mim  
+**Nome oficial atual:** Ora Ora — Pessoas que oram umas pelas outras.  
+**Nome histórico no PDF de origem:** Ora por Mim (provisório à época da extração)  
 **Fonte:** `../Arquivos/Resumo Completo do Projeto — Ora por Mim.pdf` (30 páginas)  
-**Status deste documento:** referência permanente de desenvolvimento. Não substitui o PDF original.
+**Status deste documento:** referência permanente de desenvolvimento. Não substitui o PDF original. Identidade visual: `docs/brand/identity.md`.
 
 Este arquivo separa o que o PDF trata como decisão, hipótese, MVP, futuro ou pendência. Hipóteses **não** devem ser cristalizadas em hard code.
 

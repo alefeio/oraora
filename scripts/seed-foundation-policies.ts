@@ -17,8 +17,9 @@ async function main() {
       status: "active",
       activatedAt: new Date(),
       document: {
-        displayName: "Ora por Mim",
-        displayNameProvisional: true,
+        displayName: "Ora Ora",
+        displayNameProvisional: false,
+        tagline: "Pessoas que oram umas pelas outras.",
         workingTitle: "Rede de Intercessão Solidária",
       },
     },
@@ -26,8 +27,9 @@ async function main() {
       status: "active",
       activatedAt: new Date(),
       document: {
-        displayName: "Ora por Mim",
-        displayNameProvisional: true,
+        displayName: "Ora Ora",
+        displayNameProvisional: false,
+        tagline: "Pessoas que oram umas pelas outras.",
         workingTitle: "Rede de Intercessão Solidária",
       },
     },
