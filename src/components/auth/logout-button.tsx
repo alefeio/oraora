@@ -1,6 +1,7 @@
 "use client"
 
 import { useRouter } from "next/navigation"
+import { Button } from "@/components/ui/button"
 import { authClient } from "@/lib/auth/auth-client"
 
 export function LogoutButton() {
@@ -13,12 +14,8 @@ export function LogoutButton() {
   }
 
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      className="rounded-md bg-zinc-900 px-4 py-2 text-sm font-medium text-white"
-    >
+    <Button type="button" variant="secondary" onClick={onClick}>
       Sair
-    </button>
+    </Button>
   )
 }
