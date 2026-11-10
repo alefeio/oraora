@@ -28,6 +28,10 @@ Até comprovação explícita:
 
 Preview READY significa build/deploy HTTP bem-sucedido. Rotas que dependem do schema local poderão falhar no remoto enquanto o banco não estiver preparado.
 
+## Autenticação no Preview
+
+Sem `BETTER_AUTH_SECRET` + `AUTH_EMAIL_MODE=resend` + `RESEND_API_KEY` + `AUTH_EMAIL_FROM`, o cadastro público permanece fechado na Vercel. Detalhes: `docs/security/auth-and-email.md`.
+
 ## Nome de produto no Preview
 
 Se `NEXT_PUBLIC_PRODUCT_DISPLAY_NAME` estiver definido no projeto Vercel com valor antigo, o Preview pode exibir esse valor em vez do default `Ora Ora` do código. Ajustar a variável no painel Vercel (sem publicar secrets neste repositório).

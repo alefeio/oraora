@@ -37,6 +37,8 @@ Resolvedor (`src/lib/db/connection.ts`):
 
 Antes de qualquer deployment futuro, Preview e Production precisam apontar para bancos fisicamente distintos. Homônimos de variável não bastam.
 
+Detalhamento da topologia e plano recomendado: `docs/architecture/preview-db-topology.md`.
+
 ## Proibido nesta sprint
 
 - migrate/seed/testes de escrita no Prisma Postgres remoto da Vercel;
