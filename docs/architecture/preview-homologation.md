@@ -9,9 +9,10 @@
 | Auth Better Auth no Vercel | **Pendente do proprietário** |
 | Resend / domínio verificado | **Pendente do proprietário** |
 | Preflight remoto completo | **Bloqueado por segurança** |
-| Migrations Preview | **Bloqueado** — `REMOTE MIGRATION AUTHORIZATION: NOT GRANTED` |
-| Homologação HTTP remota | **Bloqueado** |
-| Pronto para executar após autorização | **Parcial** (roteiro e plano prontos; pré-requisitos externos faltando) |
+| Isolamento Preview ≠ Production | **Verificado** (recursos e fingerprints distintos; Gate pós-2.4) |
+| Migrations Preview | **Preflight PASS** — execução **bloqueada** até autorização explícita (`docs/architecture/preview-migrate-preflight.md`) |
+| Homologação HTTP remota | **Bloqueado** (após migrate + seeds se autorizados) |
+| Pronto para executar após autorização | **Preflight pronto**; falta só autorização de `migrate deploy` em `oraora-preview` |
 
 ## Deployment de referência
 

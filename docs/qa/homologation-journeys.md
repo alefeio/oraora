@@ -6,9 +6,9 @@ Documento operacional complementar a `docs/architecture/preview-homologation.md`
 
 | Pré-requisito | Status Gate 2.4 |
 |---|---|
-| Banco Preview ≠ Production | **Não comprovado** |
-| Auth + Resend no Vercel | **Pendente do proprietário** |
-| `migrate deploy` Preview | **Bloqueado** — sem autorização |
+| Banco Preview ≠ Production | **Verificado** |
+| Auth + Resend no Vercel | `BETTER_AUTH_SECRET` + `AUTH_EMAIL_MODE=resend` no Preview (**presentes**); Resend completo / domínio a validar na homologação |
+| `migrate deploy` Preview | Preflight **PASS**; execução **bloqueada** até autorização (`preview-migrate-preflight.md`) |
 | Seed sintético remoto | **Bloqueado** |
 
 ## Usuários sintéticos (não criar remotamente neste gate)
