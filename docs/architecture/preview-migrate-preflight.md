@@ -4,11 +4,12 @@
 
 | Item | Valor |
 |---|---|
-| Preflight | **PASS** (inspeção concluída) |
+| Preflight | **PASS** |
+| Execução autorizada | **PASS** — `migrate deploy` em `oraora-preview` (`store_xYaw5J0xe3Gb9T89`) |
 | Target | `oraora-preview` (`store_xYaw5J0xe3Gb9T89`) |
-| Production | **PRESERVED** (`prisma-postgres-oraora` / `store_sVF0L5GhFshjZfVP`) |
-| Migrations | **NOT EXECUTED** |
-| Autorização de escrita | **AINDA NECESSÁRIA** do proprietário |
+| Production | **UNCHANGED** (`prisma-postgres-oraora` / `store_sVF0L5GhFshjZfVP`) |
+| Migrations | **4/4 aplicadas** (commit auditado `e5e10d3`) |
+| Seeds | **NO** |
 
 ## 1. Identificação do destino (verificado)
 
