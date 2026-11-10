@@ -93,3 +93,19 @@ h3 {
   outline: 2px solid var(--focus-ring);
   outline-offset: 2px;
 }
+
+/* Superfícies de marca reutilizáveis (sem HEX espalhado nos componentes) */
+.brand-hero-surface {
+  background: linear-gradient(
+    160deg,
+    var(--brand-cream) 0%,
+    var(--info-soft) 45%,
+    var(--brand-cream) 100%
+  );
+}
+
+.brand-hero-glow {
+  background:
+    radial-gradient(circle at top right, color-mix(in srgb, var(--brand-gold) 18%, transparent), transparent 40%),
+    radial-gradient(circle at bottom left, color-mix(in srgb, var(--brand-coral) 14%, transparent), transparent 35%);
+}

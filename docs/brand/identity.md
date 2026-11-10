@@ -81,6 +81,9 @@ A identidade visual pode antecipar acolhimento e solidariedade, mas a interface 
 
 | Arquivo | Função |
 |---|---|
-| `public/logo.png` | Logomarca oficial transparente |
-| `/logo.png` via metadata | Favicon / ícone da aplicação |
+| `public/logo.png` | Logomarca oficial transparente (completa) |
+| `public/icon-square.png` | Recorte experimental do símbolo para ícone (derivado digital; não é vetor original) |
+| `src/app/icon.png` / `src/app/apple-icon.png` | Favicon e ícone Apple gerados a partir do recorte |
 | `docs/brand/identity.md` | Este guia |
+
+Procedimento do derivado: recorte raster do símbolo a partir de `public/logo.png` (região aproximada do infinito), centralizado em canvas transparente e redimensionado. **Não** é vetor original. Se a auditoria visual exigir maior fidelidade, o proprietário deve fornecer um ativo quadrado oficial; `public/logo.png` permanece intacto.

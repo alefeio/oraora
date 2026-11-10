@@ -1,7 +1,7 @@
 import type { Metadata } from "next"
 import { Inter, Nunito } from "next/font/google"
 import {
-  BRAND_LOGO_PATH,
+  BRAND_ICON_PATH,
   PRODUCT_DISPLAY_NAME,
   PRODUCT_ESSENCE,
   PRODUCT_TAGLINE,
@@ -27,8 +27,11 @@ export const metadata: Metadata = {
   description: `${PRODUCT_TAGLINE} ${PRODUCT_ESSENCE}`,
   applicationName: PRODUCT_DISPLAY_NAME,
   icons: {
-    icon: [{ url: BRAND_LOGO_PATH, type: "image/png" }],
-    apple: [{ url: BRAND_LOGO_PATH }],
+    icon: [
+      { url: "/favicon.png", type: "image/png", sizes: "32x32" },
+      { url: BRAND_ICON_PATH, type: "image/png", sizes: "512x512" },
+    ],
+    apple: [{ url: "/apple-icon.png", sizes: "180x180" }],
   },
 }
 

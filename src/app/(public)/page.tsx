@@ -15,8 +15,8 @@ export default function HomePage() {
     <>
       <SiteHeader mode="public" />
       <main>
-        <section className="relative overflow-hidden border-b border-border bg-[linear-gradient(160deg,#fcf7ee_0%,#efeaf6_45%,#fcf7ee_100%)]">
-          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(244,178,92,0.18),transparent_40%),radial-gradient(circle_at_bottom_left,rgba(231,137,118,0.14),transparent_35%)]" />
+        <section className="brand-hero-surface relative overflow-hidden border-b border-border">
+          <div className="brand-hero-glow pointer-events-none absolute inset-0" />
           <div className="relative mx-auto flex w-full max-w-5xl flex-col items-center gap-8 px-4 py-14 text-center sm:px-6 sm:py-20">
             <BrandLogo href={null} size="lg" priority />
             <div className="space-y-4">
@@ -44,7 +44,8 @@ export default function HomePage() {
           <Card>
             <h2 className="text-lg font-bold text-primary">Conhecer</h2>
             <p className="mt-2 text-sm leading-6 text-text-secondary">
-              Leia uma história real e a intenção específica de oração de outra pessoa.
+              Leia a história e a intenção específica de oração de outra pessoa, com respeito e
+              cuidado.
             </p>
           </Card>
           <Card>

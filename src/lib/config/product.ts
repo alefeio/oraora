@@ -18,3 +18,6 @@ export const PRODUCT_WORKING_TITLE = "Rede de Intercessão Solidária"
 export const PRODUCT_NAME_IS_PROVISIONAL = false
 
 export const BRAND_LOGO_PATH = "/logo.png"
+
+/** Ícone quadrado derivado do símbolo (não substitui a logomarca completa). */
+export const BRAND_ICON_PATH = "/icon-square.png"
