@@ -11,7 +11,6 @@ const createSchema = z.object({
   story: z.string().min(1).max(20_000),
   prayerNeed: z.string().min(1).max(5_000),
   publicIdentityMode: z.enum(PUBLIC_IDENTITY_MODES),
-  publicLabel: z.string().min(1).max(120),
   idempotencyKey: z.string().min(8).max(128),
 })
 

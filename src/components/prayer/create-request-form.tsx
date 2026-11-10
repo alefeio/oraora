@@ -32,7 +32,6 @@ export function CreateRequestForm({ categories }: { categories: Category[] }) {
       story: String(form.get("story") || ""),
       prayerNeed: String(form.get("prayerNeed") || ""),
       publicIdentityMode: String(form.get("publicIdentityMode") || "anonymous"),
-      publicLabel: String(form.get("publicLabel") || ""),
       idempotencyKey,
     }
 
@@ -74,35 +73,47 @@ export function CreateRequestForm({ categories }: { categories: Category[] }) {
       </label>
       <label className="block space-y-1 text-sm">
         <span>Título</span>
-        <input name="title" required maxLength={200} className="w-full rounded-md border border-zinc-300 px-3 py-2" />
+        <input
+          name="title"
+          required
+          maxLength={200}
+          className="w-full rounded-md border border-zinc-300 px-3 py-2"
+        />
       </label>
       <label className="block space-y-1 text-sm">
         <span>História</span>
-        <textarea name="story" required rows={6} className="w-full rounded-md border border-zinc-300 px-3 py-2" />
+        <textarea
+          name="story"
+          required
+          rows={6}
+          className="w-full rounded-md border border-zinc-300 px-3 py-2"
+        />
       </label>
       <label className="block space-y-1 text-sm">
         <span>O que apresentar em oração</span>
-        <textarea name="prayerNeed" required rows={3} className="w-full rounded-md border border-zinc-300 px-3 py-2" />
+        <textarea
+          name="prayerNeed"
+          required
+          rows={3}
+          className="w-full rounded-md border border-zinc-300 px-3 py-2"
+        />
       </label>
       <label className="block space-y-1 text-sm">
         <span>Como deseja aparecer</span>
-        <select name="publicIdentityMode" className="w-full rounded-md border border-zinc-300 px-3 py-2">
+        <select
+          name="publicIdentityMode"
+          className="w-full rounded-md border border-zinc-300 px-3 py-2"
+          defaultValue="anonymous"
+        >
           {IDENTITY_OPTIONS.map((opt) => (
             <option key={opt.value} value={opt.value}>
               {opt.label}
             </option>
           ))}
         </select>
-      </label>
-      <label className="block space-y-1 text-sm">
-        <span>Identificação pública</span>
-        <input
-          name="publicLabel"
-          required
-          maxLength={120}
-          placeholder="Ex.: Maria, M. S. ou Anônimo"
-          className="w-full rounded-md border border-zinc-300 px-3 py-2"
-        />
+        <p className="text-xs text-zinc-500">
+          O rótulo público é definido no servidor a partir do seu perfil e do modo escolhido.
+        </p>
       </label>
       {error ? <p className="text-sm text-red-700">{error}</p> : null}
       <button

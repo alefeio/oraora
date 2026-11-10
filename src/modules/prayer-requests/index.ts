@@ -8,7 +8,7 @@ export {
   assertCanCreatePrayerRequest,
   PrayerRequestCreationBlockedError,
 } from "./creation-guard"
-export { createPrayerRequest } from "./create-request"
+export { createPrayerRequest, derivePublicLabel } from "./create-request"
 export { listActiveCategories, listFeedPrayerRequests, getReadablePrayerRequestById } from "./queries"
 export { rankPrayerRequestsForFeed, parseFeedPolicyDocument } from "./feed-ranking"
 export { toPublicPrayerRequestDto, toPublicCategoryDto, summarizeStory } from "./public-dto"
