@@ -55,7 +55,7 @@ Este arquivo separa o que o PDF trata como decisão, hipótese, MVP, futuro ou p
 42. Antifraude financeira não pode ficar inteiramente para o futuro; observar padrões, não punir automaticamente por uma única avaliação ruim.
 43. Sucesso de missão não é só downloads/acessos; inclui pessoas cuidadas, primeira oração, acompanhamento, testemunhos, solidariedade gerada e transição de “pedi ajuda” para “passo a cuidar”.
 44. Começa pela **web**; app nativo é posterior se o modelo funcionar.
-45. Nome “Ora por Mim” é provisório; naming futuro deve refletir reciprocidade/cuidado/solidariedade, não só “oração”.
+45. Nome histórico “Ora por Mim” era provisório; o nome oficial atual é **Ora Ora**, refletindo reciprocidade e cuidado mútuo.
 46. Essência: “Antes de pedir que alguém ore por você, ore por alguém.” DNA: pessoas antes de conteúdo; orações individuais; antes de receber, cuidar; oração produz solidariedade; Bíblia orienta; relacionamento > números; reputação estimula virtudes, não competição; dinheiro não substitui o propósito.
 
 ---

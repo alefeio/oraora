@@ -28,6 +28,12 @@ Até comprovação explícita:
 
 Preview READY significa build/deploy HTTP bem-sucedido. Rotas que dependem do schema local poderão falhar no remoto enquanto o banco não estiver preparado.
 
+## Nome de produto no Preview
+
+Se `NEXT_PUBLIC_PRODUCT_DISPLAY_NAME` estiver definido no projeto Vercel com valor antigo, o Preview pode exibir esse valor em vez do default `Ora Ora` do código. Ajustar a variável no painel Vercel (sem publicar secrets neste repositório).
+
 ## Local
 
 Migrations, seeds e `RUN_DB_TESTS=1` permanecem em `intercessao_dev` local.
+
+No `.env.local` de desenvolvimento, `DATABASE_URL` / `DIRECT_URL` / `RUNTIME_DATABASE_URL` apontam para `127.0.0.1/intercessao_dev`. Podem coexistir URLs remotas (`db.prisma.io` / `pooled.db.prisma.io`) no mesmo arquivo; o runtime deve preferir o alvo local. Isolamento Preview vs Production no remoto permanece não comprovado.
