@@ -2,6 +2,8 @@
 
 import { FormEvent, useMemo, useState } from "react"
 import { useRouter } from "next/navigation"
+import { Button } from "@/components/ui/button"
+import { Field, FormError, Select, TextArea, TextInput } from "@/components/ui/field"
 
 type Category = { id: string; slug: string; name: string }
 
@@ -57,72 +59,40 @@ export function CreateRequestForm({ categories }: { categories: Category[] }) {
 
   return (
     <form onSubmit={onSubmit} className="space-y-4">
-      <label className="block space-y-1 text-sm">
-        <span>Categoria</span>
-        <select
-          name="categoryId"
-          required
-          className="w-full rounded-md border border-zinc-300 px-3 py-2"
-        >
+      <Field label="Categoria">
+        <Select name="categoryId" required>
           {categories.map((c) => (
             <option key={c.id} value={c.id}>
               {c.name}
             </option>
           ))}
-        </select>
-      </label>
-      <label className="block space-y-1 text-sm">
-        <span>Título</span>
-        <input
-          name="title"
-          required
-          maxLength={200}
-          className="w-full rounded-md border border-zinc-300 px-3 py-2"
-        />
-      </label>
-      <label className="block space-y-1 text-sm">
-        <span>História</span>
-        <textarea
-          name="story"
-          required
-          rows={6}
-          className="w-full rounded-md border border-zinc-300 px-3 py-2"
-        />
-      </label>
-      <label className="block space-y-1 text-sm">
-        <span>O que apresentar em oração</span>
-        <textarea
-          name="prayerNeed"
-          required
-          rows={3}
-          className="w-full rounded-md border border-zinc-300 px-3 py-2"
-        />
-      </label>
-      <label className="block space-y-1 text-sm">
-        <span>Como deseja aparecer</span>
-        <select
-          name="publicIdentityMode"
-          className="w-full rounded-md border border-zinc-300 px-3 py-2"
-          defaultValue="anonymous"
-        >
+        </Select>
+      </Field>
+      <Field label="Título">
+        <TextInput name="title" required maxLength={200} />
+      </Field>
+      <Field label="História">
+        <TextArea name="story" required rows={6} />
+      </Field>
+      <Field label="O que apresentar em oração">
+        <TextArea name="prayerNeed" required rows={3} />
+      </Field>
+      <Field
+        label="Como deseja aparecer"
+        hint="O rótulo público é definido no servidor a partir do seu perfil e do modo escolhido."
+      >
+        <Select name="publicIdentityMode" defaultValue="anonymous">
           {IDENTITY_OPTIONS.map((opt) => (
             <option key={opt.value} value={opt.value}>
               {opt.label}
             </option>
           ))}
-        </select>
-        <p className="text-xs text-zinc-500">
-          O rótulo público é definido no servidor a partir do seu perfil e do modo escolhido.
-        </p>
-      </label>
-      {error ? <p className="text-sm text-red-700">{error}</p> : null}
-      <button
-        type="submit"
-        disabled={pending}
-        className="w-full rounded-md bg-zinc-900 px-4 py-3 text-sm font-medium text-white disabled:opacity-60"
-      >
+        </Select>
+      </Field>
+      {error ? <FormError>{error}</FormError> : null}
+      <Button type="submit" disabled={pending} className="w-full" size="lg">
         {pending ? "Publicando…" : "Publicar pedido"}
-      </button>
+      </Button>
     </form>
   )
 }

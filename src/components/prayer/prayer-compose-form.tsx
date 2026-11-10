@@ -2,6 +2,8 @@
 
 import { FormEvent, useEffect, useMemo, useState } from "react"
 import { useRouter } from "next/navigation"
+import { Button } from "@/components/ui/button"
+import { Field, FormError, Select, TextArea } from "@/components/ui/field"
 
 type Suggestion = {
   id: string
@@ -69,16 +71,11 @@ export function PrayerComposeForm({
 
   return (
     <form onSubmit={onSubmit} className="space-y-5">
-      <section className="space-y-2">
-        <h2 className="text-sm font-medium text-zinc-900">Palavra (opcional)</h2>
-        <p className="text-xs text-zinc-500">
-          Exibimos apenas referências enquanto a licença do texto bíblico não estiver definida.
-        </p>
-        <select
-          value={passageId}
-          onChange={(e) => setPassageId(e.target.value)}
-          className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm"
-        >
+      <Field
+        label="Palavra (opcional)"
+        hint="Exibimos apenas referências enquanto a licença do texto bíblico não estiver definida."
+      >
+        <Select value={passageId} onChange={(e) => setPassageId(e.target.value)}>
           <option value="">Sem passagem selecionada</option>
           {suggestions.map((item) => (
             <option key={item.id} value={item.id}>
@@ -86,30 +83,24 @@ export function PrayerComposeForm({
               {item.topic ? ` · ${item.topic}` : ""}
             </option>
           ))}
-        </select>
-      </section>
+        </Select>
+      </Field>
 
-      <section className="space-y-2">
-        <h2 className="text-sm font-medium text-zinc-900">Sua oração por {publicLabel}</h2>
-        <textarea
+      <Field label={`Sua oração por ${publicLabel}`}>
+        <TextArea
           value={body}
           onChange={(e) => setBody(e.target.value)}
           required
           rows={8}
           placeholder="Escreva com cuidado e respeito pela história desta pessoa."
-          className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm leading-6"
         />
-      </section>
+      </Field>
 
-      {error ? <p className="text-sm text-red-700">{error}</p> : null}
+      {error ? <FormError>{error}</FormError> : null}
 
-      <button
-        type="submit"
-        disabled={pending}
-        className="w-full rounded-md bg-zinc-900 px-4 py-3 text-sm font-medium text-white disabled:opacity-60"
-      >
+      <Button type="submit" disabled={pending} className="w-full" size="lg">
         {pending ? "Enviando…" : "Enviar oração"}
-      </button>
+      </Button>
     </form>
   )
 }

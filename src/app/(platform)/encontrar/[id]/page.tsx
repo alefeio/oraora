@@ -1,6 +1,11 @@
 import { Suspense } from "react"
 import Link from "next/link"
 import { notFound } from "next/navigation"
+import { SiteFooter } from "@/components/layout/site-footer"
+import { SiteHeader } from "@/components/layout/site-header"
+import { Badge } from "@/components/ui/badge"
+import { ButtonLink } from "@/components/ui/button"
+import { Card } from "@/components/ui/card"
 import { requireUser } from "@/lib/auth/session"
 import { PRODUCT_DISPLAY_NAME } from "@/lib/config/product"
 import { getReadablePrayerRequestById } from "@/modules/prayer-requests"
@@ -29,67 +34,69 @@ async function PrayerRequestDetailContent({ params }: PageProps) {
   if (!prayerRequest) notFound()
 
   return (
-    <main className="mx-auto flex w-full max-w-2xl flex-col gap-6 px-4 py-8 sm:px-6">
-      <Link href="/encontrar" className="text-sm text-zinc-600 underline">
-        Voltar ao feed
-      </Link>
-
-      <header className="space-y-3">
-        <div className="flex flex-wrap gap-2 text-xs text-zinc-500">
-          <span>{prayerRequest.category.name}</span>
-          <span aria-hidden>·</span>
-          <span>{prayerRequest.publicLabel}</span>
-          <span aria-hidden>·</span>
-          <span>status: {prayerRequest.status}</span>
-          {prayerRequest.isSyntheticFixture ? (
-            <span className="rounded bg-amber-50 px-1.5 py-0.5 text-amber-800">
-              fixture de teste
-            </span>
-          ) : null}
-        </div>
-        <h1 className="text-2xl font-semibold tracking-tight text-zinc-900 sm:text-3xl">
-          {prayerRequest.title}
-        </h1>
-      </header>
-
-      <section className="space-y-2">
-        <h2 className="text-sm font-medium text-zinc-900">História</h2>
-        <p className="whitespace-pre-wrap text-base leading-7 text-zinc-700">{prayerRequest.story}</p>
-      </section>
-
-      <section className="space-y-2 rounded-xl border border-zinc-200 bg-white p-4">
-        <h2 className="text-sm font-medium text-zinc-900">O que apresentar em oração</h2>
-        <p className="text-base leading-7 text-zinc-700">{prayerRequest.prayerNeed}</p>
-      </section>
-
-      <section className="flex flex-wrap gap-4 text-sm text-zinc-600">
-        <span>
-          {prayerRequest.validPrayerCount === 0
-            ? "Ainda ninguém orou por este pedido"
-            : `${prayerRequest.validPrayerCount} orações válidas na comunidade`}
-        </span>
-        {prayerRequest.feed?.priorityHint ? <span>{prayerRequest.feed.priorityHint}</span> : null}
-      </section>
-
-      <div className="space-y-2">
+    <>
+      <SiteHeader mode="app" />
+      <main className="mx-auto flex w-full max-w-2xl flex-col gap-6 px-4 py-8 sm:px-6">
         <Link
-          href={`/encontrar/${prayerRequest.id}/orar`}
-          className="flex w-full items-center justify-center rounded-md bg-zinc-900 px-4 py-3 text-sm font-medium text-white"
+          href="/encontrar"
+          className="text-sm font-medium text-primary underline-offset-2 hover:underline"
         >
-          Quero orar por {prayerRequest.publicLabel}
+          Voltar ao feed
         </Link>
-        <p className="text-center text-xs leading-5 text-zinc-500">
-          Você será guiado a refletir, escolher uma Palavra (opcional) e escrever uma oração
-          individual.
-        </p>
-      </div>
-    </main>
+
+        <header className="space-y-3">
+          <div className="flex flex-wrap items-center gap-2 text-xs text-text-muted">
+            <Badge tone="info">{prayerRequest.category.name}</Badge>
+            <span>{prayerRequest.publicLabel}</span>
+            <Badge tone="neutral">{prayerRequest.status}</Badge>
+            {prayerRequest.isSyntheticFixture ? (
+              <Badge tone="warning">fixture de teste</Badge>
+            ) : null}
+          </div>
+          <h1 className="text-2xl font-bold tracking-tight text-primary sm:text-3xl">
+            {prayerRequest.title}
+          </h1>
+        </header>
+
+        <section className="space-y-2">
+          <h2 className="text-sm font-semibold text-text-primary">História</h2>
+          <p className="whitespace-pre-wrap text-base leading-7 text-text-secondary">
+            {prayerRequest.story}
+          </p>
+        </section>
+
+        <Card>
+          <h2 className="text-sm font-semibold text-text-primary">O que apresentar em oração</h2>
+          <p className="mt-2 text-base leading-7 text-text-secondary">{prayerRequest.prayerNeed}</p>
+        </Card>
+
+        <section className="flex flex-wrap gap-4 text-sm text-text-secondary">
+          <span>
+            {prayerRequest.validPrayerCount === 0
+              ? "Ainda ninguém orou por este pedido"
+              : `${prayerRequest.validPrayerCount} orações válidas na comunidade`}
+          </span>
+          {prayerRequest.feed?.priorityHint ? <span>{prayerRequest.feed.priorityHint}</span> : null}
+        </section>
+
+        <div className="space-y-2">
+          <ButtonLink href={`/encontrar/${prayerRequest.id}/orar`} size="lg" className="w-full">
+            Quero orar por {prayerRequest.publicLabel}
+          </ButtonLink>
+          <p className="text-center text-xs leading-5 text-text-muted">
+            Você será guiado a refletir, escolher uma Palavra (opcional) e escrever uma oração
+            individual.
+          </p>
+        </div>
+      </main>
+      <SiteFooter />
+    </>
   )
 }
 
 function DetailSkeleton() {
   return (
-    <main className="mx-auto w-full max-w-2xl px-4 py-8 text-sm text-zinc-500 sm:px-6">
+    <main className="mx-auto w-full max-w-2xl px-4 py-8 text-sm text-text-muted sm:px-6">
       Carregando pedido…
     </main>
   )
