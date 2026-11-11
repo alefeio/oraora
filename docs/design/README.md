@@ -5,17 +5,32 @@ Documentação de redesign visual (somente apresentação).
 
 | Gate | Status | Documento |
 |---|---|---|
-| UI-01 Auditoria visual | Em revisão | [ui-01-auditoria-visual.md](./ui-01-auditoria-visual.md) |
-| UI-01 Direções | Em revisão | [ui-01-direcoes-visuais.md](./ui-01-direcoes-visuais.md) |
-| UI-01 Plano | Em revisão | [ui-01-plano-gates-e-ds.md](./ui-01-plano-gates-e-ds.md) |
-| UI-02+ | Bloqueado até aprovação | — |
+| UI-01 Auditoria visual | Aceito com condições | [ui-01-auditoria-visual.md](./ui-01-auditoria-visual.md) |
+| UI-01 Direções | Aceito (A+B p/ exploração) | [ui-01-direcoes-visuais.md](./ui-01-direcoes-visuais.md) |
+| UI-01 Plano | Referência | [ui-01-plano-gates-e-ds.md](./ui-01-plano-gates-e-ds.md) |
+| UI-02 Exploração A+B | Em aprovação visual | [ui-02-direcao-aprovada-para-exploracao.md](./ui-02-direcao-aprovada-para-exploracao.md) |
+| UI-02 Comparativo | Em aprovação visual | [ui-02-comparativo-ab.md](./ui-02-comparativo-ab.md) |
+| UI-02 Critérios | Ativo | [ui-02-criterios-visuais.md](./ui-02-criterios-visuais.md) |
+| UI-02 Capturas | Pendente (owner) | [ui-02-pendencias-captura.md](./ui-02-pendencias-captura.md) |
+| UI-03 Design System | Bloqueado | — |
 
-Evidências: [evidence/ui-01/](./evidence/ui-01/)
+### Exploração visual
 
-## Bases auditadas
+- [explorations/ab-1/style-tile.html](./explorations/ab-1/style-tile.html)
+- [explorations/ab-2/style-tile.html](./explorations/ab-2/style-tile.html)
+- [explorations/compare.html](./explorations/compare.html)
+
+### Referências
+
+- [references/Ora_Ora_Estrategia_UX_UI_V1_2026-11-11.md](./references/Ora_Ora_Estrategia_UX_UI_V1_2026-11-11.md) (integral)
+- [references/ESCOPO-V1-PESQUISA.md](./references/ESCOPO-V1-PESQUISA.md)
+
+Evidências: [evidence/ui-01/](./evidence/ui-01/) · [evidence/ui-02/](./evidence/ui-02/)
+
+## Bases
 
 | Branch | SHA | Papel |
 |---|---|---|
 | `hardening/gate-2-6d-account-recovery` | `dca1d1e` | App funcional |
 | `release/prod-0-institucional` | `91064ed` | Site institucional |
-| `design/ui-redesign-discovery` | (docs) | Planejamento UI-01 |
+| `design/ui-redesign-discovery` | docs UI-01/02 | Planejamento visual |

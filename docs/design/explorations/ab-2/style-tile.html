@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>UI-02 · AB-2 Serenidade predominante — Style Tile</title>
+  <link rel="stylesheet" href="../shared.css" />
+  <style>
+    /* AB-2 — Serenidade predominante */
+    :root {
+      --radius: 0.45rem;
+    }
+    body {
+      background: #fcf7ee;
+    }
+    .hairline {
+      border-top: 1px solid var(--border);
+      margin: 1.75rem 0;
+    }
+    .surface-block {
+      background: transparent;
+      border: 0;
+      border-radius: 0;
+      padding: 0;
+    }
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 0.35rem;
+      padding: 1.15rem 1.2rem;
+    }
+    .btn {
+      border-radius: 0.35rem;
+      font-weight: 600;
+      letter-spacing: 0.01em;
+    }
+    .btn-secondary {
+      background: transparent;
+      border-color: var(--border-strong);
+    }
+    .field input, .field textarea {
+      border-radius: 0.3rem;
+      background: var(--surface);
+      border-color: var(--border-strong);
+      box-shadow: none;
+    }
+    .hero-demo {
+      padding: 2.75rem 1.5rem 2.25rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .hero-demo .logo { height: 58px; width: auto; margin-bottom: 1.75rem; }
+    .hero-demo h2 {
+      max-width: 14ch;
+      font-size: clamp(2rem, 5vw, 3rem);
+      font-weight: 800;
+      line-height: 1.05;
+      margin: 0;
+    }
+    .hero-demo p {
+      max-width: 34rem;
+      margin: 1rem 0 1.5rem;
+      color: var(--text-secondary);
+      font-size: 1.05rem;
+    }
+    .cta-row { display: flex; flex-wrap: wrap; gap: 0.75rem; }
+    .auth-demo {
+      max-width: 420px;
+      margin: 0 auto;
+      padding: 2.5rem 1.25rem;
+    }
+    .auth-demo .logo { height: 52px; margin-bottom: 1.5rem; }
+    .auth-demo h3 {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--brand-primary);
+      margin-bottom: 0.35rem;
+    }
+    .auth-fields { margin-top: 2rem; display: grid; gap: 1rem; }
+    .app-demo .item {
+      padding: 1.15rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .app-demo .item:last-child { border-bottom: 0; }
+    .filters a {
+      margin-right: 1rem;
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      border-bottom: 2px solid transparent;
+      padding-bottom: 0.2rem;
+    }
+    .filters a.on {
+      color: var(--brand-primary);
+      border-bottom-color: var(--brand-gold);
+    }
+    .nav {
+      background: transparent;
+      border-bottom: 1px solid var(--border);
+    }
+    .icon {
+      border-radius: 0.35rem;
+      background: transparent;
+    }
+    .accent-rule {
+      width: 3rem;
+      height: 2px;
+      background: var(--brand-gold);
+      margin: 0.85rem 0 0;
+      border: 0;
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <p class="kicker">UI-02 · Exploração visual · AB-2</p>
+    <h1>Serenidade predominante</h1>
+    <p class="lead">
+      Variação da direção A+B com sofisticação editorial, menos superfícies delimitadas e tipografia expressiva.
+      Mesmos conteúdos, ações e regras do produto atual. Demonstração estática — não é layout final.
+    </p>
+
+    <h2>1. Tipografia e hierarquia</h2>
+    <div class="surface-block">
+      <p class="kicker">Princípio</p>
+      <h3 style="font-size:clamp(1.8rem,3.5vw,2.4rem);color:var(--brand-primary);margin-top:0.5rem;font-weight:800;max-width:16ch">
+        Antes de pedir uma oração, ore por alguém.
+      </h3>
+      <hr class="accent-rule" />
+      <p style="color:var(--text-secondary);margin:1rem 0 0;max-width:38rem">
+        Display Nunito em escala marcante · corpo Inter contido · hierarquia por tamanho e espaço, não por caixas.
+      </p>
+    </div>
+
+    <h2>2. Aplicação das cores</h2>
+    <div class="grid-3">
+      <div class="swatch"><div class="chip" style="background:#533E7E"></div><div class="meta">Primary<br><code>#533E7E</code></div></div>
+      <div class="swatch"><div class="chip" style="background:#F4B25C"></div><div class="meta">Gold · 1 acento/viewport</div></div>
+      <div class="swatch"><div class="chip" style="background:#E78976"></div><div class="meta">Coral · raro</div></div>
+      <div class="swatch"><div class="chip" style="background:#8FAE9A"></div><div class="meta">Sage · apoio</div></div>
+      <div class="swatch"><div class="chip" style="background:#FCF7EE;border-bottom:1px solid #e4d9c8"></div><div class="meta">Cream</div></div>
+      <div class="swatch"><div class="chip" style="background:#FFFFFF;border-bottom:1px solid #e4d9c8"></div><div class="meta">White · painéis mínimos</div></div>
+    </div>
+    <p class="note">Quase monocromático cream + primary. Gold como regra tipográfica/underline — nunca texto.</p>
+
+    <h2>3. Botões e links</h2>
+    <div style="display:flex;flex-wrap:wrap;gap:0.65rem;align-items:center">
+      <span class="btn btn-primary">Encontrar alguém para orar</span>
+      <span class="btn btn-secondary">Criar minha conta</span>
+      <span class="btn btn-ghost">Entrar</span>
+      <span class="btn btn-disabled">Reenviar e-mail</span>
+      <a class="link" href="#">Esqueci minha senha</a>
+    </div>
+
+    <h2>4. Campos de formulário</h2>
+    <div class="panel" style="max-width:420px">
+      <div class="field">
+        <label for="email2">E-mail</label>
+        <input id="email2" type="email" />
+        <p class="hint">Usaremos este endereço apenas se houver conta associada.</p>
+      </div>
+      <div class="field" style="margin-top:1rem">
+        <label for="senha2">Senha (mín. 10)</label>
+        <input id="senha2" type="password" value="••••••••••" />
+      </div>
+    </div>
+
+    <h2>5. Superfícies e cards</h2>
+    <div class="grid-2">
+      <div>
+        <h3>Lista editorial</h3>
+        <div class="item" style="padding:1rem 0;border-bottom:1px solid var(--border)">
+          <span class="badge">Saúde</span>
+          <h3 style="margin-top:0.45rem">Pedido no feed</h3>
+          <p class="note" style="margin:0.35rem 0 0">Divisor hairline em vez de card — leitura contemplativa.</p>
+        </div>
+      </div>
+      <div class="panel">
+        <h3>Painel só quando necessário</h3>
+        <p class="note" style="margin:0.45rem 0 0">Card reservado a formulários e intenções de oração — não à home.</p>
+      </div>
+    </div>
+
+    <h2>6. Ícones</h2>
+    <div class="icon-row">
+      <div class="icon" title="Conexão">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 12a5 5 0 0 1 5-5h1"/><path d="M17 12a5 5 0 0 1-5 5h-1"/><circle cx="8" cy="8" r="1.1" fill="currentColor" stroke="none"/><circle cx="16" cy="16" r="1.1" fill="currentColor" stroke="none"/></svg>
+      </div>
+      <div class="icon" title="Cuidado">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2 4 4 0 0 1 7 2c0 5.6-7 10-7 10z"/></svg>
+      </div>
+      <div class="icon" title="Oração">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 3v10"/><path d="M8 8c0 4 1.5 7 4 9"/><path d="M16 8c0 4-1.5 7-4 9"/></svg>
+      </div>
+      <div class="icon" title="Infinito">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 12c-2-3.5-4.2-5-6-5a3.5 3.5 0 1 0 0 7c1.8 0 4-1.5 6-5 2 3.5 4.2 5 6 5a3.5 3.5 0 1 0 0-7c-1.8 0-4 1.5-6 5z"/></svg>
+      </div>
+    </div>
+    <p class="note">Mais contidos · cantos retos · menor presença decorativa.</p>
+
+    <h2>7. Estados de erro e sucesso</h2>
+    <div class="grid-2">
+      <div class="banner banner-success">Sua oração foi considerada válida para reciprocidade.</div>
+      <div class="banner banner-error">Não foi possível entrar. Verifique e-mail e senha.</div>
+      <div class="banner banner-warn">Sua oração foi recebida. Estamos verificando a interação antes de liberar seu próximo pedido.</div>
+    </div>
+
+    <h2>8. Navegação existente</h2>
+    <div class="demo-frame">
+      <div class="nav">
+        <img src="../assets/logo.png" alt="Ora Ora" style="height:34px;width:auto" />
+        <div class="links">
+          <a class="active" href="#">Encontrar</a>
+          <a href="#">Pedir</a>
+          <a href="#">Conta</a>
+        </div>
+      </div>
+      <div style="padding:1rem;font-size:0.9rem;color:var(--text-secondary)">
+        Destinos preservados. Estado ativo por tipografia + underline gold (não pill).
+      </div>
+    </div>
+
+    <h2>9. Aplicação da marca</h2>
+    <div style="display:flex;gap:1.25rem;align-items:flex-start;flex-wrap:wrap;padding:0.5rem 0">
+      <img src="../assets/logo.png" alt="Logomarca oficial Ora Ora" style="height:68px;width:auto" />
+      <div style="max-width:28rem">
+        <strong>Logo oficial intacta</strong>
+        <hr class="accent-rule" />
+        <p class="note" style="margin:0.65rem 0 0">Espaço negativo generoso · marca como âncora quieta · sem glow competitivo no AB-2.</p>
+      </div>
+    </div>
+
+    <h2>Contextos de referência</h2>
+
+    <p class="demo-label">Institucional / pública</p>
+    <div class="demo-frame">
+      <div class="hero-demo">
+        <img class="logo" src="../assets/logo.png" alt="Ora Ora" />
+        <h2>A fé aproxima pessoas.</h2>
+        <p>O cuidado se transforma em solidariedade. No Ora Ora, você conhece a história de alguém e oferece uma oração individual.</p>
+        <div class="cta-row">
+          <span class="btn btn-primary">Encontrar alguém para orar</span>
+          <span class="btn btn-secondary">Criar minha conta</span>
+        </div>
+        <p style="margin-top:1.5rem;font-size:0.95rem;font-weight:600;color:var(--brand-primary)">Antes de pedir uma oração, ore por alguém.</p>
+      </div>
+      <div style="padding:1.5rem;display:grid;gap:1.25rem">
+        <div>
+          <h3>Conhecer</h3>
+          <p class="note" style="margin:0.35rem 0 0">História e intenção com respeito.</p>
+        </div>
+        <div class="hairline" style="margin:0"></div>
+        <div>
+          <h3>Orar</h3>
+          <p class="note" style="margin:0.35rem 0 0">Intercessão individual, Palavra opcional.</p>
+        </div>
+        <div class="hairline" style="margin:0"></div>
+        <div>
+          <h3>Pedir</h3>
+          <p class="note" style="margin:0.35rem 0 0">Depois de cuidar, compartilhar o pedido.</p>
+        </div>
+      </div>
+    </div>
+
+    <p class="demo-label" style="margin-top:1.5rem">Autenticação</p>
+    <div class="demo-frame">
+      <div class="auth-demo">
+        <img class="logo" src="../assets/logo.png" alt="Ora Ora" />
+        <h3>Entrar</h3>
+        <p class="note">Acesse sua conta no Ora Ora</p>
+        <div class="auth-fields">
+          <div class="field"><label>E-mail</label><input type="email" /></div>
+          <div class="field"><label>Senha</label><input type="password" /></div>
+          <p style="text-align:right;margin:0"><a class="link" href="#">Esqueci minha senha</a></p>
+          <span class="btn btn-primary" style="width:100%">Entrar</span>
+        </div>
+        <p class="note" style="margin-top:1.25rem">Não tem conta? <a class="link" href="#">Cadastre-se</a></p>
+      </div>
+    </div>
+
+    <p class="demo-label" style="margin-top:1.5rem">Área restrita (feed)</p>
+    <div class="demo-frame app-demo">
+      <div class="nav">
+        <img src="../assets/logo.png" alt="Ora Ora" style="height:32px;width:auto" />
+        <div class="links">
+          <a class="active" href="#">Encontrar</a>
+          <a href="#">Pedir</a>
+          <a href="#">Conta</a>
+        </div>
+      </div>
+      <div style="padding:1.25rem 1.25rem 1.5rem">
+        <h3 style="color:var(--brand-primary);font-size:1.75rem;font-weight:800">Encontrar alguém para orar</h3>
+        <p class="note">O feed prioriza quem ainda recebeu poucas orações.</p>
+        <div class="filters" style="margin:1.1rem 0 0.25rem">
+          <a class="on" href="#">Todas</a>
+          <a href="#">Família</a>
+          <a href="#">Saúde</a>
+        </div>
+        <article class="item">
+          <div style="font-size:0.8rem;color:var(--text-muted)"><span class="badge">Saúde</span> · A.S.</div>
+          <h3 style="margin-top:0.5rem">Pedido de oração</h3>
+          <p class="note" style="margin:0.35rem 0 0">Resumo da história… Ainda sem orações válidas</p>
+        </article>
+        <article class="item">
+          <div style="font-size:0.8rem;color:var(--text-muted)"><span class="badge">Família</span> · M.R.</div>
+          <h3 style="margin-top:0.5rem">Outro pedido</h3>
+          <p class="note" style="margin:0.35rem 0 0">Resumo da história… 2 orações válidas</p>
+        </article>
+      </div>
+    </div>
+
+    <div class="stamp">
+      AB-2 · exploração UI-02 · preserva rotas/regras · WCAG AA como alvo de tokens de texto ·
+      não implementar sem aprovação visual do proprietário.
+    </div>
+  </main>
+</body>
+</html>

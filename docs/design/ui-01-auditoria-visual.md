@@ -249,4 +249,8 @@ Outros:
 
 A base de marca está correta e já há tokens úteis, mas a aplicação atual ainda parece **MVP funcional com skin de marca**, não uma experiência contemplativa própria. O redesign pode (e deve) mudar a aparência profundamente **sem tocar nas regras**.
 
-Próximo passo: aprovação da direção visual em [ui-01-direcoes-visuais.md](./ui-01-direcoes-visuais.md).
+### Atualização UI-02
+
+- Direção A+B **aprovada para exploração**.
+- Inventário captura vs código **corrigido** em [ui-02-pendencias-captura.md](./ui-02-pendencias-captura.md).
+- Documento V1.0 **incluído** em [references/](./references/).
