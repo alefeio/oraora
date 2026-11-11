@@ -25,6 +25,8 @@ export class AuthEmailDeliveryError extends Error {
 
 type EnvLike = Record<string, string | undefined>
 
+const DISALLOWED_FROM_HOSTS = new Set(["gmail.com", "googlemail.com"])
+
 export function isHostedRuntime(env: EnvLike = process.env): boolean {
   return Boolean(env.VERCEL || env.VERCEL_ENV)
 }
@@ -34,6 +36,42 @@ export function resolveAuthEmailMode(env: EnvLike = process.env): "console" | "r
   if (!raw) return isHostedRuntime(env) ? "resend" : "console"
   if (raw === "console" || raw === "resend") return raw
   throw new AuthEmailConfigurationError(`AUTH_EMAIL_MODE inválido: ${raw}`)
+}
+
+/**
+ * Precedência do remetente Resend:
+ * 1. `RESEND_FROM` (contrato oficial)
+ * 2. `AUTH_EMAIL_FROM` (fallback legado de compatibilidade)
+ */
+export function resolveResendFrom(env: EnvLike = process.env): string | null {
+  const primary = env.RESEND_FROM?.trim()
+  if (primary) return primary
+  const legacy = env.AUTH_EMAIL_FROM?.trim()
+  if (legacy) return legacy
+  return null
+}
+
+function extractFromHost(from: string): string | null {
+  const angle = from.match(/<([^>]+)>/)
+  const email = (angle?.[1] || from).trim().toLowerCase()
+  const at = email.lastIndexOf("@")
+  if (at < 0) return null
+  return email.slice(at + 1)
+}
+
+/** Remetentes de caixas pessoais (ex.: Gmail) não são aceitos na API Resend do produto. */
+export function assertResendFromAllowed(from: string): void {
+  const host = extractFromHost(from)
+  if (!host) {
+    throw new AuthEmailConfigurationError(
+      "RESEND_FROM inválido. Use o formato `Ora Ora <contato@dominio-verificado>`.",
+    )
+  }
+  if (DISALLOWED_FROM_HOSTS.has(host)) {
+    throw new AuthEmailConfigurationError(
+      "RESEND_FROM não pode usar caixa pessoal (ex.: Gmail). Configure um remetente do domínio verificado Ora Ora (contato@oraora.ia.br).",
+    )
+  }
 }
 
 /** Hospedagem só aceita Resend com chave e remetente próprios do projeto. */
@@ -50,11 +88,13 @@ export function assertHostedAuthEmailReady(env: EnvLike = process.env): void {
       "RESEND_API_KEY ausente. Configure um provedor de e-mail do projeto Ora Ora antes do cadastro público.",
     )
   }
-  if (!env.AUTH_EMAIL_FROM?.trim()) {
+  const from = resolveResendFrom(env)
+  if (!from) {
     throw new AuthEmailConfigurationError(
-      "AUTH_EMAIL_FROM ausente. Configure o remetente verificado do projeto Ora Ora.",
+      "RESEND_FROM ausente. Configure o remetente verificado do projeto Ora Ora (fallback legado: AUTH_EMAIL_FROM).",
     )
   }
+  assertResendFromAllowed(from)
 }
 
 export function publicSignupEnabled(env: EnvLike = process.env): boolean {
@@ -102,12 +142,13 @@ function createResendTransport(
   fetchImpl: FetchLike = fetch,
 ): AuthEmailTransport {
   const apiKey = env.RESEND_API_KEY?.trim()
-  const from = env.AUTH_EMAIL_FROM?.trim()
+  const from = resolveResendFrom(env)
   if (!apiKey || !from) {
     throw new AuthEmailConfigurationError(
-      "AUTH_EMAIL_MODE=resend exige RESEND_API_KEY e AUTH_EMAIL_FROM.",
+      "AUTH_EMAIL_MODE=resend exige RESEND_API_KEY e RESEND_FROM (ou AUTH_EMAIL_FROM legado).",
     )
   }
+  assertResendFromAllowed(from)
 
   return {
     mode: "resend",

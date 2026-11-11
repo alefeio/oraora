@@ -10,11 +10,13 @@ export {
   AuthEmailConfigurationError,
   AuthEmailDeliveryError,
   assertHostedAuthEmailReady,
+  assertResendFromAllowed,
   createAuthEmailTransport,
   createMockAuthEmailTransport,
   isHostedRuntime,
   publicSignupEnabled,
   resolveAuthEmailMode,
+  resolveResendFrom,
 } from "@/lib/auth/email-transport"
 
 let defaultTransport: AuthEmailTransport | null = null
