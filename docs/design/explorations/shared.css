@@ -8,10 +8,14 @@
   --brand-cream: #fcf7ee;
   --text-primary: #2a2140;
   --text-secondary: #5b5270; /* AA ≥ 4.5 on cream */
-  --text-muted: #534a66; /* darkened vs current product #7a718c */
+  --text-muted: #534a66; /* darkened vs current product #7a718c; AA on cream/white */
   --text-on-primary: #fcf7ee;
+  --label-emphasis: #533e7e; /* kicker/label text — never brand-coral/gold/sage */
   --surface: #ffffff;
   --surface-soft: #f6f0e6;
+  --surface-coral-soft: #f8ebe7; /* coral as surface only */
+  --surface-gold-soft: #fbf1df;
+  --surface-sage-soft: #eaf1ec;
   --border: #e4d9c8;
   --border-strong: #cbbba3;
   --success: #3f6f55;

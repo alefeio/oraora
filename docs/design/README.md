@@ -12,13 +12,21 @@ Documentação de redesign visual (somente apresentação).
 | UI-02 Comparativo | Em aprovação visual | [ui-02-comparativo-ab.md](./ui-02-comparativo-ab.md) |
 | UI-02 Critérios | Ativo | [ui-02-criterios-visuais.md](./ui-02-criterios-visuais.md) |
 | UI-02 Capturas | Pendente (owner) | [ui-02-pendencias-captura.md](./ui-02-pendencias-captura.md) |
-| UI-03 Design System | Bloqueado | — |
+| UI-03 Design System | Em revisão | [ui-03-design-system.md](./ui-03-design-system.md) |
+| UI-03 Tokens | Em revisão | [ui-03-tokens.md](./ui-03-tokens.md) |
+| UI-03 Componentes | Em revisão | [ui-03-componentes.md](./ui-03-componentes.md) |
+| UI-03 Contexto | Em revisão | [ui-03-aplicacao-contextual.md](./ui-03-aplicacao-contextual.md) |
+| UI-03 A11y | Em revisão | [ui-03-acessibilidade.md](./ui-03-acessibilidade.md) |
+| UI-03 Regressão | Preparado | [ui-03-regressao-funcional.md](./ui-03-regressao-funcional.md) |
+| UI-03 Capturas owner | Pendente | [ui-03-capturas-owner.md](./ui-03-capturas-owner.md) |
+| UI-04 Layouts | Bloqueado | — |
 
 ### Exploração visual
 
 - [explorations/ab-1/style-tile.html](./explorations/ab-1/style-tile.html)
 - [explorations/ab-2/style-tile.html](./explorations/ab-2/style-tile.html)
 - [explorations/compare.html](./explorations/compare.html)
+- [explorations/ds/showcase.html](./explorations/ds/showcase.html) — Design System UI-03
 
 ### Referências
 

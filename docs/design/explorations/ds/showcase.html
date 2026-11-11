@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>UI-03 · Design System Ora Ora — Showcase</title>
+  <link rel="stylesheet" href="../shared.css" />
+  <style>
+    :root {
+      --radius-md: 0.75rem;
+      --shadow-soft: 0 14px 36px rgba(42, 33, 64, 0.06);
+      --label-emphasis: #533e7e;
+      --surface-coral-soft: #f8ebe7;
+      --primary-disabled-bg: #d9d2e4;
+    }
+    body {
+      background:
+        radial-gradient(circle at 90% 0%, rgba(244,178,92,0.12), transparent 35%),
+        var(--brand-cream);
+    }
+    .section { margin-top: 2.5rem; }
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-soft);
+      padding: 1.1rem;
+    }
+    .soft {
+      background: var(--surface-soft);
+      border-radius: var(--radius-md);
+      padding: 1.1rem;
+    }
+    .type-row { display: grid; gap: 0.75rem; }
+    .type-row .display {
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: clamp(1.8rem, 4vw, 2.6rem);
+      color: var(--brand-primary);
+      letter-spacing: -0.02em;
+      max-width: 16ch;
+    }
+    .kicker-ok {
+      color: var(--label-emphasis);
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+    .kicker-ok .dot {
+      display: inline-block;
+      width: 0.55rem;
+      height: 0.55rem;
+      border-radius: 999px;
+      background: var(--brand-coral);
+      margin-right: 0.45rem;
+      vertical-align: 0.05em;
+    }
+    .gold-rule {
+      width: 3rem;
+      height: 2px;
+      background: var(--brand-gold);
+      border: 0;
+      margin: 0.6rem 0 0;
+    }
+    .btn-row { display: flex; flex-wrap: wrap; gap: 0.6rem; align-items: center; }
+    .btn-disabled-new {
+      background: var(--primary-disabled-bg);
+      color: var(--text-primary);
+      opacity: 0.85;
+    }
+    .states { display: grid; gap: 0.6rem; }
+    .before-after {
+      display: grid;
+      gap: 1rem;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    }
+    .tag {
+      display: inline-block;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 0.5rem;
+    }
+    .responsive-demo {
+      display: grid;
+      gap: 1rem;
+      grid-template-columns: 2fr 1fr;
+    }
+    @media (max-width: 800px) {
+      .responsive-demo { grid-template-columns: 1fr; }
+    }
+    .phone {
+      border: 1px solid var(--border);
+      border-radius: 1rem;
+      padding: 0.85rem;
+      background: var(--brand-cream);
+      max-width: 280px;
+    }
+    .skel {
+      height: 0.75rem;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #efe8db, #f7f2e8, #efe8db);
+      background-size: 200% 100%;
+    }
+    .skel + .skel { margin-top: 0.5rem; }
+    .skel.w60 { width: 60%; }
+    .skel.w80 { width: 80%; }
+    .skel.h3 { height: 1.1rem; }
+    .divider-item {
+      padding: 0.9rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <p class="kicker">UI-03 · Design System · exploração estática</p>
+    <h1>Ora Ora — Foundations & componentes</h1>
+    <p class="lead">
+      Mix conceitual 60% AB-1 / 40% AB-2. Paleta oficial preservada. Sem implementação no app.
+      Demonstração isolada — não comprova teclado, rotas ou usabilidade.
+    </p>
+
+    <section class="section">
+      <h2>Tipografia</h2>
+      <div class="panel type-row">
+        <p class="kicker-ok"><span class="dot" aria-hidden="true"></span>Princípio</p>
+        <p class="display">Antes de pedir uma oração, ore por alguém.</p>
+        <hr class="gold-rule" />
+        <p style="color:var(--text-secondary);max-width:40rem;margin:0">
+          Nunito nos títulos · Inter no corpo · muted AA <code>#534A66</code> · kicker em primary (coral só no ponto).
+        </p>
+        <p style="color:var(--text-muted);font-size:0.85rem;margin:0">Meta / hints usam text-muted acessível.</p>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>Paleta semântica</h2>
+      <div class="grid-3">
+        <div class="swatch"><div class="chip" style="background:#533E7E"></div><div class="meta">Primary / label<br><code>#533E7E</code></div></div>
+        <div class="swatch"><div class="chip" style="background:#2A2140"></div><div class="meta">Text primary<br><code>#2A2140</code></div></div>
+        <div class="swatch"><div class="chip" style="background:#5B5270"></div><div class="meta">Text secondary<br><code>#5B5270</code></div></div>
+        <div class="swatch"><div class="chip" style="background:#534A66"></div><div class="meta">Text muted AA<br><code>#534A66</code></div></div>
+        <div class="swatch"><div class="chip" style="background:#F6F0E6"></div><div class="meta">Surface soft</div></div>
+        <div class="swatch"><div class="chip" style="background:#F8EBE7"></div><div class="meta">Coral soft (não texto)</div></div>
+        <div class="swatch"><div class="chip" style="background:#FBF1DF"></div><div class="meta">Gold soft</div></div>
+        <div class="swatch"><div class="chip" style="background:#EAF1EC"></div><div class="meta">Sage soft</div></div>
+        <div class="swatch"><div class="chip" style="background:#D9D2E4"></div><div class="meta">Disabled bg AA</div></div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>Botões e links</h2>
+      <div class="panel btn-row">
+        <span class="btn btn-primary">Encontrar alguém para orar</span>
+        <span class="btn btn-secondary">Criar minha conta</span>
+        <span class="btn btn-ghost">Entrar</span>
+        <span class="btn btn-disabled-new">Reenviar e-mail</span>
+        <a class="link" href="#">Esqueci minha senha</a>
+      </div>
+      <p class="note">Disabled novo: fundo <code>#D9D2E4</code> + texto primary (substitui cream em purple lavado).</p>
+    </section>
+
+    <section class="section">
+      <h2>Campos</h2>
+      <div class="panel" style="max-width:420px">
+        <div class="field">
+          <label for="ds-email">E-mail</label>
+          <input id="ds-email" style="background:var(--surface-soft)" />
+          <p class="hint">Hint muted AA</p>
+        </div>
+        <div class="field" style="margin-top:0.85rem">
+          <label for="ds-pass">Senha (mín. 10)</label>
+          <input id="ds-pass" type="password" value="••••••••••" />
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>Superfícies · Badge · Banner · Empty · Skeleton</h2>
+      <div class="grid-2">
+        <div class="panel">
+          <span class="badge">Família</span>
+          <h3 style="margin-top:0.5rem">Card AB-1</h3>
+          <p class="note">Para listagens interativas.</p>
+        </div>
+        <div class="soft">
+          <h3>Soft panel</h3>
+          <p class="note">Apoio sem borda forte.</p>
+        </div>
+        <div class="divider-item">
+          <span class="badge">Saúde</span>
+          <h3 style="margin-top:0.4rem">Lista AB-2</h3>
+          <p class="note">Hairline em vez de caixa.</p>
+        </div>
+        <div class="states">
+          <div class="banner banner-success">Oração válida para reciprocidade.</div>
+          <div class="banner banner-error">Não foi possível entrar.</div>
+          <div class="banner banner-warn">Oração recebida — verificação em andamento.</div>
+        </div>
+        <div class="soft" style="text-align:center">
+          <h3>EmptyState</h3>
+          <p class="note">Nenhum pedido na fila principal agora.</p>
+        </div>
+        <div class="panel">
+          <p class="tag">Skeleton</p>
+          <div class="skel h3 w80"></div>
+          <div class="skel w60"></div>
+          <div class="skel"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>Navegação existente + marca</h2>
+      <div class="demo-frame">
+        <div class="nav">
+          <img src="../assets/logo.png" alt="Ora Ora" style="height:36px;width:auto" />
+          <div class="links">
+            <a class="active" href="#">Encontrar</a>
+            <a href="#">Pedir</a>
+            <span class="btn btn-primary" style="min-height:36px;padding:0.35rem 0.75rem;font-size:0.85rem">Conta</span>
+          </div>
+        </div>
+        <div style="padding:0.85rem 1rem;color:var(--text-secondary);font-size:0.9rem">
+          Destinos preservados. Em mobile, Encontrar permanece visível (correção de descoberta visual).
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>Responsivo (amostra)</h2>
+      <div class="responsive-demo">
+        <div class="panel">
+          <p class="tag">Desktop leitura</p>
+          <h3 style="color:var(--brand-primary);font-size:1.6rem">Encontrar alguém para orar</h3>
+          <p class="note">max-w leitura · CTAs inline</p>
+          <div class="btn-row" style="margin-top:0.75rem">
+            <span class="btn btn-primary">Quero orar</span>
+            <span class="btn btn-secondary">Voltar ao feed</span>
+          </div>
+        </div>
+        <div class="phone">
+          <p class="tag">Mobile</p>
+          <img src="../assets/logo.png" alt="" style="height:32px;margin-bottom:0.75rem" />
+          <h3 style="color:var(--brand-primary);font-size:1.2rem">Entrar</h3>
+          <div class="field" style="margin-top:0.75rem"><label>E-mail</label><input /></div>
+          <span class="btn btn-primary" style="width:100%;margin-top:0.75rem">Entrar</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>Antes / depois (estritamente visual)</h2>
+      <div class="before-after">
+        <div class="panel">
+          <p class="tag">Antes (problema UI-02)</p>
+          <p style="color:#E78976;font-size:0.75rem;font-weight:600;letter-spacing:0.14em;text-transform:uppercase">Princípio</p>
+          <p class="note">Coral como texto · ~2,39:1 · FAIL</p>
+        </div>
+        <div class="panel">
+          <p class="tag">Depois (DS)</p>
+          <p class="kicker-ok"><span class="dot" aria-hidden="true"></span>Princípio</p>
+          <p class="note">Primary texto AA + coral só no ponto</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="stamp">
+      UI-03 showcase · sem alterar produto · AB mix 60/40 · contraste documentado em evidence/ui-03/contrast-audit.csv
+    </div>
+  </main>
+</body>
+</html>
