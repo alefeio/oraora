@@ -41,6 +41,8 @@ Preflight de migrate: `docs/architecture/preview-migrate-preflight.md`.
 
 - Fora da Vercel: `RUNTIME_DATABASE_URL` / `DATABASE_URL` local (`intercessao_dev`) têm prioridade; pooled remoto não é escolhido automaticamente.
 - Na Vercel: runtime prefere `DATABASE_URL_POOLED`; migrations usam conexão direta.
+- Prisma Postgres (Starter) pode rejeitar conexões com `Failed to connect to upstream database` em cold-start / scale-to-zero. O pool da app aplica retry transitório limitado; não substituir pooled por direto sem contingência explícita.
+- `/api/v1/health` faz `SELECT 1` no runtime (aquece e diagnostica sem expor credenciais).
 
 ## Local
 
