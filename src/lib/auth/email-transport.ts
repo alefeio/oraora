@@ -1,6 +1,9 @@
 import { appendFile, mkdir } from "node:fs/promises"
 import path from "node:path"
 import type { AuthEmailMessage } from "@/lib/auth/email-messages"
+import { isHostedRuntime } from "@/lib/auth/runtime"
+
+export { isHostedRuntime } from "@/lib/auth/runtime"
 
 export type AuthEmailPayload = AuthEmailMessage & { to: string }
 
@@ -26,10 +29,6 @@ export class AuthEmailDeliveryError extends Error {
 type EnvLike = Record<string, string | undefined>
 
 const DISALLOWED_FROM_HOSTS = new Set(["gmail.com", "googlemail.com"])
-
-export function isHostedRuntime(env: EnvLike = process.env): boolean {
-  return Boolean(env.VERCEL || env.VERCEL_ENV)
-}
 
 export function resolveAuthEmailMode(env: EnvLike = process.env): "console" | "resend" {
   const raw = env.AUTH_EMAIL_MODE?.trim().toLowerCase()

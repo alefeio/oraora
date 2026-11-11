@@ -1,4 +1,4 @@
-import { isHostedRuntime } from "@/lib/auth/email-transport"
+import { isHostedRuntime } from "@/lib/auth/runtime"
 
 export const USER_ROLES = {
   user: "USER",

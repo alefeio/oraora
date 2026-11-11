@@ -55,3 +55,7 @@ export function FormSuccess({ children }: { children: ReactNode }) {
     </p>
   )
 }
+
+export function FormHint({ children }: { children: ReactNode }) {
+  return <p className="text-xs leading-5 text-text-muted">{children}</p>
+}

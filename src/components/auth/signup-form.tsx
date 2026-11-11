@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Field, FormError, TextInput } from "@/components/ui/field"
 import { authClient } from "@/lib/auth/auth-client"
+import { AUTH_PATHS, authRedirectPath } from "@/lib/auth/safe-callback"
 
 export function SignupForm() {
   const router = useRouter()
@@ -20,7 +21,12 @@ export function SignupForm() {
     const email = String(form.get("email") || "")
     const password = String(form.get("password") || "")
 
-    const result = await authClient.signUp.email({ name, email, password })
+    const result = await authClient.signUp.email({
+      name,
+      email,
+      password,
+      callbackURL: authRedirectPath(AUTH_PATHS.emailVerified),
+    })
     setPending(false)
 
     if (result.error) {
@@ -28,7 +34,7 @@ export function SignupForm() {
       return
     }
 
-    router.push("/account")
+    router.push(`${AUTH_PATHS.confirmEmail}?email=${encodeURIComponent(email)}`)
     router.refresh()
   }
 

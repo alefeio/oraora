@@ -1,9 +1,10 @@
-import Link from "next/link"
 import { BrandLogo } from "@/components/brand/logo"
 import { SignupForm } from "@/components/auth/signup-form"
+import { AuthTextLink } from "@/components/auth/auth-shell"
 import { Card } from "@/components/ui/card"
 import { FormError } from "@/components/ui/field"
 import { publicSignupEnabled } from "@/lib/auth/email"
+import { AUTH_PATHS } from "@/lib/auth/safe-callback"
 import { PRODUCT_DISPLAY_NAME, PRODUCT_PRINCIPLE } from "@/lib/config/product"
 
 export default function SignupPage() {
@@ -38,10 +39,7 @@ export default function SignupPage() {
       </Card>
       <p className="text-center text-sm font-medium text-primary">{PRODUCT_PRINCIPLE}</p>
       <p className="text-center text-sm text-text-secondary">
-        Já tem conta?{" "}
-        <Link href="/login" className="font-medium text-primary underline-offset-2 hover:underline">
-          Entrar
-        </Link>
+        Já tem conta? <AuthTextLink href={AUTH_PATHS.login}>Entrar</AuthTextLink>
       </p>
     </main>
   )
