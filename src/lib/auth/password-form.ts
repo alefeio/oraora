@@ -23,3 +23,18 @@ export function validatePasswordConfirmation(
 /** Mensagem pública neutra — não revela se o e-mail existe. */
 export const PASSWORD_RESET_REQUEST_ACK =
   "Se houver uma conta com este e-mail, enviamos instruções para redefinir a senha."
+
+export const PASSWORD_RESET_REQUEST_FAILURE =
+  "Não foi possível solicitar a recuperação agora. Tente novamente em instantes."
+
+/**
+ * Interpreta o retorno do cliente Better Auth sem enumerar contas.
+ * - sucesso / ausência de error → ack neutro
+ * - result.error ou throw → falha operacional genérica
+ */
+export function interpretPasswordResetRequestResult(result: {
+  error?: { message?: string | null } | null
+}): "ack" | "failure" {
+  if (result.error) return "failure"
+  return "ack"
+}

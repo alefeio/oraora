@@ -25,7 +25,7 @@ export function SignupForm() {
       name,
       email,
       password,
-      callbackURL: authRedirectPath(AUTH_PATHS.emailVerified),
+      callbackURL: authRedirectPath(AUTH_PATHS.emailVerifiedSuccess),
     })
     setPending(false)
 

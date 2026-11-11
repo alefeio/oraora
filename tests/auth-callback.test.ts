@@ -2,10 +2,12 @@ import { describe, expect, it } from "vitest"
 import {
   AUTH_PATHS,
   isSafeAuthCallbackPath,
+  resolveEmailVerificationPageState,
   resolveSafeAuthCallbackPath,
 } from "@/lib/auth/safe-callback"
 import {
   PASSWORD_RESET_REQUEST_ACK,
+  interpretPasswordResetRequestResult,
   validateNewPassword,
   validatePasswordConfirmation,
 } from "@/lib/auth/password-form"
@@ -60,5 +62,47 @@ describe("auth recovery UX contracts", () => {
     expect(AUTH_PATHS.resetPassword).toBe("/redefinir-senha")
     expect(AUTH_PATHS.confirmEmail).toBe("/confirme-seu-email")
     expect(AUTH_PATHS.emailVerified).toBe("/email-verificado")
+    expect(AUTH_PATHS.emailVerifiedSuccess).toBe("/email-verificado?status=success")
   })
 })
+
+describe("interpretPasswordResetRequestResult", () => {
+  it("trata result.error como falha operacional (sem ack de sucesso)", () => {
+    expect(
+      interpretPasswordResetRequestResult({
+        error: { message: "rate limited" },
+      }),
+    ).toBe("failure")
+  })
+
+  it("trata ausência de error como ack neutro", () => {
+    expect(interpretPasswordResetRequestResult({ error: null })).toBe("ack")
+    expect(interpretPasswordResetRequestResult({})).toBe("ack")
+  })
+
+  it("mantém ack neutro sem revelar existência de conta", () => {
+    expect(PASSWORD_RESET_REQUEST_ACK.toLowerCase()).toContain("se houver uma conta")
+  })
+})
+
+describe("resolveEmailVerificationPageState", () => {
+  it("não interpreta ausência de error sozinha como sucesso", () => {
+    expect(resolveEmailVerificationPageState({})).toBe("pending")
+    expect(resolveEmailVerificationPageState({ error: null, status: null })).toBe("pending")
+  })
+
+  it("exige marcador explícito de sucesso", () => {
+    expect(resolveEmailVerificationPageState({ status: "success" })).toBe("success")
+    expect(resolveEmailVerificationPageState({ verified: "1" })).toBe("success")
+  })
+
+  it("prioriza error sobre status", () => {
+    expect(
+      resolveEmailVerificationPageState({
+        error: "INVALID_TOKEN",
+        status: "success",
+      }),
+    ).toBe("error")
+  })
+})
+

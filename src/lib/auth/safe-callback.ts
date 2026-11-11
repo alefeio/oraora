@@ -9,8 +9,28 @@ export const AUTH_PATHS = {
   resetPassword: "/redefinir-senha",
   confirmEmail: "/confirme-seu-email",
   emailVerified: "/email-verificado",
+  /** Callback de sucesso do Better Auth — exige marcador explícito, não só ausência de error. */
+  emailVerifiedSuccess: "/email-verificado?status=success",
   account: "/account",
 } as const
+
+export type EmailVerificationPageState = "success" | "error" | "pending"
+
+/**
+ * Estado da página /email-verificado.
+ * Ausência de `error` sozinha NÃO prova verificação — exige `status=success` (ou equivalente).
+ */
+export function resolveEmailVerificationPageState(params: {
+  error?: string | null
+  status?: string | null
+  verified?: string | null
+}): EmailVerificationPageState {
+  if (params.error && params.error.trim()) return "error"
+  const status = params.status?.trim().toLowerCase()
+  const verified = params.verified?.trim().toLowerCase()
+  if (status === "success" || verified === "1" || verified === "true") return "success"
+  return "pending"
+}
 
 const RELATIVE_PATH = /^\/[A-Za-z0-9\-._~!$&'()*+,;=:@/%?#[\]]*$/
 

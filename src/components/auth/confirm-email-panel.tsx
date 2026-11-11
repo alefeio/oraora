@@ -25,7 +25,7 @@ export function ConfirmEmailPanel() {
     try {
       const result = await authClient.sendVerificationEmail({
         email,
-        callbackURL: authRedirectPath(AUTH_PATHS.emailVerified),
+        callbackURL: authRedirectPath(AUTH_PATHS.emailVerifiedSuccess),
       })
       if (result.error) {
         setError("Não foi possível reenviar agora. Aguarde um momento e tente de novo.")

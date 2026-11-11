@@ -6,6 +6,8 @@ import { Field, FormError, FormHint, TextInput } from "@/components/ui/field"
 import { authClient } from "@/lib/auth/auth-client"
 import {
   PASSWORD_RESET_REQUEST_ACK,
+  PASSWORD_RESET_REQUEST_FAILURE,
+  interpretPasswordResetRequestResult,
 } from "@/lib/auth/password-form"
 import { AUTH_PATHS, authRedirectPath } from "@/lib/auth/safe-callback"
 
@@ -22,14 +24,18 @@ export function ForgotPasswordForm() {
     const email = String(form.get("email") || "").trim()
 
     try {
-      // Sempre concluir com ack neutro (existência do e-mail não é revelada).
-      await authClient.requestPasswordReset({
+      const result = await authClient.requestPasswordReset({
         email,
         redirectTo: authRedirectPath(AUTH_PATHS.resetPassword),
       })
+      if (interpretPasswordResetRequestResult(result) === "failure") {
+        // Falha operacional genérica — não distinguir existência do e-mail.
+        setError(PASSWORD_RESET_REQUEST_FAILURE)
+        return
+      }
       setDone(true)
     } catch {
-      setError("Não foi possível solicitar a recuperação agora. Tente novamente em instantes.")
+      setError(PASSWORD_RESET_REQUEST_FAILURE)
     } finally {
       setPending(false)
     }
