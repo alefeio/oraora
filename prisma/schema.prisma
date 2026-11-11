@@ -1,0 +1,388 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+/// Conta Better Auth + papel de domínio. Sem saldo financeiro.
+model User {
+  id            String    @id
+  name          String
+  email         String
+  emailVerified Boolean   @default(false)
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  /// USER | ADMIN — nunca aceito do cliente no cadastro.
+  role          String    @default("USER")
+  banned        Boolean?  @default(false)
+  banReason     String?
+  banExpires    DateTime?
+
+  sessions Session[]
+  accounts Account[]
+
+  auditEvents               AuditEvent[]               @relation("AuditActor")
+  idempotencyKeys           IdempotencyRecord[]
+  prayerRequests            PrayerRequest[]
+  prayersAuthored           Prayer[]                   @relation("PrayerIntercessor")
+  prayersReceived           Prayer[]                   @relation("PrayerBeneficiary")
+  prayerDecisions           PrayerValidation[]         @relation("PrayerValidationDecider")
+  prayerValidationRevisions PrayerValidationRevision[] @relation("PrayerValidationRevisionActor")
+  requestEligibilities      RequestEligibility[]
+
+  @@unique([email])
+  @@map("user")
+}
+
+/// Categorias administráveis de pedidos (não enum rígido).
+model PrayerRequestCategory {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  name        String
+  description String?
+  sortOrder   Int      @default(0)
+  active      Boolean  @default(true)
+  /// none | health | emotional_crisis | grief | addiction | violence | finance
+  safetyClass String   @default("none")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  prayerRequests PrayerRequest[]
+  scriptureLinks CategoryScriptureTopic[]
+
+  @@index([active, sortOrder])
+  @@map("prayer_request_category")
+}
+
+/// Pedido de oração. authorId é identidade real — nunca no DTO público.
+model PrayerRequest {
+  id       String @id @default(cuid())
+  authorId String
+  author   User   @relation(fields: [authorId], references: [id], onDelete: Restrict)
+
+  categoryId String
+  category   PrayerRequestCategory @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+
+  title      String
+  story      String
+  prayerNeed String
+
+  /// full_name | given_name | initials | anonymous
+  publicIdentityMode String
+  /// Rótulo público congelado na criação (não recalcular a partir do nome civil).
+  publicLabel        String
+
+  /// authenticated | restricted | private
+  contentVisibility String @default("authenticated")
+
+  /// open | paused | closed | removed
+  status String @default("open")
+
+  /// Projeção reconstruível; fonte futura = validações de oração.
+  validPrayerCount  Int     @default(0)
+  /// Sinaliza compensação/moderação quando uma validação consumida é invalidada.
+  moderationPending Boolean @default(false)
+
+  /// Janela usada pelo feed (criação ou futura atualização).
+  rankedAt DateTime @default(now())
+
+  /// Fixture sintética de ambiente descartável — nunca tratar como pedido real.
+  isSyntheticFixture Boolean @default(false)
+  fixtureKey         String? @unique
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  prayers             Prayer[]
+  consumedEligibility RequestEligibility? @relation("EligibilityConsumedByRequest")
+
+  @@index([status, contentVisibility, validPrayerCount, rankedAt])
+  @@index([categoryId, status])
+  @@index([authorId, createdAt])
+  @@map("prayer_request")
+}
+
+/// Passagem bíblica enxuta. Sem Bíblia completa. Texto só se licença permitir.
+model ScripturePassage {
+  id              String   @id @default(cuid())
+  referenceLabel  String
+  book            String
+  chapter         Int?
+  verseStart      Int?
+  verseEnd        Int?
+  translationCode String?
+  /// reference_only | public_domain | licensed
+  licenseStatus   String   @default("reference_only")
+  textBody        String?
+  active          Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  topicJoins ScripturePassageTopic[]
+  prayers    Prayer[]
+
+  @@unique([referenceLabel, translationCode])
+  @@index([active, book])
+  @@map("scripture_passage")
+}
+
+model ScriptureTopic {
+  id        String   @id @default(cuid())
+  slug      String   @unique
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  passages   ScripturePassageTopic[]
+  categories CategoryScriptureTopic[]
+
+  @@map("scripture_topic")
+}
+
+model ScripturePassageTopic {
+  passageId String
+  topicId   String
+  passage   ScripturePassage @relation(fields: [passageId], references: [id], onDelete: Cascade)
+  topic     ScriptureTopic   @relation(fields: [topicId], references: [id], onDelete: Cascade)
+
+  @@id([passageId, topicId])
+  @@map("scripture_passage_topic")
+}
+
+model CategoryScriptureTopic {
+  categoryId String
+  topicId    String
+  category   PrayerRequestCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  topic      ScriptureTopic        @relation(fields: [topicId], references: [id], onDelete: Cascade)
+
+  @@id([categoryId, topicId])
+  @@map("category_scripture_topic")
+}
+
+/// Oração enviada. Beneficiário sempre derivado do pedido.
+model Prayer {
+  id            String        @id @default(cuid())
+  requestId     String
+  request       PrayerRequest @relation(fields: [requestId], references: [id], onDelete: Restrict)
+  intercessorId String
+  intercessor   User          @relation("PrayerIntercessor", fields: [intercessorId], references: [id], onDelete: Restrict)
+  /// Cópia do authorId do pedido no momento do envio.
+  beneficiaryId String
+  beneficiary   User          @relation("PrayerBeneficiary", fields: [beneficiaryId], references: [id], onDelete: Restrict)
+
+  /// text | audio | video — apenas text no MVP.
+  medium String @default("text")
+  body   String
+
+  scripturePassageId String?
+  scripturePassage   ScripturePassage? @relation(fields: [scripturePassageId], references: [id], onDelete: SetNull)
+
+  /// submitted | withdrawn
+  status         String   @default("submitted")
+  contentHash    String
+  idempotencyKey String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  validation          PrayerValidation?
+  validationRevisions PrayerValidationRevision[]
+  eligibility         RequestEligibility?
+
+  @@unique([intercessorId, idempotencyKey])
+  @@index([requestId, createdAt])
+  @@index([intercessorId, createdAt])
+  @@index([beneficiaryId, createdAt])
+  @@map("prayer")
+}
+
+/// Decisão de validação versionada. Separada da oração enviada.
+model PrayerValidation {
+  id              String                     @id @default(cuid())
+  prayerId        String                     @unique
+  prayer          Prayer                     @relation(fields: [prayerId], references: [id], onDelete: Cascade)
+  policyVersion   Int
+  /// pending | accepted | rejected | manual_review
+  outcome         String                     @default("pending")
+  /// { reciprocity, feedCount, solidarity } cada um true|false|null
+  effects         Json
+  signals         Json?
+  rationale       String?
+  decidedAt       DateTime?
+  decidedByUserId String?
+  decidedBy       User?                      @relation("PrayerValidationDecider", fields: [decidedByUserId], references: [id], onDelete: SetNull)
+  createdAt       DateTime                   @default(now())
+  updatedAt       DateTime                   @updatedAt
+  revisions       PrayerValidationRevision[]
+
+  @@index([outcome, createdAt])
+  @@map("prayer_validation")
+}
+
+/// Histórico append-only de revisões administrativas de validação.
+model PrayerValidationRevision {
+  id              String           @id @default(cuid())
+  validationId    String
+  validation      PrayerValidation @relation(fields: [validationId], references: [id], onDelete: Cascade)
+  prayerId        String
+  prayer          Prayer           @relation(fields: [prayerId], references: [id], onDelete: Cascade)
+  previousOutcome String
+  newOutcome      String
+  rationale       String
+  actorUserId     String
+  actor           User             @relation("PrayerValidationRevisionActor", fields: [actorUserId], references: [id], onDelete: Restrict)
+  previousEffects Json
+  newEffects      Json
+  metadata        Json?
+  createdAt       DateTime         @default(now())
+
+  @@index([validationId, createdAt])
+  @@index([prayerId, createdAt])
+  @@map("prayer_validation_revision")
+}
+
+/// Direito de pedir — no máximo um open por usuário (índice parcial na migration).
+model RequestEligibility {
+  id                  String         @id @default(cuid())
+  userId              String
+  user                User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  /// prayer | admin_grant
+  sourceType          String
+  sourcePrayerId      String?        @unique
+  sourcePrayer        Prayer?        @relation(fields: [sourcePrayerId], references: [id], onDelete: SetNull)
+  /// open | consumed | revoked
+  status              String         @default("open")
+  openedAt            DateTime       @default(now())
+  consumedAt          DateTime?
+  consumedByRequestId String?        @unique
+  consumedByRequest   PrayerRequest? @relation("EligibilityConsumedByRequest", fields: [consumedByRequestId], references: [id], onDelete: SetNull)
+  revokedAt           DateTime?
+  revokeReason        String?
+
+  @@index([userId, status])
+  @@map("request_eligibility")
+}
+
+model Session {
+  id             String   @id
+  expiresAt      DateTime
+  token          String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  ipAddress      String?
+  userAgent      String?
+  userId         String
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  impersonatedBy String?
+
+  @@unique([token])
+  @@index([userId])
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@index([userId])
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier])
+  @@map("verification")
+}
+
+/// Trilha append-only de ações sensíveis. Campos sensíveis devem chegar já redigidos.
+model AuditEvent {
+  id            String   @id @default(cuid())
+  actorType     String
+  actorUserId   String?
+  actorUser     User?    @relation("AuditActor", fields: [actorUserId], references: [id], onDelete: SetNull)
+  action        String
+  subjectType   String?
+  subjectId     String?
+  correlationId String?
+  metadata      Json?
+  createdAt     DateTime @default(now())
+
+  @@index([actorUserId, createdAt])
+  @@index([action, createdAt])
+  @@index([subjectType, subjectId])
+  @@map("audit_event")
+}
+
+/// Reserva idempotente por escopo. Evita efeitos duplicados em retentativas.
+model IdempotencyRecord {
+  id             String    @id @default(cuid())
+  scope          String
+  key            String
+  requestHash    String
+  status         String    @default("STARTED")
+  responseStatus Int?
+  responseBody   Json?
+  userId         String?
+  user           User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  expiresAt      DateTime?
+
+  @@index([scope, userId, key])
+  @@index([userId])
+  @@map("idempotency_record")
+}
+
+/// Políticas versionadas (feed, validation, financial, safety, product).
+model PolicyDocument {
+  id          String    @id @default(cuid())
+  domain      String
+  version     Int
+  status      String    @default("draft")
+  document    Json
+  activatedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@unique([domain, version])
+  @@index([domain, status])
+  @@map("policy_document")
+}
+
+/// Outbox para desacoplar contextos no futuro. Sem worker contínuo nesta sprint.
+model OutboxMessage {
+  id            String    @id @default(cuid())
+  type          String
+  aggregateType String
+  aggregateId   String
+  payload       Json
+  occurredAt    DateTime  @default(now())
+  processedAt   DateTime?
+  attempts      Int       @default(0)
+  lastError     String?
+
+  @@index([processedAt, occurredAt])
+  @@index([type, occurredAt])
+  @@map("outbox_message")
+}

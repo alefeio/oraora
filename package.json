@@ -2,6 +2,9 @@
   "name": "intercessao-solidaria",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "prisma generate && next build",
@@ -12,10 +15,19 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "db:generate": "prisma generate",
-    "db:migrate": "prisma migrate dev",
-    "db:migrate:deploy": "prisma migrate deploy",
+    "db:assert-local": "tsx scripts/assert-local-db.ts",
+    "db:migrate": "npm run db:assert-local && prisma migrate dev",
+    "db:migrate:deploy": "npm run db:assert-local && prisma migrate deploy",
     "db:studio": "prisma studio",
-    "postinstall": "prisma generate"
+    "db:seed:foundation": "tsx scripts/seed-foundation-policies.ts",
+    "db:seed:categories": "tsx scripts/seed-categories.ts",
+    "db:seed:feed-policy": "tsx scripts/seed-feed-policy.ts",
+    "db:seed:fixtures": "tsx scripts/seed-synthetic-fixtures.ts",
+    "db:seed:scripture": "tsx scripts/seed-scripture.ts",
+    "db:seed:sprint1": "npm run db:seed:foundation && npm run db:seed:feed-policy && npm run db:seed:categories && npm run db:seed:fixtures",
+    "db:seed:sprint2": "npm run db:seed:sprint1 && npm run db:seed:scripture",
+    "postinstall": "prisma generate",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@better-auth/prisma-adapter": "^1.7.14",

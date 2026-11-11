@@ -1,0 +1,21 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: intercessao-postgres-dev
+    restart: unless-stopped
+    ports:
+      - "55433:5432"
+    environment:
+      POSTGRES_USER: intercessao
+      POSTGRES_PASSWORD: intercessao_dev_only
+      POSTGRES_DB: intercessao_dev
+    volumes:
+      - intercessao_pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U intercessao -d intercessao_dev"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  intercessao_pg_data:
