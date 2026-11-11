@@ -153,20 +153,40 @@ function createResendTransport(
   return {
     mode: "resend",
     async send(message) {
-      const response = await fetchImpl("https://api.resend.com/emails", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${apiKey}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          from,
-          to: [message.to],
-          subject: message.subject,
-          html: message.html,
-          text: message.text,
-        }),
-      })
+      const controller = new AbortController()
+      const timeout = setTimeout(() => controller.abort(), 12_000)
+      let response: Response
+      try {
+        response = await fetchImpl("https://api.resend.com/emails", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${apiKey}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            from,
+            to: [message.to],
+            subject: message.subject,
+            html: message.html,
+            text: message.text,
+          }),
+          signal: controller.signal,
+        })
+      } catch (error) {
+        const aborted =
+          (error instanceof Error && error.name === "AbortError") ||
+          (typeof error === "object" &&
+            error !== null &&
+            "name" in error &&
+            (error as { name?: string }).name === "AbortError")
+        throw new AuthEmailDeliveryError(
+          aborted
+            ? "Falha no envio de e-mail de autenticação (timeout)."
+            : "Falha no envio de e-mail de autenticação (rede).",
+        )
+      } finally {
+        clearTimeout(timeout)
+      }
 
       if (!response.ok) {
         // Não incluir corpo completo (pode vazar metadados); só status.
