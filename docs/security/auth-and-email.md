@@ -4,58 +4,60 @@
 
 Better Auth + adapter Prisma (`@better-auth/prisma-adapter`).
 
-## Status Gate 2.4
+## Status Gate 2.6A
 
 | Item | Classificação |
 |---|---|
-| Código: Resend obrigatório na Vercel; sem fallback console | **Configurado** (repo) |
-| Código: verificação de e-mail sempre on na Vercel | **Configurado** (repo) |
-| Código: cadastro público fechado sem Resend | **Configurado** (repo) |
-| Código: erros de envio propagam (sem fingir sucesso) | **Configurado** (repo) |
-| `BETTER_AUTH_SECRET` no projeto Vercel | **Pendente do proprietário** — **ausente** em `vercel env ls` |
-| `BETTER_AUTH_URL` / `NEXT_PUBLIC_APP_URL` no Vercel | **Pendente do proprietário** — **ausentes** |
-| `AUTH_EMAIL_MODE=resend` + `RESEND_API_KEY` + `AUTH_EMAIL_FROM` | **Pendente do proprietário** — **ausentes** |
-| Domínio verificado no Resend | **Pendente do proprietário** |
-| Cadastro público funcional no Preview | **Bloqueado por segurança** até itens acima |
-| Pronto para usuários reais | **Não** |
+| Código: `RESEND_FROM` como contrato oficial | **Configurado** |
+| Código: fallback `AUTH_EMAIL_FROM` | **Configurado** (só se `RESEND_FROM` ausente) |
+| Código: rejeição de remetente Gmail | **Configurado** |
+| Código: cadastro público fechado sem Resend válido | **Configurado** |
+| `BETTER_AUTH_SECRET` no Preview | **Presente** |
+| `AUTH_EMAIL_MODE=resend` no Preview | **Presente** |
+| `RESEND_API_KEY` / `RESEND_FROM` no Preview | **Ausentes** (só Production na última auditoria) |
+| Domínio `oraora.ia.br` verificado no Resend | **Não comprovado** nesta sessão |
+| Remetente definitivo | `Ora Ora <contato@oraora.ia.br>` (após DNS/verificação) |
+| Cadastro público funcional no Preview | **Bloqueado** até Resend válido no Preview + domínio |
 
-## Inventário Vercel (Gate 2.4)
+## Precedência do remetente
 
-Únicas variáveis listadas no projeto `oraora`: as quatro de banco Prisma.  
-**Nenhuma** variável de autenticação/e-mail está presente no painel (listagem CLI).
+1. `RESEND_FROM` — variável principal.
+2. `AUTH_EMAIL_FROM` — fallback legado de compatibilidade.
 
-Local (`.env.local`, fora do Git): `BETTER_AUTH_SECRET` presente; `AUTH_EMAIL_MODE=console`; Resend ausente — adequado só para desenvolvimento.
+Evite definir as duas com valores diferentes. Prefira apenas `RESEND_FROM`.
 
-## Variáveis a configurar (nomes apenas — valores pelo proprietário)
+Remetentes de caixa pessoal (`@gmail.com`, `@googlemail.com`) são rejeitados.
 
-| Variável | Escopo sugerido | Notas |
+## Variáveis (nomes apenas)
+
+| Variável | Escopo necessário p/ Preview | Notas |
 |---|---|---|
-| `BETTER_AUTH_SECRET` | Preview (+ Production depois) | Segredo longo exclusivo do Ora Ora; nunca reutilizar de Kale/outros |
-| `BETTER_AUTH_URL` | Preview | URL HTTPS canônica do Preview (ou deixar `VERCEL_URL` com cuidado) |
-| `NEXT_PUBLIC_APP_URL` | Preview | Base pública HTTPS |
-| `AUTH_EMAIL_MODE` | Preview | Valor literal `resend` |
-| `RESEND_API_KEY` | Preview | Conta Resend **deste** projeto |
-| `AUTH_EMAIL_FROM` | Preview | Ex.: `Ora Ora <noreply@dominio-verificado>` |
+| `BETTER_AUTH_SECRET` | Preview | Já presente |
+| `AUTH_EMAIL_MODE=resend` | Preview | Já presente |
+| `RESEND_API_KEY` | **Preview** (e Production se desejado) | Hoje: Production apenas |
+| `RESEND_FROM` | **Preview** | Valor alvo: `Ora Ora <contato@oraora.ia.br>` |
+| `BETTER_AUTH_URL` / `NEXT_PUBLIC_APP_URL` | Preview | Recomendadas (HTTPS canônico) |
+| `AUTH_EMAIL_FROM` | Opcional | Só fallback; preferir remover após migração |
 
-Opcional local apenas: `AUTH_REQUIRE_EMAIL_VERIFICATION`, `AUTH_EMAIL_LOG_PATH`.
+## Ajuste de escopo (ação do proprietário — sem auto-cópia)
 
-## Comportamento hospedado (código)
+Não copiar automaticamente Production → Preview.
 
-- `AUTH_EMAIL_MODE=console` na Vercel → erro de configuração.
-- Sem `RESEND_API_KEY` / `AUTH_EMAIL_FROM` → cadastro público **desabilitado**; página `/signup` explica o bloqueio.
-- Logs de processo **não** incluem URL/token de verificação ou reset.
-- Cookies seguros em HTTPS; `trustedOrigins` inclui `BETTER_AUTH_URL` / `VERCEL_URL`.
-- Rate limit Better Auth habilitado.
+No painel Vercel (`alefeios-projects/oraora` → Settings → Environment Variables):
 
-## Procedimento do proprietário (Resend)
+1. Adicionar/duplicar **para Preview** (ou “Preview + Production” se quiser o mesmo valor):
+   - `RESEND_API_KEY`
+   - `RESEND_FROM=Ora Ora <contato@oraora.ia.br>`
+2. Confirmar no Resend que o domínio `oraora.ia.br` está **Verified** (não só DNS propagado).
+3. Remover qualquer remetente Gmail das variáveis.
+4. Redeploy do Preview após salvar.
 
-1. Criar API key Resend exclusiva Ora Ora (não copiar de outro app).
-2. Verificar domínio de envio.
-3. Definir `AUTH_EMAIL_FROM` com nome de exibição **Ora Ora**.
-4. Inserir as variáveis na Vercel **somente Preview** primeiro.
-5. Redeploy da branch de Preview.
-6. Testar um cadastro sintético; confirmar e-mail recebido e ausência de links em logs da Vercel.
+## Domínio de envio
+
+- **Não usar** `oraoraads@gmail.com` (ou qualquer Gmail) como `from` da API Resend.
+- Definitivo: `Ora Ora <contato@oraora.ia.br>`.
+- Propagação DNS ≠ verificação concluída no painel Resend.
 
 ## Declaração
 
-A autenticação **não** está pronta para uso público enquanto secrets e Resend não estiverem configurados e a homologação autorizada não for executada.
+Autenticação hospedada **não** está pronta para homologação funcional real enquanto Preview não tiver `RESEND_API_KEY` + `RESEND_FROM` válidos e domínio verificado.

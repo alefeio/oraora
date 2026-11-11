@@ -30,7 +30,7 @@ Preview READY significa build/deploy HTTP bem-sucedido. Rotas que dependem do sc
 
 ## Autenticação no Preview
 
-Sem `BETTER_AUTH_SECRET` + `AUTH_EMAIL_MODE=resend` + `RESEND_API_KEY` + `AUTH_EMAIL_FROM`, o cadastro público permanece fechado na Vercel. Detalhes: `docs/security/auth-and-email.md`.
+Sem `BETTER_AUTH_SECRET` + `AUTH_EMAIL_MODE=resend` + `RESEND_API_KEY` + `RESEND_FROM` válidos no Preview (domínio verificado; sem Gmail), o cadastro público permanece fechado. Detalhes: `docs/security/auth-and-email.md`.
 
 ## Nome de produto no Preview
 
