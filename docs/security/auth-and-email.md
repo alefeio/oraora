@@ -61,3 +61,19 @@ No painel Vercel (`alefeios-projects/oraora` → Settings → Environment Variab
 ## Declaração
 
 Autenticação hospedada **não** está pronta para homologação funcional real enquanto Preview não tiver `RESEND_API_KEY` + `RESEND_FROM` válidos e domínio verificado.
+
+## Gate 2.6D — recuperação e verificação (UI)
+
+Rotas internas (sempre relativas ao host do ambiente; não hardcodar URL de deployment):
+
+| Rota | Função |
+|---|---|
+| `/login` | Login + link **Esqueci minha senha** |
+| `/esqueci-minha-senha` | `authClient.requestPasswordReset` (ack neutro) |
+| `/redefinir-senha` | `authClient.resetPassword` (token na query) |
+| `/confirme-seu-email` | Pós-cadastro + reenvio controlado |
+| `/email-verificado` | Callback de verificação (`callbackURL`) |
+
+Callbacks só aceitam caminhos relativos internos (`src/lib/auth/safe-callback.ts`).  
+`revokeSessionsOnPasswordReset` permanece ativo no Better Auth.  
+Páginas `(auth)` usam `robots: noindex` e `referrer: no-referrer`.
