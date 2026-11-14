@@ -19,16 +19,9 @@ import {
   roleForNewUser,
   secureSessionCookies,
 } from "@/lib/auth/policy"
+import { getAuthBaseURL, resolveTrustedOrigins } from "@/lib/auth/trusted-origins"
 
-export function getAuthBaseURL(env: Record<string, string | undefined> = process.env): string {
-  const configured = env.BETTER_AUTH_URL?.trim()
-  if (configured) return configured.replace(/\/$/, "")
-  if (env.VERCEL_ENV === "production" && env.NEXT_PUBLIC_APP_URL) {
-    return env.NEXT_PUBLIC_APP_URL.replace(/\/$/, "")
-  }
-  if (env.VERCEL_URL) return `https://${env.VERCEL_URL}`
-  return "http://localhost:3000"
-}
+export { getAuthBaseURL } from "@/lib/auth/trusted-origins"
 
 function getAuthSecret(env: Record<string, string | undefined> = process.env): string {
   const secret = env.BETTER_AUTH_SECRET?.trim()
@@ -37,13 +30,6 @@ function getAuthSecret(env: Record<string, string | undefined> = process.env): s
     return "build-only-placeholder-not-for-runtime-use"
   }
   throw new Error("BETTER_AUTH_SECRET is not set")
-}
-
-function trustedOrigins(env: Record<string, string | undefined> = process.env): string[] {
-  const origins = new Set<string>([getAuthBaseURL(env)])
-  if (env.NEXT_PUBLIC_APP_URL) origins.add(env.NEXT_PUBLIC_APP_URL.replace(/\/$/, ""))
-  if (env.VERCEL_URL) origins.add(`https://${env.VERCEL_URL}`)
-  return [...origins]
 }
 
 /**
@@ -68,7 +54,8 @@ export const auth = betterAuth({
   }),
   secret: getAuthSecret(),
   baseURL: getAuthBaseURL(),
-  trustedOrigins: trustedOrigins(),
+  // Preview: inclui VERCEL_BRANCH_URL + wildcard do projeto (alias git ≠ VERCEL_URL).
+  trustedOrigins: resolveTrustedOrigins(),
   rateLimit: {
     enabled: true,
     window: 60,
