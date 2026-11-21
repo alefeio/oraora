@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ora Ora — Galeria UI-04</title>
+  <link rel="stylesheet" href="gallery.css" />
+</head>
+<body>
+  <div class="gallery">
+    <aside class="side" id="side"></aside>
+    <section class="stage">
+      <div class="toolbar">
+        <h2 id="title">Homepage pública</h2>
+        <div class="seg" role="group" aria-label="Viewport">
+          <button type="button" id="desktop" aria-pressed="true">Desktop</button>
+          <button type="button" id="mobile" aria-pressed="false">Mobile</button>
+        </div>
+        <label>Estado <select id="state" aria-label="Estado da tela"></select></label>
+        <button type="button" id="before" class="linkish" aria-pressed="false">Captura real anterior</button>
+        <a id="open-link" class="linkish" href="prototype.html?screen=home" target="_blank" rel="noopener">Abrir tela</a>
+        <a class="linkish" href="comparar.html" target="_blank" rel="noopener">Antes/depois</a>
+      </div>
+      <div class="meta" id="meta"></div>
+      <div class="viewport-host" id="host">
+        <div class="scaler" id="scaler">
+          <div class="device" id="device">
+            <iframe id="frame" title="Protótipo da tela" src="about:blank"></iframe>
+            <img id="shot" class="before-shot" alt="" hidden />
+            <p id="missing" class="note-missing" hidden>Não há captura real anterior neste viewport. A proposta ao lado é um protótipo, não uma captura do sistema em execução.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script src="gallery.js"></script>
+</body>
+</html>

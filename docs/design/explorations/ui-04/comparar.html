@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>UI-04 — antes e depois</title>
+  <style>
+    body { margin: 0; font-family: Inter, system-ui, sans-serif; background: #fcf7ee; color: #2a2140; }
+    header, section { width: min(1400px, calc(100% - 2rem)); margin: 0 auto; }
+    header { padding: 1.5rem 0 0.5rem; }
+    h1 { font-family: Nunito, sans-serif; color: #533e7e; font-size: 1.8rem; margin: 0; }
+    p { color: #534a66; }
+    h2 { font-size: 1rem; margin: 1.5rem 0 0.6rem; }
+    .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; align-items: start; }
+    figure { margin: 0; background: white; border: 1px solid #e4d9c8; border-radius: 0.8rem; overflow: hidden; }
+    figcaption { padding: 0.55rem 0.75rem; font-size: 0.8rem; font-weight: 600; }
+    img { width: 100%; height: auto; display: block; background: #fcf7ee; }
+    @media (max-width: 800px) { .pair { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Antes e depois</h1>
+    <p>À esquerda, captura real do UI-01. À direita, proposta UI-04. A proposta não é uma captura do aplicativo em execução.</p>
+  </header>
+  <section>
+    <h2>Homepage pública — desktop</h2>
+    <div class="pair">
+      <figure>
+        <figcaption>Captura real anterior</figcaption>
+        <img src="../../evidence/ui-01/ui01-homepage-desktop.png" alt="Homepage atual em desktop" />
+      </figure>
+      <figure>
+        <figcaption>Proposta UI-04</figcaption>
+        <img src="../../evidence/ui-04/homepage/home-desktop.png" alt="Proposta da homepage em desktop" />
+      </figure>
+    </div>
+    <h2>Homepage pública — mobile</h2>
+    <div class="pair">
+      <figure>
+        <figcaption>Captura real anterior</figcaption>
+        <img src="../../evidence/ui-01/ui01-homepage-mobile.png" alt="Homepage atual em mobile" />
+      </figure>
+      <figure>
+        <figcaption>Proposta UI-04</figcaption>
+        <img src="../../evidence/ui-04/mobile/home-mobile.png" alt="Proposta da homepage em mobile" />
+      </figure>
+    </div>
+    <h2>Login — desktop</h2>
+    <div class="pair">
+      <figure>
+        <figcaption>Captura real anterior</figcaption>
+        <img src="../../evidence/ui-01/ui01-login-desktop.png" alt="Login atual" />
+      </figure>
+      <figure>
+        <figcaption>Proposta UI-04</figcaption>
+        <img src="../../evidence/ui-04/autenticacao/login-desktop.png" alt="Proposta de login" />
+      </figure>
+    </div>
+  </section>
+</body>
+</html>

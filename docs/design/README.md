@@ -19,7 +19,7 @@ Documentação de redesign visual (somente apresentação).
 | UI-03 A11y | Em revisão | [ui-03-acessibilidade.md](./ui-03-acessibilidade.md) |
 | UI-03 Regressão | Preparado | [ui-03-regressao-funcional.md](./ui-03-regressao-funcional.md) |
 | UI-03 Capturas owner | Pendente | [ui-03-capturas-owner.md](./ui-03-capturas-owner.md) |
-| UI-04 Layouts | Bloqueado | — |
+| UI-04 Layouts | Pronto para aprovação visual, com condições | [ui-04-aceite.md](./ui-04-aceite.md) · [galeria](./explorations/ui-04/index.html) |
 
 ### Exploração visual
 
@@ -27,13 +27,15 @@ Documentação de redesign visual (somente apresentação).
 - [explorations/ab-2/style-tile.html](./explorations/ab-2/style-tile.html)
 - [explorations/compare.html](./explorations/compare.html)
 - [explorations/ds/showcase.html](./explorations/ds/showcase.html) — Design System UI-03
+- [explorations/ui-04/index.html](./explorations/ui-04/index.html) — propostas de tela UI-04
+- [explorations/ui-04/comparar.html](./explorations/ui-04/comparar.html) — antes e depois
 
 ### Referências
 
 - [references/Ora_Ora_Estrategia_UX_UI_V1_2026-11-11.md](./references/Ora_Ora_Estrategia_UX_UI_V1_2026-11-11.md) (integral)
 - [references/ESCOPO-V1-PESQUISA.md](./references/ESCOPO-V1-PESQUISA.md)
 
-Evidências: [evidence/ui-01/](./evidence/ui-01/) · [evidence/ui-02/](./evidence/ui-02/)
+Evidências: [evidence/ui-01/](./evidence/ui-01/) · [evidence/ui-02/](./evidence/ui-02/) · [evidence/ui-03/](./evidence/ui-03/) · [evidence/ui-04/](./evidence/ui-04/)
 
 ## Bases
 

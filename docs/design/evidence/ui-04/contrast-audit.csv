@@ -1,0 +1,45 @@
+pair,fg,bg,ratio,criterion,minimum,result,notes
+text-primary on cream,#2A2140,#FCF7EE,14.16,text,4.5,PASS,Body and headings on page background
+text-secondary on cream,#5B5270,#FCF7EE,6.82,text,4.5,PASS,Supporting copy
+text-muted on cream,#534A66,#FCF7EE,7.75,text,4.5,PASS,Hints and meta. Replaces product muted #7A718C
+label-emphasis on cream,#533E7E,#FCF7EE,8.34,text,4.5,PASS,Kickers and principle
+coral as text on cream,#E78976,#FCF7EE,2.39,text,4.5,FORBIDDEN,Accent only as dot or surface
+gold as text on cream,#F4B25C,#FCF7EE,1.73,text,4.5,FORBIDDEN,Accent only as underline or surface
+sage as text on cream,#8FAE9A,#FCF7EE,2.26,text,4.5,FORBIDDEN,Accent only as dot or surface
+text-primary on white,#2A2140,#FFFFFF,15.11,text,4.5,PASS,Cards and forms
+text-secondary on white,#5B5270,#FFFFFF,7.28,text,4.5,PASS,
+text-muted on white,#534A66,#FFFFFF,8.27,text,4.5,PASS,
+primary on white,#533E7E,#FFFFFF,8.91,text,4.5,PASS,Links and labels
+text-primary on surface-soft,#2A2140,#F6F0E6,13.33,text,4.5,PASS,
+text-secondary on surface-soft,#5B5270,#F6F0E6,6.42,text,4.5,PASS,
+text-muted on surface-soft,#534A66,#F6F0E6,7.30,text,4.5,PASS,
+primary on surface-soft,#533E7E,#F6F0E6,7.86,text,4.5,PASS,
+text-primary on coral-soft,#2A2140,#F8EBE7,12.97,text,4.5,PASS,Coral is surface only
+primary on coral-soft,#533E7E,#F8EBE7,7.65,text,4.5,PASS,
+text-primary on gold-soft,#2A2140,#FBF1DF,13.49,text,4.5,PASS,Principle citation
+primary on gold-soft,#533E7E,#FBF1DF,7.95,text,4.5,PASS,
+text-primary on sage-soft,#2A2140,#EAF1EC,13.16,text,4.5,PASS,Empty feed
+primary on sage-soft,#533E7E,#EAF1EC,7.76,text,4.5,PASS,
+on-primary on purple,#FCF7EE,#533E7E,8.34,text,4.5,PASS,Primary buttons and institutional band
+on-primary on primary-hover,#FCF7EE,#433166,10.52,text,4.5,PASS,
+on-primary on primary-active,#FCF7EE,#362652,12.65,text,4.5,PASS,
+on-primary on legacy disabled purple,#FCF7EE,#A89BBD,2.43,text,4.5,FAIL,Do not use. Inactive text is exempt but this pair is below AA
+text-primary on disabled surface,#2A2140,#D9D2E4,10.28,text,4.5,PASS,Disabled control label. Inactive text is exempt; pair still passes
+text-muted on disabled surface,#534A66,#D9D2E4,5.63,text,4.5,PASS,
+success on success-soft,#3F6F55,#E7F2EB,5.06,text,4.5,PASS,Status accepted
+danger on danger-soft,#9B3B32,#FDECEB,5.99,text,4.5,PASS,Errors and rejected
+warning on warning-soft,#8A5A12,#FFF3DD,5.38,text,4.5,PASS,Pending status
+primary on info-soft badge,#533E7E,#EDE6F5,7.31,text,4.5,PASS,Category badge
+primary button fill on cream,#533E7E,#FCF7EE,8.34,ui,3.0,PASS,Non-text control boundary
+focus ring on cream,#533E7E,#FCF7EE,8.34,ui,3.0,PASS,2px outline offset 2px
+focus ring on white,#533E7E,#FFFFFF,8.91,ui,3.0,PASS,
+focus ring cream on purple,#FCF7EE,#533E7E,8.34,ui,3.0,PASS,Focus inside the preparation band
+gold underline on purple button,#F4B25C,#533E7E,4.82,ui,3.0,PASS,Current nav marker. Gold is not the label
+input border-control on white,#7A6A56,#FFFFFF,5.22,ui,3.0,PASS,Functional input border proposed in UI-04
+input border-control on cream,#7A6A56,#FCF7EE,4.89,ui,3.0,PASS,
+input border-control on surface-soft,#7A6A56,#F6F0E6,4.60,ui,3.0,PASS,
+input border-control on disabled surface,#7A6A56,#D9D2E4,3.55,ui,3.0,PASS,Disabled button border
+legacy border-strong on white,#CBBBA3,#FFFFFF,1.88,ui,3.0,FAIL,Decorative only. Not sufficient as the sole input boundary
+legacy border-strong on cream,#CBBBA3,#FCF7EE,1.76,decorative,3.0,DECORATIVE,Non-informational hairline
+legacy border on cream,#E4D9C8,#FCF7EE,1.31,decorative,3.0,DECORATIVE,Non-informational hairline
+disabled fill on cream,#D9D2E4,#FCF7EE,1.38,ui,3.0,EXEMPT,Inactive components are exempt from 1.4.11. Border #7A6A56 keeps the control visible
