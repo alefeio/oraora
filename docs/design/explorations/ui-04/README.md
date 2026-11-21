@@ -14,7 +14,8 @@ node docs\design\_serve-ui04.js
 Depois abra no navegador:
 
 - Galeria: [http://127.0.0.1:4180/explorations/ui-04/](http://127.0.0.1:4180/explorations/ui-04/)
-- Antes/depois: [http://127.0.0.1:4180/explorations/ui-04/comparar.html](http://127.0.0.1:4180/explorations/ui-04/comparar.html)
+- Antes/depois (UI-01 → UI-04): [http://127.0.0.1:4180/explorations/ui-04/comparar.html](http://127.0.0.1:4180/explorations/ui-04/comparar.html)
+- Refinos (UI-04 → UI-04R): [http://127.0.0.1:4180/explorations/ui-04/refinos.html](http://127.0.0.1:4180/explorations/ui-04/refinos.html)
 
 Alternativa com `npx`:
 

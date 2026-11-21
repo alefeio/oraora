@@ -130,11 +130,11 @@ function chrome() {
   const appHeader = window.oraUi.header("app", "encontrar");
   const foot = window.oraUi.footer();
   return `<main class="specimen">
-    <p class="specimen-label">Cabeçalho público — logo menor; Encontrar visível também no mobile</p>
+    <p class="specimen-label">Cabeçalho público — marca legível; Encontrar visível também no mobile</p>
     ${publicHeader}
     <p class="specimen-label">Cabeçalho da área autenticada — mesmos destinos</p>
     ${appHeader}
-    <p class="specimen-label">Rodapé — marca contida, textos já existentes</p>
+    <p class="specimen-label">Rodapé — nome tipográfico (sem repetir o PNG); textos e princípio preservados</p>
     ${foot}
   </main>`;
 }
@@ -486,15 +486,25 @@ function pedirBloqueado(state) {
   const message = pending
     ? "Sua oração foi recebida. Estamos verificando a interação antes de liberar seu próximo pedido."
     : "Antes de pedir uma oração, ore por alguém.";
+  const sameAsPrinciple = message === ORA.principle;
+  const eligibility = sameAsPrinciple
+    ? `<p class="block-eligibility" role="status">${message}</p>`
+    : `<p class="block-eligibility block-eligibility-emphasis" role="status">${message}</p>`;
+  const principleBlock = sameAsPrinciple
+    ? `<p class="principle-label"><i class="dot gold" aria-hidden="true"></i> Princípio do Ora Ora</p>
+       <p class="principle-quote">${ORA.principle}</p>`
+    : `<div class="cite">
+         <p class="kicker"><i class="dot gold" aria-hidden="true"></i> Princípio</p>
+         <p>${ORA.principle}</p>
+       </div>`;
   const main = `
     <div class="block">
-      <h1>Antes de pedir</h1>
+      <header class="block-head">
+        <h1>Antes de pedir</h1>
+        ${eligibility}
+      </header>
       <article class="block-panel">
-        <p class="block-message">${message}</p>
-        <div class="cite">
-          <p class="kicker"><i class="dot gold" aria-hidden="true"></i> Princípio</p>
-          <p>${ORA.principle}</p>
-        </div>
+        ${principleBlock}
         ${btn("Encontrar alguém para orar", to("encontrar", "vazio"), "primary", { lg: true })}
       </article>
       ${flag("Textos da regra preservados. Protótipo sem backend.")}

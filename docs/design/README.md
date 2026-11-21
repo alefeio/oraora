@@ -20,6 +20,7 @@ Documentação de redesign visual (somente apresentação).
 | UI-03 Regressão | Preparado | [ui-03-regressao-funcional.md](./ui-03-regressao-funcional.md) |
 | UI-03 Capturas owner | Pendente | [ui-03-capturas-owner.md](./ui-03-capturas-owner.md) |
 | UI-04 Layouts | Pronto para aprovação visual, com condições | [ui-04-aceite.md](./ui-04-aceite.md) · [galeria](./explorations/ui-04/index.html) |
+| UI-04R Refinos | Pronto para aprovação visual final | [ui-04r-refinos.md](./ui-04r-refinos.md) · [refinos](./explorations/ui-04/refinos.html) |
 
 ### Exploração visual
 

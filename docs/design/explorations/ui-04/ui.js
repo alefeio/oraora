@@ -68,11 +68,13 @@ function header(mode, active) {
 function footer() {
   return `<footer class="foot">
     <div class="foot-inner">
-      ${logoLink("home")}
-      <div class="foot-copy">
+      <div class="foot-brand">
+        <a class="foot-name" href="${to("home")}">Ora Ora</a>
         <p class="tagline">${ORA.tagline}</p>
+      </div>
+      <div class="foot-copy">
         <p class="muted">${ORA.essence}</p>
-        <p class="principle">${ORA.principle}</p>
+        <p class="principle principle-foot">${ORA.principle}</p>
         <p class="disclaimer">${ORA.disclaimer}</p>
       </div>
     </div>
@@ -125,15 +127,17 @@ function flag(text) {
 function authLayout(title, subtitle, body, foot, opts = {}) {
   const principle = opts.principle ? `<p class="principle">${ORA.principle}</p>` : "";
   const footHtml = foot ? `<p class="auth-foot">${foot}</p>` : "";
-  return `<div class="auth-split">
-    <aside class="auth-aside">
-      ${logoLink("home")}
-      <h1>${title}</h1>
-      <p class="lead">${subtitle}</p>
-      ${principle}
-    </aside>
-    <div class="auth-main">
-      <div class="card">${body}</div>
+  return `<div class="auth-shell">
+    <div class="auth-panel">
+      <header class="auth-head">
+        ${logoLink("home")}
+        <div class="auth-titles">
+          <h1>${title}</h1>
+          <p class="lead">${subtitle}</p>
+          ${principle}
+        </div>
+      </header>
+      <div class="card auth-card">${body}</div>
       ${footHtml}
     </div>
   </div>`;
