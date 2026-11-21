@@ -4,26 +4,26 @@ Propostas visuais isoladas. **Não** são o aplicativo Ora Ora e **não** acessa
 
 ## Abrir no Windows (recomendado)
 
-No PowerShell, a partir da raiz do repositório:
+Sirva a pasta `docs/design` (não só `ui-04`), para a logomarca e as capturas do UI-01 carregarem:
 
 ```powershell
-cd docs\design\explorations\ui-04
-npx --yes serve -l 4174 .
+cd C:\AleFeio\Projetos\OraPorMim\Projetos
+node docs\design\_serve-ui04.js
 ```
 
 Depois abra no navegador:
 
-- Galeria: [http://127.0.0.1:4174/](http://127.0.0.1:4174/)
-- Antes/depois: [http://127.0.0.1:4174/comparar.html](http://127.0.0.1:4174/comparar.html)
+- Galeria: [http://127.0.0.1:4180/explorations/ui-04/](http://127.0.0.1:4180/explorations/ui-04/)
+- Antes/depois: [http://127.0.0.1:4180/explorations/ui-04/comparar.html](http://127.0.0.1:4180/explorations/ui-04/comparar.html)
 
-Para encerrar o servidor: `Ctrl+C` no terminal.
-
-## Alternativa sem `npx`
+Alternativa com `npx`:
 
 ```powershell
-cd docs\design\explorations\ui-04
-node -e "require('http').createServer((q,s)=>{const fs=require('fs'),p=require('path');let u=decodeURIComponent(q.url.split('?')[0]);if(u==='/'||u==='')u='/index.html';const f=p.join(process.cwd(),u);fs.readFile(f,(e,d)=>{if(e){s.writeHead(404);s.end('not found');return;}const t={'.html':'text/html','.css':'text/css','.js':'text/javascript','.png':'image/png','.jpg':'image/jpeg'}[p.extname(f)]||'application/octet-stream';s.writeHead(200,{'Content-Type':t});s.end(d);});}).listen(4174,'127.0.0.1',()=>console.log('http://127.0.0.1:4174/'))"
+cd docs\design
+npx --yes serve -l 4180 .
 ```
+
+Para encerrar o servidor: `Ctrl+C` no terminal.
 
 ## Abrir o arquivo direto
 
