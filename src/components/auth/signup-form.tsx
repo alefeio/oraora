@@ -39,7 +39,7 @@ export function SignupForm() {
   }
 
   return (
-    <form onSubmit={onSubmit} className="space-y-4">
+    <form onSubmit={onSubmit} className="space-y-5">
       <Field label="Nome">
         <TextInput name="name" type="text" required autoComplete="name" minLength={2} />
       </Field>

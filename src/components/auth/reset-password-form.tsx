@@ -108,7 +108,7 @@ export function ResetPasswordForm() {
   }
 
   return (
-    <form onSubmit={onSubmit} className="space-y-4">
+    <form onSubmit={onSubmit} className="space-y-5">
       <Field label={`Nova senha (mín. ${MIN_PASSWORD_LENGTH})`}>
         <TextInput
           name="password"
