@@ -14,7 +14,7 @@ export function LogoutButton() {
   }
 
   return (
-    <Button type="button" variant="secondary" onClick={onClick}>
+    <Button type="button" variant="secondary" onClick={onClick} className="w-full">
       Sair
     </Button>
   )

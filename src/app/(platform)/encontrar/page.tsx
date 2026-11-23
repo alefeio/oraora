@@ -38,50 +38,68 @@ async function EncontrarContent({ searchParams }: PageProps) {
   return (
     <>
       <SiteHeader mode="app" />
-      <main className="mx-auto flex w-full max-w-3xl flex-col gap-6 px-4 py-8 sm:px-6">
-        <header className="space-y-2">
+      <main className="layout-shell flex min-w-0 max-w-3xl flex-col gap-7 py-8 sm:gap-8 sm:py-10">
+        <header className="min-w-0 space-y-3">
+          <p className="brand-kicker">
+            <span className="brand-kicker-dot" aria-hidden />
+            Encontrar
+          </p>
           <h1 className="text-2xl font-bold tracking-tight text-primary sm:text-3xl">
             Encontrar alguém para orar
           </h1>
+          <hr className="brand-rule" />
           <p className="max-w-2xl text-sm leading-6 text-text-secondary sm:text-base">
             O feed prioriza quem ainda recebeu poucas orações. Conheça uma história e ofereça um
             cuidado individual.
           </p>
         </header>
 
-        <nav className="flex gap-2 overflow-x-auto pb-1" aria-label="Categorias">
-          <CategoryChip href="/encontrar" active={!categorySlug} label="Todas" />
-          {categories.map((category) => (
-            <CategoryChip
-              key={category.id}
-              href={`/encontrar?category=${category.slug}`}
-              active={categorySlug === category.slug}
-              label={category.name}
-            />
-          ))}
+        <nav
+          className="category-rail -mx-1 min-w-0 max-w-full overflow-x-auto px-1 pb-1"
+          aria-label="Categorias"
+        >
+          <div className="flex w-max max-w-none flex-nowrap gap-2 md:w-full md:max-w-full md:flex-wrap">
+            <CategoryChip href="/encontrar" active={!categorySlug} label="Todas" />
+            {categories.map((category) => (
+              <CategoryChip
+                key={category.id}
+                href={`/encontrar?category=${category.slug}`}
+                active={categorySlug === category.slug}
+                label={category.name}
+              />
+            ))}
+          </div>
         </nav>
 
         {prayerRequests.length === 0 ? (
           <EmptyState
             title="Nenhum pedido na fila principal agora"
             description="Volte em breve ou explore outra categoria."
+            className="border-0 bg-surface-sage-soft"
           />
         ) : (
-          <ul className="flex flex-col gap-3">
+          <ul className="flex min-w-0 flex-col gap-4">
             {prayerRequests.map((item) => (
-              <li key={item.id}>
-                <Link href={`/encontrar/${item.id}`} className="block rounded-lg focus-visible:outline-offset-4">
-                  <Card className="transition hover:border-primary/40">
+              <li key={item.id} className="min-w-0">
+                <Link
+                  href={`/encontrar/${item.id}`}
+                  className="block rounded-[var(--radius-lg)] focus-visible:outline-offset-4"
+                >
+                  <Card className="p-5 transition hover:border-primary/35 sm:p-6">
                     <div className="flex flex-wrap items-center gap-2 text-xs text-text-muted">
                       <Badge tone="info">{item.category.name}</Badge>
-                      <span>{item.publicLabel}</span>
-                      {item.isSyntheticFixture ? <Badge tone="warning">fixture de teste</Badge> : null}
+                      <span className="font-medium text-text-secondary">{item.publicLabel}</span>
+                      {item.isSyntheticFixture ? (
+                        <Badge tone="warning">fixture de teste</Badge>
+                      ) : null}
                     </div>
-                    <h2 className="mt-2 text-lg font-semibold text-text-primary">{item.title}</h2>
-                    <p className="mt-1 text-sm leading-6 text-text-secondary">
+                    <h2 className="mt-3 text-lg font-semibold tracking-tight text-text-primary sm:text-xl">
+                      {item.title}
+                    </h2>
+                    <p className="mt-2 text-sm leading-6 text-text-secondary">
                       {summarizeStory(item.story)}
                     </p>
-                    <div className="mt-3 flex flex-wrap gap-3 text-xs text-text-muted">
+                    <div className="mt-4 flex flex-wrap gap-x-4 gap-y-1 text-xs text-text-muted">
                       <span>
                         {item.validPrayerCount === 0
                           ? "Ainda sem orações válidas"
@@ -113,10 +131,11 @@ function CategoryChip({
   return (
     <Link
       href={href}
+      aria-current={active ? "page" : undefined}
       className={
         active
-          ? "shrink-0 rounded-full bg-primary px-3 py-1.5 text-xs font-medium text-text-on-primary"
-          : "shrink-0 rounded-full border border-border bg-surface px-3 py-1.5 text-xs font-medium text-text-secondary hover:border-primary/40"
+          ? "inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-full bg-primary px-4 text-sm font-medium text-text-on-primary focus-visible:outline-offset-2"
+          : "inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-full border border-border-control bg-surface px-4 text-sm font-medium text-text-secondary hover:border-primary/40 hover:text-primary focus-visible:outline-offset-2"
       }
     >
       {label}
@@ -126,7 +145,7 @@ function CategoryChip({
 
 function FeedSkeleton() {
   return (
-    <main className="mx-auto w-full max-w-3xl px-4 py-8 text-sm text-text-muted sm:px-6">
+    <main className="layout-shell max-w-3xl py-8 text-sm text-text-muted sm:py-10">
       Carregando pedidos…
     </main>
   )

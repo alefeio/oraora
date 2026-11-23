@@ -129,6 +129,14 @@ h3 {
   margin-inline: auto;
 }
 
+/* Faixa de categorias (UI-04R.1): scroll só no rail; documento sem overflow */
+.category-rail {
+  min-width: 0;
+  max-width: 100%;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+}
+
 .brand-kicker {
   display: inline-flex;
   align-items: center;

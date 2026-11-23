@@ -58,7 +58,7 @@ export function CreateRequestForm({ categories }: { categories: Category[] }) {
   }
 
   return (
-    <form onSubmit={onSubmit} className="space-y-4">
+    <form onSubmit={onSubmit} className="space-y-5">
       <Field label="Categoria">
         <Select name="categoryId" required>
           {categories.map((c) => (
