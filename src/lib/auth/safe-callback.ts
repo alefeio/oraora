@@ -12,6 +12,8 @@ export const AUTH_PATHS = {
   /** Callback de sucesso do Better Auth — exige marcador explícito, não só ausência de error. */
   emailVerifiedSuccess: "/email-verificado?status=success",
   account: "/account",
+  /** Destino padrão após login bem-sucedido (UI-05B). Conta permanece em /account. */
+  postLogin: "/encontrar",
 } as const
 
 export type EmailVerificationPageState = "success" | "error" | "pending"

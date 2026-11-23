@@ -31,7 +31,7 @@ export function LoginForm() {
     const result = await authClient.signIn.email({
       email,
       password,
-      callbackURL: AUTH_PATHS.account,
+      callbackURL: AUTH_PATHS.postLogin,
     })
     setPending(false)
 
@@ -46,12 +46,12 @@ export function LoginForm() {
       return
     }
 
-    router.push(AUTH_PATHS.account)
+    router.push(AUTH_PATHS.postLogin)
     router.refresh()
   }
 
   return (
-    <form onSubmit={onSubmit} className="space-y-4">
+    <form onSubmit={onSubmit} className="space-y-5">
       <Field label="E-mail">
         <TextInput name="email" type="email" required autoComplete="email" />
       </Field>
@@ -67,7 +67,7 @@ export function LoginForm() {
       <div className="flex justify-end">
         <Link
           href={AUTH_PATHS.forgotPassword}
-          className="text-sm font-medium text-primary underline-offset-2 hover:underline"
+          className="text-sm font-medium text-primary underline-offset-2 hover:underline focus-visible:outline-offset-4"
         >
           Esqueci minha senha
         </Link>
@@ -77,7 +77,7 @@ export function LoginForm() {
         <p className="text-sm text-text-secondary">
           <Link
             href={`${AUTH_PATHS.confirmEmail}?email=${encodeURIComponent(unverifiedEmail)}`}
-            className="font-medium text-primary underline-offset-2 hover:underline"
+            className="font-medium text-primary underline-offset-2 hover:underline focus-visible:outline-offset-4"
           >
             Reenviar verificação
           </Link>
