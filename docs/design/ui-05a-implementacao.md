@@ -50,6 +50,16 @@ A base funcional ainda resolve origens via `BETTER_AUTH_URL`, `NEXT_PUBLIC_APP_U
 Responsividade: `node scripts/check-ui-foundation-responsive.mjs` (app em `:3000`).  
 Evidências reais Next.js: `docs/design/evidence/ui-05a/`.
 
+## Preview
+
+- Alias: https://oraora-git-feature-ui-05a-visual-foundation-alefeios-projects.vercel.app  
+- Deployment: https://oraora-2nkpddgp2-alefeios-projects.vercel.app  
+- SHA publicado: `292f98b42664daebbdbcdbb95b2f377015eecf80` (igual ao HEAD da branch)  
+- Ambiente: Preview (proteção SSO Vercel **ativa**; não desativada)  
+- Production: inalterada  
+
+Dependência auth: PR #3 (`trustedOrigins` / Invalid origin) **não** incorporado. Login em aliases de Preview pode falhar se a origem não estiver em `BETTER_AUTH_URL` / `NEXT_PUBLIC_APP_URL` / `VERCEL_URL`. Homologação visual da homepage pública não exige sessão.
+
 ## Asserção `chipsScrollOnly`
 
-No script de protótipo UI-04R.1 a expressão era tautológica (`scroll > client || scroll <= client`). Neste gate a verificação efetiva é o overflow do **documento** na homepage Next.js (`scrollWidth <= clientWidth + 1`). Correção do script de referência na branch de design fica documentada para follow-up, sem alterar lógica de filtros do produto.
+No script de protótipo UI-04R.1 a expressão era tautológica (`scroll > client || scroll <= client`). Neste gate a verificação efetiva é o overflow do **documento** na homepage Next.js (`scrollWidth <= clientWidth + 1`) via `scripts/check-ui-foundation-responsive.mjs`. Correção do arquivo de referência na branch de design permanece como follow-up isolado (sem merge de design; sem alterar filtros do produto).
