@@ -30,18 +30,23 @@ Somente apresentação. Sem alteração de regras, APIs, Prisma, banco, ranking 
 
 | Check | Resultado |
 |---|---|
-| Lint | (ver relatório) |
-| Typecheck | (ver relatório) |
-| Build | (ver relatório) |
-| Unitários | (ver relatório) |
+| Lint | PASS |
+| Typecheck | PASS |
+| Build | PASS |
+| Unitários | 57 PASS / 14 skipped |
 | DB tests | SKIPPED |
+| Ranking unit | PASS (`feed-ranking.test.ts`) |
+| postLogin `/encontrar` | PASS (código UI-05B intacto) |
 
 ## Evidências
 
-Pasta: `docs/design/evidence/ui-05c/`
+Pasta: `docs/design/evidence/ui-05c/`  
+Capturas autenticadas reais no Preview dependem de sessão do proprietário (SSO Vercel ativo). Matriz: `regression-matrix.md`.
 
 ## Preview / PR
 
 - Base do PR: `feature/ui-05b-auth-visual`
+- Alias esperado: https://oraora-git-feature-ui-05c-authenticated-surfaces-alefeios-projects.vercel.app
+- HEAD: `ddbc4df72f073b6f1554d4a22e2f6734d9d5c541`
 - SSO Vercel ativo; sem Production; sem merge main
 - Homologação autenticada real pendente do proprietário
