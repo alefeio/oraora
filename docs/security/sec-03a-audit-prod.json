@@ -1,0 +1,24 @@
+{
+  "metadata": {
+    "vulnerabilities": {
+      "info": 0,
+      "low": 0,
+      "moderate": 1,
+      "high": 3,
+      "critical": 2,
+      "total": 6
+    },
+    "dependencies": {
+      "prod": 259,
+      "dev": 360,
+      "optional": 142,
+      "peer": 2,
+      "peerOptional": 0,
+      "total": 723
+    }
+  },
+  "vercelFunctions": null,
+  "vercelOidc": null,
+  "vercelCliConfig": null,
+  "zod": null
+}
