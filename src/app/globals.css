@@ -1,31 +1,40 @@
 @import "tailwindcss";
 
 :root {
-  /* Marca oficial Ora Ora */
+  /* Marca oficial Ora Ora (HEX inalterados) */
   --brand-primary: #533e7e;
   --brand-gold: #f4b25c;
   --brand-coral: #e78976;
   --brand-sage: #8fae9a;
   --brand-cream: #fcf7ee;
 
-  /* Superfícies e texto (contraste WCAG AA) */
+  /* Superfícies */
   --background: var(--brand-cream);
   --foreground: #2a2140;
   --surface: #ffffff;
   --surface-muted: #f6f0e6;
+  --surface-soft: #f6f0e6;
+  --surface-coral-soft: #f8ebe7;
+  --surface-gold-soft: #fbf1df;
+  --surface-sage-soft: #eaf1ec;
+  --surface-info: #ede6f5;
   --border: #e4d9c8;
   --border-strong: #cbbba3;
+  --border-control: #7a6a56;
 
+  /* Texto semântico AA (UI-03) */
   --text-primary: #2a2140;
   --text-secondary: #5b5270;
-  --text-muted: #7a718c;
+  --text-muted: #534a66;
   --text-on-primary: #fcf7ee;
   --text-on-accent: #2a2140;
+  --label-emphasis: #533e7e;
 
   --primary: var(--brand-primary);
   --primary-hover: #433166;
   --primary-active: #362652;
-  --primary-disabled: #a89bbd;
+  /* Fundo disabled AA com texto primary (~10:1); não usar cream sobre #A89BBD */
+  --primary-disabled: #d9d2e4;
 
   --accent-gold: var(--brand-gold);
   --accent-coral: var(--brand-coral);
@@ -44,7 +53,12 @@
   --radius-sm: 0.5rem;
   --radius-md: 0.75rem;
   --radius-lg: 1rem;
-  --shadow-soft: 0 10px 30px rgba(42, 33, 64, 0.06);
+  --shadow-soft: 0 14px 36px rgba(42, 33, 64, 0.06);
+
+  --header-h: 3.5rem;
+  --logo-header: 40px;
+  --layout-max: 67.5rem;
+  --gutter: 1.25rem;
 }
 
 @theme inline {
@@ -52,12 +66,19 @@
   --color-foreground: var(--foreground);
   --color-surface: var(--surface);
   --color-surface-muted: var(--surface-muted);
+  --color-surface-soft: var(--surface-soft);
+  --color-surface-coral-soft: var(--surface-coral-soft);
+  --color-surface-gold-soft: var(--surface-gold-soft);
+  --color-surface-sage-soft: var(--surface-sage-soft);
+  --color-surface-info: var(--surface-info);
   --color-border: var(--border);
   --color-border-strong: var(--border-strong);
+  --color-border-control: var(--border-control);
   --color-text-primary: var(--text-primary);
   --color-text-secondary: var(--text-secondary);
   --color-text-muted: var(--text-muted);
   --color-text-on-primary: var(--text-on-primary);
+  --color-label-emphasis: var(--label-emphasis);
   --color-primary: var(--primary);
   --color-primary-hover: var(--primary-hover);
   --color-primary-active: var(--primary-active);
@@ -77,6 +98,10 @@
   --font-display: var(--font-display);
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   background: var(--background);
   color: var(--text-primary);
@@ -87,6 +112,8 @@ h1,
 h2,
 h3 {
   font-family: var(--font-display), var(--font-body), ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: -0.02em;
+  line-height: 1.12;
 }
 
 :focus-visible {
@@ -94,18 +121,73 @@ h3 {
   outline-offset: 2px;
 }
 
-/* Superfícies de marca reutilizáveis (sem HEX espalhado nos componentes) */
-.brand-hero-surface {
-  background: linear-gradient(
-    160deg,
-    var(--brand-cream) 0%,
-    var(--info-soft) 45%,
-    var(--brand-cream) 100%
-  );
+/* Layout compartilhado (header / footer / home) */
+.layout-shell {
+  width: min(var(--layout-max), calc(100% - (var(--gutter) * 2)));
+  max-width: 100%;
+  min-width: 0;
+  margin-inline: auto;
 }
 
-.brand-hero-glow {
-  background:
-    radial-gradient(circle at top right, color-mix(in srgb, var(--brand-gold) 18%, transparent), transparent 40%),
-    radial-gradient(circle at bottom left, color-mix(in srgb, var(--brand-coral) 14%, transparent), transparent 35%);
+.brand-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--brand-primary);
+}
+
+.brand-kicker-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: var(--brand-coral);
+  flex: none;
+}
+
+.brand-rule {
+  width: 3rem;
+  height: 3px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--brand-gold);
+  margin: 0;
+}
+
+.brand-principle {
+  margin: 0;
+  padding-left: 0.85rem;
+  border-left: 3px solid var(--brand-sage);
+  color: var(--brand-primary);
+  font-weight: 600;
+}
+
+@media (min-width: 800px) {
+  :root {
+    --gutter: 2rem;
+  }
+}
+
+@media (max-width: 899px) {
+  :root {
+    --logo-header: 38px;
+    --header-h: 3.25rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
 }

@@ -1,0 +1,92 @@
+[
+  {
+    "width": 320,
+    "innerWidth": 320,
+    "clientWidth": 320,
+    "scrollWidth": 320,
+    "overflowPass": true,
+    "h1": "A fé aproxima pessoas. O cuidado se transforma em solidariedade.",
+    "hasHeader": true,
+    "hasFooter": true,
+    "ctaCount": 4,
+    "focusOk": {
+      "ok": true,
+      "outlineOk": true
+    }
+  },
+  {
+    "width": 360,
+    "innerWidth": 360,
+    "clientWidth": 360,
+    "scrollWidth": 360,
+    "overflowPass": true,
+    "h1": "A fé aproxima pessoas. O cuidado se transforma em solidariedade.",
+    "hasHeader": true,
+    "hasFooter": true,
+    "ctaCount": 4,
+    "focusOk": {
+      "ok": true,
+      "outlineOk": true
+    }
+  },
+  {
+    "width": 390,
+    "innerWidth": 390,
+    "clientWidth": 390,
+    "scrollWidth": 390,
+    "overflowPass": true,
+    "h1": "A fé aproxima pessoas. O cuidado se transforma em solidariedade.",
+    "hasHeader": true,
+    "hasFooter": true,
+    "ctaCount": 4,
+    "focusOk": {
+      "ok": true,
+      "outlineOk": true
+    }
+  },
+  {
+    "width": 768,
+    "innerWidth": 768,
+    "clientWidth": 768,
+    "scrollWidth": 768,
+    "overflowPass": true,
+    "h1": "A fé aproxima pessoas. O cuidado se transforma em solidariedade.",
+    "hasHeader": true,
+    "hasFooter": true,
+    "ctaCount": 4,
+    "focusOk": {
+      "ok": true,
+      "outlineOk": true
+    }
+  },
+  {
+    "width": 1280,
+    "innerWidth": 1280,
+    "clientWidth": 1280,
+    "scrollWidth": 1280,
+    "overflowPass": true,
+    "h1": "A fé aproxima pessoas. O cuidado se transforma em solidariedade.",
+    "hasHeader": true,
+    "hasFooter": true,
+    "ctaCount": 4,
+    "focusOk": {
+      "ok": true,
+      "outlineOk": true
+    }
+  },
+  {
+    "width": 1440,
+    "innerWidth": 1440,
+    "clientWidth": 1440,
+    "scrollWidth": 1440,
+    "overflowPass": true,
+    "h1": "A fé aproxima pessoas. O cuidado se transforma em solidariedade.",
+    "hasHeader": true,
+    "hasFooter": true,
+    "ctaCount": 4,
+    "focusOk": {
+      "ok": true,
+      "outlineOk": true
+    }
+  }
+]

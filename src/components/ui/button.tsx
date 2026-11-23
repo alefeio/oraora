@@ -6,15 +6,15 @@ type Size = "sm" | "md" | "lg"
 
 const variantClass: Record<Variant, string> = {
   primary:
-    "bg-primary text-text-on-primary hover:bg-primary-hover active:bg-primary-active disabled:bg-primary-disabled",
+    "bg-primary text-text-on-primary hover:bg-primary-hover active:bg-primary-active disabled:bg-primary-disabled disabled:text-text-primary",
   secondary:
-    "border border-border-strong bg-surface text-text-primary hover:bg-surface-muted disabled:opacity-60",
+    "border border-border-control bg-surface text-text-primary hover:bg-surface-muted disabled:opacity-60",
   ghost: "bg-transparent text-primary hover:bg-info-soft disabled:opacity-50",
   danger: "bg-danger text-white hover:opacity-90 disabled:opacity-60",
 }
 
 const sizeClass: Record<Size, string> = {
-  sm: "px-3 py-1.5 text-xs",
+  sm: "px-3 py-2 text-sm",
   md: "px-4 py-2.5 text-sm",
   lg: "px-5 py-3 text-base",
 }
@@ -24,7 +24,7 @@ function baseClass(variant: Variant, size: Size, className: string) {
     "inline-flex items-center justify-center gap-2 rounded-md font-medium transition",
     "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
     "disabled:cursor-not-allowed",
-    "min-h-11 min-w-11 sm:min-h-10",
+    "min-h-11 min-w-11",
     variantClass[variant],
     sizeClass[size],
     className,
@@ -57,15 +57,27 @@ export function ButtonLink({
   size = "md",
   className = "",
   children,
+  "aria-current": ariaCurrent,
 }: {
   href: string
   variant?: Variant
   size?: Size
   className?: string
   children: ReactNode
+  "aria-current"?: "page" | undefined
 }) {
   return (
-    <Link href={href} className={baseClass(variant, size, className)}>
+    <Link
+      href={href}
+      aria-current={ariaCurrent}
+      className={baseClass(
+        variant,
+        size,
+        [ariaCurrent === "page" ? "shadow-[inset_0_-2px_0_var(--brand-gold)]" : "", className]
+          .filter(Boolean)
+          .join(" "),
+      )}
+    >
       {children}
     </Link>
   )

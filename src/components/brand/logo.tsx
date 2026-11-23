@@ -6,14 +6,15 @@ type BrandLogoProps = {
   href?: string | null
   priority?: boolean
   /** Altura visual aproximada do bloco da marca. */
-  size?: "sm" | "md" | "lg"
+  size?: "header" | "sm" | "md" | "lg"
   className?: string
 }
 
 const sizeMap = {
-  sm: { width: 140, height: 72 },
-  md: { width: 200, height: 104 },
-  lg: { width: 280, height: 146 },
+  header: { width: 120, height: 40, className: "h-[var(--logo-header)] w-auto max-h-[var(--logo-header)]" },
+  sm: { width: 140, height: 72, className: "h-auto w-auto max-h-14" },
+  md: { width: 200, height: 104, className: "h-auto w-auto max-h-20" },
+  lg: { width: 280, height: 146, className: "h-auto w-auto max-h-28" },
 } as const
 
 export function BrandLogo({
@@ -30,7 +31,7 @@ export function BrandLogo({
       width={dims.width}
       height={dims.height}
       priority={priority}
-      className={`h-auto w-auto max-w-full object-contain ${className}`}
+      className={`max-w-full object-contain ${dims.className} ${className}`}
     />
   )
 

@@ -1,7 +1,7 @@
 import type { InputHTMLAttributes, ReactNode, SelectHTMLAttributes, TextareaHTMLAttributes } from "react"
 
 const controlClass =
-  "w-full rounded-md border border-border bg-surface px-3 py-2.5 text-sm text-text-primary placeholder:text-text-muted shadow-none focus:border-primary"
+  "w-full rounded-md border border-border-control bg-surface px-3 py-2.5 text-sm text-text-primary placeholder:text-text-muted shadow-none focus:border-primary"
 
 export function Field({
   label,
