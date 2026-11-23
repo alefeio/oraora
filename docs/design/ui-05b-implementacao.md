@@ -47,10 +47,18 @@ PRs #4 e #5 **não** mergeados automaticamente.
 
 Responsividade local: `node scripts/check-ui-05b-auth-responsive.mjs` (app em `:3000`).
 
-## Evidências Preview
+## Evidências
 
 Pasta: `docs/design/evidence/ui-05b/`  
-Inclui header mobile, auth desktop/mobile, recuperação/confirmação, audit JSON.
+Inclui header mobile 390 (após), login desktop/mobile, signup, recuperação, matriz de regressão.
+
+## Preview / PR
+
+- PR draft: https://github.com/alefeio/oraora/pull/6 (base `security/sec-03a-vercel-functions`)
+- Alias esperado: https://oraora-git-feature-ui-05b-auth-visual-alefeios-projects.vercel.app
+- HEAD: `91cc98a312a4620b9fd84ba68baf9278f0faa068`
+- Ambiente: Preview (SSO Vercel ativo; não desativado)
+- Production: inalterada
 
 ## Testes manuais pendentes do proprietário
 
