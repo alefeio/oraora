@@ -10,6 +10,17 @@ function isActivePath(pathname: string, href: string) {
   return pathname === href || pathname.startsWith(`${href}/`)
 }
 
+function navLinkClass(active: boolean) {
+  return [
+    "inline-flex min-h-11 min-w-11 items-center justify-center px-2 text-sm font-semibold no-underline sm:px-3",
+    active
+      ? "text-primary shadow-[inset_0_-2px_0_var(--brand-gold)]"
+      : "text-text-secondary hover:text-primary",
+  ]
+    .filter(Boolean)
+    .join(" ")
+}
+
 export function SiteHeader({
   mode = "public",
 }: {
@@ -19,10 +30,12 @@ export function SiteHeader({
 
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-surface/90 backdrop-blur">
-      <div className="layout-shell flex min-h-[var(--header-h)] items-center justify-between gap-x-3 gap-y-2 py-1.5">
-        <BrandLogo size="header" priority className="shrink-0" />
+      <div className="layout-shell flex flex-col gap-1 py-1.5 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
+        <div className="flex min-h-[var(--header-h)] items-center">
+          <BrandLogo size="header" priority className="shrink-0" />
+        </div>
         <nav
-          className="flex min-w-0 flex-1 flex-wrap items-center justify-end gap-1.5 sm:gap-2"
+          className="flex w-full min-w-0 flex-nowrap items-center justify-between gap-1 sm:w-auto sm:justify-end sm:gap-2"
           aria-label="Principal"
         >
           {mode === "public" ? (
@@ -30,21 +43,14 @@ export function SiteHeader({
               <Link
                 href="/encontrar"
                 aria-current={isActivePath(pathname, "/encontrar") ? "page" : undefined}
-                className={[
-                  "inline-flex min-h-11 items-center px-3 text-sm font-semibold text-text-secondary no-underline hover:text-primary",
-                  isActivePath(pathname, "/encontrar")
-                    ? "text-primary shadow-[inset_0_-2px_0_var(--brand-gold)]"
-                    : "",
-                ]
-                  .filter(Boolean)
-                  .join(" ")}
+                className={navLinkClass(isActivePath(pathname, "/encontrar"))}
               >
                 Encontrar
               </Link>
-              <ButtonLink href="/login" variant="ghost" size="sm">
+              <ButtonLink href="/login" variant="ghost" size="sm" className="shrink-0 px-2 sm:px-3">
                 Entrar
               </ButtonLink>
-              <ButtonLink href="/signup" size="sm">
+              <ButtonLink href="/signup" size="sm" className="shrink-0 px-2 sm:px-3">
                 Criar conta
               </ButtonLink>
             </>
@@ -54,6 +60,7 @@ export function SiteHeader({
                 href="/encontrar"
                 variant="ghost"
                 size="sm"
+                className="shrink-0 px-2 sm:px-3"
                 aria-current={isActivePath(pathname, "/encontrar") ? "page" : undefined}
               >
                 Encontrar
@@ -62,6 +69,7 @@ export function SiteHeader({
                 href="/pedir"
                 variant="secondary"
                 size="sm"
+                className="shrink-0 px-2 sm:px-3"
                 aria-current={isActivePath(pathname, "/pedir") ? "page" : undefined}
               >
                 Pedir
@@ -69,6 +77,7 @@ export function SiteHeader({
               <ButtonLink
                 href="/account"
                 size="sm"
+                className="shrink-0 px-2 sm:px-3"
                 aria-current={isActivePath(pathname, "/account") ? "page" : undefined}
               >
                 Conta

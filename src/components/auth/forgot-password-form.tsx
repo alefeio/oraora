@@ -54,7 +54,7 @@ export function ForgotPasswordForm() {
   }
 
   return (
-    <form onSubmit={onSubmit} className="space-y-4">
+    <form onSubmit={onSubmit} className="space-y-5">
       <Field label="E-mail" hint="Usaremos este endereço apenas se houver conta associada.">
         <TextInput name="email" type="email" required autoComplete="email" />
       </Field>

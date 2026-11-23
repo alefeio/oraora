@@ -66,6 +66,32 @@ describe("auth recovery UX contracts", () => {
   })
 })
 
+describe("post-login destination (UI-05B)", () => {
+  it("define /encontrar como destino padrão sem remover /account", () => {
+    expect(AUTH_PATHS.postLogin).toBe("/encontrar")
+    expect(AUTH_PATHS.account).toBe("/account")
+    expect(AUTH_PATHS.postLogin).not.toBe(AUTH_PATHS.account)
+  })
+
+  it("mantém postLogin como caminho relativo seguro", () => {
+    expect(isSafeAuthCallbackPath(AUTH_PATHS.postLogin)).toBe(true)
+    expect(resolveSafeAuthCallbackPath(AUTH_PATHS.postLogin)).toBe("/encontrar")
+  })
+
+  it("LoginForm usa AUTH_PATHS.postLogin em callbackURL e router.push", async () => {
+    const { readFile } = await import("node:fs/promises")
+    const { join } = await import("node:path")
+    const source = await readFile(
+      join(process.cwd(), "src/components/auth/login-form.tsx"),
+      "utf8",
+    )
+    expect(source).toContain("callbackURL: AUTH_PATHS.postLogin")
+    expect(source).toContain("router.push(AUTH_PATHS.postLogin)")
+    expect(source).not.toContain("callbackURL: AUTH_PATHS.account")
+    expect(source).not.toMatch(/router\.push\(AUTH_PATHS\.account\)/)
+  })
+})
+
 describe("interpretPasswordResetRequestResult", () => {
   it("trata result.error como falha operacional (sem ack de sucesso)", () => {
     expect(
