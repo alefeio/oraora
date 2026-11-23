@@ -3,7 +3,6 @@ import { CreateRequestForm } from "@/components/prayer/create-request-form"
 import { SiteFooter } from "@/components/layout/site-footer"
 import { SiteHeader } from "@/components/layout/site-header"
 import { ButtonLink } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
 import { requireUser } from "@/lib/auth/session"
 import { PRODUCT_DISPLAY_NAME, PRODUCT_PRINCIPLE } from "@/lib/config/product"
 import { listActiveCategories } from "@/modules/prayer-requests"
@@ -16,7 +15,9 @@ export const metadata = {
 
 export default function PedirPage() {
   return (
-    <Suspense fallback={<main className="px-4 py-8 text-sm text-text-muted">Carregando…</main>}>
+    <Suspense
+      fallback={<main className="layout-shell py-8 text-sm text-text-muted">Carregando…</main>}
+    >
       <PedirContent />
     </Suspense>
   )
@@ -33,11 +34,27 @@ async function PedirContent() {
     return (
       <>
         <SiteHeader mode="app" />
-        <main className="mx-auto flex w-full max-w-xl flex-col gap-4 px-4 py-10 sm:px-6">
-          <h1 className="text-2xl font-bold text-primary">Antes de pedir</h1>
-          <p className="text-sm leading-6 text-text-secondary">{eligibility.message}</p>
-          <p className="text-sm font-medium text-primary">{PRODUCT_PRINCIPLE}</p>
-          <ButtonLink href="/encontrar">Encontrar alguém para orar</ButtonLink>
+        <main className="layout-shell flex min-w-0 max-w-xl flex-col gap-6 py-10 sm:py-12">
+          <header className="space-y-3">
+            <p className="brand-kicker">
+              <span className="brand-kicker-dot" aria-hidden />
+              Pedir
+            </p>
+            <h1 className="text-2xl font-bold tracking-tight text-primary sm:text-3xl">
+              Antes de pedir
+            </h1>
+            <hr className="brand-rule" />
+          </header>
+
+          <p className="text-base leading-7 text-text-secondary">{eligibility.message}</p>
+
+          <blockquote className="brand-principle text-sm leading-6 sm:text-base">
+            {PRODUCT_PRINCIPLE}
+          </blockquote>
+
+          <ButtonLink href="/encontrar" size="lg" className="w-full sm:w-auto">
+            Encontrar alguém para orar
+          </ButtonLink>
         </main>
         <SiteFooter />
       </>
@@ -47,17 +64,25 @@ async function PedirContent() {
   return (
     <>
       <SiteHeader mode="app" />
-      <main className="mx-auto flex w-full max-w-xl flex-col gap-6 px-4 py-8 sm:px-6">
-        <header className="space-y-2">
-          <h1 className="text-2xl font-bold text-primary">Criar meu pedido</h1>
-          <p className="text-sm text-text-secondary">
+      <main className="layout-shell flex min-w-0 max-w-xl flex-col gap-6 py-8 sm:py-10">
+        <header className="space-y-3">
+          <p className="brand-kicker">
+            <span className="brand-kicker-dot" aria-hidden />
+            Pedir
+          </p>
+          <h1 className="text-2xl font-bold tracking-tight text-primary sm:text-3xl">
+            Criar meu pedido
+          </h1>
+          <hr className="brand-rule" />
+          <p className="text-sm leading-6 text-text-secondary sm:text-base">
             Você cuidou de alguém. Ao publicar, essa autorização será consumida. Um futuro novo
             pedido exigirá outra oração.
           </p>
         </header>
-        <Card>
+
+        <section className="rounded-[var(--radius-lg)] border border-border bg-surface px-5 py-6 shadow-[var(--shadow-soft)] sm:px-7 sm:py-7">
           <CreateRequestForm categories={categories} />
-        </Card>
+        </section>
       </main>
       <SiteFooter />
     </>
