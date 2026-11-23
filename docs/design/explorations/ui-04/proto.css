@@ -119,6 +119,8 @@ a { color: var(--brand-primary); }
 .foot-inner,
 .wrap {
   width: min(var(--max), calc(100% - (var(--gutter) * 2)));
+  max-width: 100%;
+  min-width: 0;
   margin-inline: auto;
 }
 
@@ -339,11 +341,17 @@ h3 { margin: 0; font-size: 1.05rem; color: var(--text-primary); font-weight: 700
 /* Shell */
 .page {
   min-height: 100vh;
+  min-width: 0;
+  width: 100%;
   display: flex;
   flex-direction: column;
 }
 
-main { flex: 1; }
+main {
+  flex: 1;
+  min-width: 0;
+  width: 100%;
+}
 
 .section { padding: 2.5rem 0 2rem; }
 .section + .section { padding-top: 0; }
@@ -488,10 +496,24 @@ main { flex: 1; }
 .detail,
 .compose {
   width: min(var(--max), calc(100% - (var(--gutter) * 2)));
+  max-width: 100%;
+  min-width: 0;
   margin: 0 auto;
   padding: 2rem 0 3rem;
   display: grid;
   gap: 1.25rem;
+}
+
+.account > *,
+.detail > *,
+.compose > * {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.feed-filters {
+  min-width: 0;
+  max-width: 100%;
 }
 
 .account-head { display: grid; gap: 0.35rem; }
@@ -536,12 +558,16 @@ main { flex: 1; }
   margin: 0;
   padding: 0.1rem 0 0.45rem;
   list-style: none;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
   overflow-x: auto;
+  overflow-y: hidden;
   overscroll-behavior-x: contain;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: thin;
   scroll-snap-type: x proximity;
-  max-width: 100%;
 }
 .chips::-webkit-scrollbar { height: 4px; }
 .chips::-webkit-scrollbar-thumb {
@@ -552,7 +578,8 @@ main { flex: 1; }
   display: inline-flex;
   align-items: center;
   flex: none;
-  min-height: 40px;
+  min-height: 44px;
+  min-width: 44px;
   padding: 0 0.85rem;
   border-radius: 999px;
   border: 1px solid var(--border-control);
@@ -851,7 +878,6 @@ main { flex: 1; }
     padding: 0;
     scroll-snap-type: none;
   }
-  .chip { min-height: 44px; }
   .account, .detail, .compose { grid-template-columns: minmax(0, 1.2fr) minmax(260px, 0.8fr); column-gap: 2.5rem; align-items: start; }
   .account-head, .facts, .flag { grid-column: 1; }
   .aside-note { grid-column: 2; grid-row: 1 / span 3; }
@@ -880,7 +906,7 @@ main { flex: 1; }
 @media (max-width: 360px) {
   .auth-head .logo { height: 40px; max-height: 40px; }
   .nav a.nav-link { padding-inline: 0.5rem; }
-  .chip { min-height: 38px; font-size: 0.8rem; }
+  .chip { font-size: 0.8rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {

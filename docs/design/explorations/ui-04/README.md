@@ -15,7 +15,8 @@ Depois abra no navegador:
 
 - Galeria: [http://127.0.0.1:4180/explorations/ui-04/](http://127.0.0.1:4180/explorations/ui-04/)
 - Antes/depois (UI-01 → UI-04): [http://127.0.0.1:4180/explorations/ui-04/comparar.html](http://127.0.0.1:4180/explorations/ui-04/comparar.html)
-- Refinos (UI-04 → UI-04R): [http://127.0.0.1:4180/explorations/ui-04/refinos.html](http://127.0.0.1:4180/explorations/ui-04/refinos.html)
+- Refinos (UI-04 → UI-04R / UI-04R.1): [http://127.0.0.1:4180/explorations/ui-04/refinos.html](http://127.0.0.1:4180/explorations/ui-04/refinos.html)
+- Auditoria overflow: `node docs/design/explorations/ui-04/_audit-overflow.mjs` (servidor em 4180; ver [ui-04r1-overflow.md](../../ui-04r1-overflow.md))
 
 Alternativa com `npx`:
 

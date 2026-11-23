@@ -117,7 +117,7 @@ function chips(activeSlug) {
       return `<li><a class="chip" href="${to("encontrar", state)}"${current}>${name}</a></li>`;
     })
     .join("");
-  return `<ul class="chips">${all}${rest}</ul>`;
+  return `<div class="feed-filters"><ul class="chips">${all}${rest}</ul></div>`;
 }
 
 function flag(text) {

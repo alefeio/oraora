@@ -1,0 +1,1102 @@
+[
+  {
+    "width": 320,
+    "screen": "encontrar",
+    "state": "vazio",
+    "innerWidth": 320,
+    "clientWidth": 320,
+    "scrollWidth": 320,
+    "chipsClient": 280,
+    "chipsScroll": 1111,
+    "chipCount": 12,
+    "chipMinHeight": 44,
+    "firstLabel": "Todas",
+    "lastLabel": "Outros",
+    "overflowPass": true,
+    "chipsScrollOnly": true,
+    "overflowing": [
+      {
+        "tag": "LI",
+        "cls": "",
+        "right": 383,
+        "width": 136
+      },
+      {
+        "tag": "A",
+        "cls": "chip",
+        "right": 383,
+        "width": 136
+      },
+      {
+        "tag": "LI",
+        "cls": "",
+        "right": 496,
+        "width": 107
+      },
+      {
+        "tag": "A",
+        "cls": "chip",
+        "right": 496,
+        "width": 107
+      },
+      {
+        "tag": "LI",
+        "cls": "",
+        "right": 587,
+        "width": 85
+      },
+      {
+        "tag": "A",
+        "cls": "chip",
+        "right": 587,
+        "width": 85
+      },
+      {
+        "tag": "LI",
+        "cls": "",
+        "right": 705,
+        "width": 111
+      },
+      {
+        "tag": "A",
+        "cls": "chip",
+        "right": 705,
+        "width": 111
+      }
+    ],
+    "focusOk": {
+      "firstFocused": true,
+      "lastFocused": true,
+      "lastVisible": true,
+      "focusVisibleOk": true
+    }
+  },
+  {
+    "width": 320,
+    "screen": "encontrar",
+    "state": "lista",
+    "innerWidth": 320,
+    "clientWidth": 320,
+    "scrollWidth": 320,
+    "chipsClient": 280,
+    "chipsScroll": 1111,
+    "chipCount": 12,
+    "chipMinHeight": 44,
+    "firstLabel": "Todas",
+    "lastLabel": "Outros",
+    "overflowPass": true,
+    "chipsScrollOnly": true,
+    "overflowing": [
+      {
+        "tag": "LI",
+        "cls": "",
+        "right": 383,
+        "width": 136
+      },
+      {
+        "tag": "A",
+        "cls": "chip",
+        "right": 383,
+        "width": 136
+      },
+      {
+        "tag": "LI",
+        "cls": "",
+        "right": 496,
+        "width": 107
+      },
+      {
+        "tag": "A",
+        "cls": "chip",
+        "right": 496,
+        "width": 107
+      },
+      {
+        "tag": "LI",
+        "cls": "",
+        "right": 587,
+        "width": 85
+      },
+      {
+        "tag": "A",
+        "cls": "chip",
+        "right": 587,
+        "width": 85
+      },
+      {
+        "tag": "LI",
+        "cls": "",
+        "right": 705,
+        "width": 111
+      },
+      {
+        "tag": "A",
+        "cls": "chip",
+        "right": 705,
+        "width": 111
+      }
+    ],
+    "focusOk": {
+      "firstFocused": true,
+      "lastFocused": true,
+      "lastVisible": true,
+      "focusVisibleOk": true
+    }
+  },
+  {
+    "width": 320,
+    "screen": "home",
+    "state": "",
+    "innerWidth": 320,
+    "clientWidth": 320,
+    "scrollWidth": 320,
+    "chipsClient": null,
+    "chipsScroll": null,
+    "chipCount": 0,
+    "chipMinHeight": null,
+    "firstLabel": null,
+    "lastLabel": null,
+    "overflowPass": true,
+    "chipsScrollOnly": true,
+    "overflowing": [],
+    "focusOk": null
+  },
+  {
+    "width": 320,
+    "screen": "account",
+    "state": "",
+    "innerWidth": 320,
+    "clientWidth": 320,
+    "scrollWidth": 320,
+    "chipsClient": null,
+    "chipsScroll": null,
+    "chipCount": 0,
+    "chipMinHeight": null,
+    "firstLabel": null,
+    "lastLabel": null,
+    "overflowPass": true,
+    "chipsScrollOnly": true,
+    "overflowing": [],
+    "focusOk": null
+  },
+  {
+    "width": 320,
+    "screen": "login",
+    "state": "",
+    "innerWidth": 320,
+    "clientWidth": 320,
+    "scrollWidth": 320,
+    "chipsClient": null,
+    "chipsScroll": null,
+    "chipCount": 0,
+    "chipMinHeight": null,
+    "firstLabel": null,
+    "lastLabel": null,
+    "overflowPass": true,
+    "chipsScrollOnly": true,
+    "overflowing": [],
+    "focusOk": null
+  },
+  {
+    "width": 320,
+    "screen": "pedir-bloqueado",
+    "state": "",
+    "innerWidth": 320,
+    "clientWidth": 320,
+    "scrollWidth": 320,
+    "chipsClient": null,
+    "chipsScroll": null,
+    "chipCount": 0,
+    "chipMinHeight": null,
+    "firstLabel": null,
+    "lastLabel": null,
+    "overflowPass": true,
+    "chipsScrollOnly": true,
+    "overflowing": [],
+    "focusOk": null
+  },
+  {
+    "width": 360,
+    "screen": "encontrar",
+    "state": "vazio",
+    "innerWidth": 360,
+    "clientWidth": 360,
+    "scrollWidth": 360,
+    "chipsClient": 320,
+    "chipsScroll": 1111,
+    "chipCount": 12,
+    "chipMinHeight": 44,
+    "firstLabel": "Todas",
+    "lastLabel": "Outros",
+    "overflowPass": true,
+    "chipsScrollOnly": true,
+    "overflowing": [
+      {
+        "tag": "LI",
+        "cls": "",
+        "right": 383,
+        "width": 136
+      },
+      {
+        "tag": "A",
+        "cls": "chip",
+        "right": 383,
+        "width": 136
+      },
+      {
+        "tag": "LI",
+        "cls": "",
+        "right": 496,
+        "width": 107
+      },
+      {
+        "tag": "A",
+        "cls": "chip",
+        "right": 496,
+        "width": 107
+      },
+      {
+        "tag": "LI",
+        "cls": "",
+        "right": 587,
+        "width": 85
+      },
+      {
+        "tag": "A",
+        "cls": "chip",
+        "right": 587,
+        "width": 85
+      },
+      {
+        "tag": "LI",
+        "cls": "",
+        "right": 705,
+        "width": 111
+      },
+      {
+        "tag": "A",
+        "cls": "chip",
+        "right": 705,
+        "width": 111
+      }
+    ],
+    "focusOk": {
+      "firstFocused": true,
+      "lastFocused": true,
+      "lastVisible": true,
+      "focusVisibleOk": true
+    }
+  },
+  {
+    "width": 360,
+    "screen": "encontrar",
+    "state": "lista",
+    "innerWidth": 360,
+    "clientWidth": 360,
+    "scrollWidth": 360,
+    "chipsClient": 320,
+    "chipsScroll": 1111,
+    "chipCount": 12,
+    "chipMinHeight": 44,
+    "firstLabel": "Todas",
+    "lastLabel": "Outros",
+    "overflowPass": true,
+    "chipsScrollOnly": true,
+    "overflowing": [
+      {
+        "tag": "LI",
+        "cls": "",
+        "right": 383,
+        "width": 136
+      },
+      {
+        "tag": "A",
+        "cls": "chip",
+        "right": 383,
+        "width": 136
+      },
+      {
+        "tag": "LI",
+        "cls": "",
+        "right": 496,
+        "width": 107
+      },
+      {
+        "tag": "A",
+        "cls": "chip",
+        "right": 496,
+        "width": 107
+      },
+      {
+        "tag": "LI",
+        "cls": "",
+        "right": 587,
+        "width": 85
+      },
+      {
+        "tag": "A",
+        "cls": "chip",
+        "right": 587,
+        "width": 85
+      },
+      {
+        "tag": "LI",
+        "cls": "",
+        "right": 705,
+        "width": 111
+      },
+      {
+        "tag": "A",
+        "cls": "chip",
+        "right": 705,
+        "width": 111
+      }
+    ],
+    "focusOk": {
+      "firstFocused": true,
+      "lastFocused": true,
+      "lastVisible": true,
+      "focusVisibleOk": true
+    }
+  },
+  {
+    "width": 360,
+    "screen": "home",
+    "state": "",
+    "innerWidth": 360,
+    "clientWidth": 360,
+    "scrollWidth": 360,
+    "chipsClient": null,
+    "chipsScroll": null,
+    "chipCount": 0,
+    "chipMinHeight": null,
+    "firstLabel": null,
+    "lastLabel": null,
+    "overflowPass": true,
+    "chipsScrollOnly": true,
+    "overflowing": [],
+    "focusOk": null
+  },
+  {
+    "width": 360,
+    "screen": "account",
+    "state": "",
+    "innerWidth": 360,
+    "clientWidth": 360,
+    "scrollWidth": 360,
+    "chipsClient": null,
+    "chipsScroll": null,
+    "chipCount": 0,
+    "chipMinHeight": null,
+    "firstLabel": null,
+    "lastLabel": null,
+    "overflowPass": true,
+    "chipsScrollOnly": true,
+    "overflowing": [],
+    "focusOk": null
+  },
+  {
+    "width": 360,
+    "screen": "login",
+    "state": "",
+    "innerWidth": 360,
+    "clientWidth": 360,
+    "scrollWidth": 360,
+    "chipsClient": null,
+    "chipsScroll": null,
+    "chipCount": 0,
+    "chipMinHeight": null,
+    "firstLabel": null,
+    "lastLabel": null,
+    "overflowPass": true,
+    "chipsScrollOnly": true,
+    "overflowing": [],
+    "focusOk": null
+  },
+  {
+    "width": 360,
+    "screen": "pedir-bloqueado",
+    "state": "",
+    "innerWidth": 360,
+    "clientWidth": 360,
+    "scrollWidth": 360,
+    "chipsClient": null,
+    "chipsScroll": null,
+    "chipCount": 0,
+    "chipMinHeight": null,
+    "firstLabel": null,
+    "lastLabel": null,
+    "overflowPass": true,
+    "chipsScrollOnly": true,
+    "overflowing": [],
+    "focusOk": null
+  },
+  {
+    "width": 390,
+    "screen": "encontrar",
+    "state": "vazio",
+    "innerWidth": 390,
+    "clientWidth": 390,
+    "scrollWidth": 390,
+    "chipsClient": 350,
+    "chipsScroll": 1128,
+    "chipCount": 12,
+    "chipMinHeight": 44,
+    "firstLabel": "Todas",
+    "lastLabel": "Outros",
+    "overflowPass": true,
+    "chipsScrollOnly": true,
+    "overflowing": [
+      {
+        "tag": "LI",
+        "cls": "",
+        "right": 504,
+        "width": 109
+      },
+      {
+        "tag": "A",
+        "cls": "chip",
+        "right": 504,
+        "width": 109
+      },
+      {
+        "tag": "LI",
+        "cls": "",
+        "right": 596,
+        "width": 86
+      },
+      {
+        "tag": "A",
+        "cls": "chip",
+        "right": 596,
+        "width": 86
+      },
+      {
+        "tag": "LI",
+        "cls": "",
+        "right": 716,
+        "width": 113
+      },
+      {
+        "tag": "A",
+        "cls": "chip",
+        "right": 716,
+        "width": 113
+      },
+      {
+        "tag": "LI",
+        "cls": "",
+        "right": 779,
+        "width": 57
+      },
+      {
+        "tag": "A",
+        "cls": "chip",
+        "right": 779,
+        "width": 57
+      }
+    ],
+    "focusOk": {
+      "firstFocused": true,
+      "lastFocused": true,
+      "lastVisible": true,
+      "focusVisibleOk": true
+    }
+  },
+  {
+    "width": 390,
+    "screen": "encontrar",
+    "state": "lista",
+    "innerWidth": 390,
+    "clientWidth": 390,
+    "scrollWidth": 390,
+    "chipsClient": 350,
+    "chipsScroll": 1128,
+    "chipCount": 12,
+    "chipMinHeight": 44,
+    "firstLabel": "Todas",
+    "lastLabel": "Outros",
+    "overflowPass": true,
+    "chipsScrollOnly": true,
+    "overflowing": [
+      {
+        "tag": "LI",
+        "cls": "",
+        "right": 504,
+        "width": 109
+      },
+      {
+        "tag": "A",
+        "cls": "chip",
+        "right": 504,
+        "width": 109
+      },
+      {
+        "tag": "LI",
+        "cls": "",
+        "right": 596,
+        "width": 86
+      },
+      {
+        "tag": "A",
+        "cls": "chip",
+        "right": 596,
+        "width": 86
+      },
+      {
+        "tag": "LI",
+        "cls": "",
+        "right": 716,
+        "width": 113
+      },
+      {
+        "tag": "A",
+        "cls": "chip",
+        "right": 716,
+        "width": 113
+      },
+      {
+        "tag": "LI",
+        "cls": "",
+        "right": 779,
+        "width": 57
+      },
+      {
+        "tag": "A",
+        "cls": "chip",
+        "right": 779,
+        "width": 57
+      }
+    ],
+    "focusOk": {
+      "firstFocused": true,
+      "lastFocused": true,
+      "lastVisible": true,
+      "focusVisibleOk": true
+    }
+  },
+  {
+    "width": 390,
+    "screen": "home",
+    "state": "",
+    "innerWidth": 390,
+    "clientWidth": 390,
+    "scrollWidth": 390,
+    "chipsClient": null,
+    "chipsScroll": null,
+    "chipCount": 0,
+    "chipMinHeight": null,
+    "firstLabel": null,
+    "lastLabel": null,
+    "overflowPass": true,
+    "chipsScrollOnly": true,
+    "overflowing": [],
+    "focusOk": null
+  },
+  {
+    "width": 390,
+    "screen": "account",
+    "state": "",
+    "innerWidth": 390,
+    "clientWidth": 390,
+    "scrollWidth": 390,
+    "chipsClient": null,
+    "chipsScroll": null,
+    "chipCount": 0,
+    "chipMinHeight": null,
+    "firstLabel": null,
+    "lastLabel": null,
+    "overflowPass": true,
+    "chipsScrollOnly": true,
+    "overflowing": [],
+    "focusOk": null
+  },
+  {
+    "width": 390,
+    "screen": "login",
+    "state": "",
+    "innerWidth": 390,
+    "clientWidth": 390,
+    "scrollWidth": 390,
+    "chipsClient": null,
+    "chipsScroll": null,
+    "chipCount": 0,
+    "chipMinHeight": null,
+    "firstLabel": null,
+    "lastLabel": null,
+    "overflowPass": true,
+    "chipsScrollOnly": true,
+    "overflowing": [],
+    "focusOk": null
+  },
+  {
+    "width": 390,
+    "screen": "pedir-bloqueado",
+    "state": "",
+    "innerWidth": 390,
+    "clientWidth": 390,
+    "scrollWidth": 390,
+    "chipsClient": null,
+    "chipsScroll": null,
+    "chipCount": 0,
+    "chipMinHeight": null,
+    "firstLabel": null,
+    "lastLabel": null,
+    "overflowPass": true,
+    "chipsScrollOnly": true,
+    "overflowing": [],
+    "focusOk": null
+  },
+  {
+    "width": 768,
+    "screen": "encontrar",
+    "state": "vazio",
+    "innerWidth": 768,
+    "clientWidth": 768,
+    "scrollWidth": 768,
+    "chipsClient": 728,
+    "chipsScroll": 1128,
+    "chipCount": 12,
+    "chipMinHeight": 44,
+    "firstLabel": "Todas",
+    "lastLabel": "Outros",
+    "overflowPass": true,
+    "chipsScrollOnly": true,
+    "overflowing": [
+      {
+        "tag": "LI",
+        "cls": "",
+        "right": 779,
+        "width": 57
+      },
+      {
+        "tag": "A",
+        "cls": "chip",
+        "right": 779,
+        "width": 57
+      },
+      {
+        "tag": "LI",
+        "cls": "",
+        "right": 885,
+        "width": 100
+      },
+      {
+        "tag": "A",
+        "cls": "chip",
+        "right": 885,
+        "width": 100
+      },
+      {
+        "tag": "LI",
+        "cls": "",
+        "right": 980,
+        "width": 88
+      },
+      {
+        "tag": "A",
+        "cls": "chip",
+        "right": 980,
+        "width": 88
+      },
+      {
+        "tag": "LI",
+        "cls": "",
+        "right": 1070,
+        "width": 83
+      },
+      {
+        "tag": "A",
+        "cls": "chip",
+        "right": 1070,
+        "width": 83
+      }
+    ],
+    "focusOk": {
+      "firstFocused": true,
+      "lastFocused": true,
+      "lastVisible": true,
+      "focusVisibleOk": true
+    }
+  },
+  {
+    "width": 768,
+    "screen": "encontrar",
+    "state": "lista",
+    "innerWidth": 768,
+    "clientWidth": 768,
+    "scrollWidth": 768,
+    "chipsClient": 728,
+    "chipsScroll": 1128,
+    "chipCount": 12,
+    "chipMinHeight": 44,
+    "firstLabel": "Todas",
+    "lastLabel": "Outros",
+    "overflowPass": true,
+    "chipsScrollOnly": true,
+    "overflowing": [
+      {
+        "tag": "LI",
+        "cls": "",
+        "right": 779,
+        "width": 57
+      },
+      {
+        "tag": "A",
+        "cls": "chip",
+        "right": 779,
+        "width": 57
+      },
+      {
+        "tag": "LI",
+        "cls": "",
+        "right": 885,
+        "width": 100
+      },
+      {
+        "tag": "A",
+        "cls": "chip",
+        "right": 885,
+        "width": 100
+      },
+      {
+        "tag": "LI",
+        "cls": "",
+        "right": 980,
+        "width": 88
+      },
+      {
+        "tag": "A",
+        "cls": "chip",
+        "right": 980,
+        "width": 88
+      },
+      {
+        "tag": "LI",
+        "cls": "",
+        "right": 1070,
+        "width": 83
+      },
+      {
+        "tag": "A",
+        "cls": "chip",
+        "right": 1070,
+        "width": 83
+      }
+    ],
+    "focusOk": {
+      "firstFocused": true,
+      "lastFocused": true,
+      "lastVisible": true,
+      "focusVisibleOk": true
+    }
+  },
+  {
+    "width": 768,
+    "screen": "home",
+    "state": "",
+    "innerWidth": 768,
+    "clientWidth": 768,
+    "scrollWidth": 768,
+    "chipsClient": null,
+    "chipsScroll": null,
+    "chipCount": 0,
+    "chipMinHeight": null,
+    "firstLabel": null,
+    "lastLabel": null,
+    "overflowPass": true,
+    "chipsScrollOnly": true,
+    "overflowing": [],
+    "focusOk": null
+  },
+  {
+    "width": 768,
+    "screen": "account",
+    "state": "",
+    "innerWidth": 768,
+    "clientWidth": 768,
+    "scrollWidth": 768,
+    "chipsClient": null,
+    "chipsScroll": null,
+    "chipCount": 0,
+    "chipMinHeight": null,
+    "firstLabel": null,
+    "lastLabel": null,
+    "overflowPass": true,
+    "chipsScrollOnly": true,
+    "overflowing": [],
+    "focusOk": null
+  },
+  {
+    "width": 768,
+    "screen": "login",
+    "state": "",
+    "innerWidth": 768,
+    "clientWidth": 768,
+    "scrollWidth": 768,
+    "chipsClient": null,
+    "chipsScroll": null,
+    "chipCount": 0,
+    "chipMinHeight": null,
+    "firstLabel": null,
+    "lastLabel": null,
+    "overflowPass": true,
+    "chipsScrollOnly": true,
+    "overflowing": [],
+    "focusOk": null
+  },
+  {
+    "width": 768,
+    "screen": "pedir-bloqueado",
+    "state": "",
+    "innerWidth": 768,
+    "clientWidth": 768,
+    "scrollWidth": 768,
+    "chipsClient": null,
+    "chipsScroll": null,
+    "chipCount": 0,
+    "chipMinHeight": null,
+    "firstLabel": null,
+    "lastLabel": null,
+    "overflowPass": true,
+    "chipsScrollOnly": true,
+    "overflowing": [],
+    "focusOk": null
+  },
+  {
+    "width": 1280,
+    "screen": "encontrar",
+    "state": "vazio",
+    "innerWidth": 1280,
+    "clientWidth": 1280,
+    "scrollWidth": 1280,
+    "chipsClient": 1080,
+    "chipsScroll": 1080,
+    "chipCount": 12,
+    "chipMinHeight": 44,
+    "firstLabel": "Todas",
+    "lastLabel": "Outros",
+    "overflowPass": true,
+    "chipsScrollOnly": true,
+    "overflowing": [],
+    "focusOk": {
+      "firstFocused": true,
+      "lastFocused": true,
+      "lastVisible": true,
+      "focusVisibleOk": true
+    }
+  },
+  {
+    "width": 1280,
+    "screen": "encontrar",
+    "state": "lista",
+    "innerWidth": 1280,
+    "clientWidth": 1280,
+    "scrollWidth": 1280,
+    "chipsClient": 1080,
+    "chipsScroll": 1080,
+    "chipCount": 12,
+    "chipMinHeight": 44,
+    "firstLabel": "Todas",
+    "lastLabel": "Outros",
+    "overflowPass": true,
+    "chipsScrollOnly": true,
+    "overflowing": [],
+    "focusOk": {
+      "firstFocused": true,
+      "lastFocused": true,
+      "lastVisible": true,
+      "focusVisibleOk": true
+    }
+  },
+  {
+    "width": 1280,
+    "screen": "home",
+    "state": "",
+    "innerWidth": 1280,
+    "clientWidth": 1280,
+    "scrollWidth": 1280,
+    "chipsClient": null,
+    "chipsScroll": null,
+    "chipCount": 0,
+    "chipMinHeight": null,
+    "firstLabel": null,
+    "lastLabel": null,
+    "overflowPass": true,
+    "chipsScrollOnly": true,
+    "overflowing": [],
+    "focusOk": null
+  },
+  {
+    "width": 1280,
+    "screen": "account",
+    "state": "",
+    "innerWidth": 1280,
+    "clientWidth": 1280,
+    "scrollWidth": 1280,
+    "chipsClient": null,
+    "chipsScroll": null,
+    "chipCount": 0,
+    "chipMinHeight": null,
+    "firstLabel": null,
+    "lastLabel": null,
+    "overflowPass": true,
+    "chipsScrollOnly": true,
+    "overflowing": [],
+    "focusOk": null
+  },
+  {
+    "width": 1280,
+    "screen": "login",
+    "state": "",
+    "innerWidth": 1280,
+    "clientWidth": 1280,
+    "scrollWidth": 1280,
+    "chipsClient": null,
+    "chipsScroll": null,
+    "chipCount": 0,
+    "chipMinHeight": null,
+    "firstLabel": null,
+    "lastLabel": null,
+    "overflowPass": true,
+    "chipsScrollOnly": true,
+    "overflowing": [],
+    "focusOk": null
+  },
+  {
+    "width": 1280,
+    "screen": "pedir-bloqueado",
+    "state": "",
+    "innerWidth": 1280,
+    "clientWidth": 1280,
+    "scrollWidth": 1280,
+    "chipsClient": null,
+    "chipsScroll": null,
+    "chipCount": 0,
+    "chipMinHeight": null,
+    "firstLabel": null,
+    "lastLabel": null,
+    "overflowPass": true,
+    "chipsScrollOnly": true,
+    "overflowing": [],
+    "focusOk": null
+  },
+  {
+    "width": 1440,
+    "screen": "encontrar",
+    "state": "vazio",
+    "innerWidth": 1440,
+    "clientWidth": 1440,
+    "scrollWidth": 1440,
+    "chipsClient": 1080,
+    "chipsScroll": 1080,
+    "chipCount": 12,
+    "chipMinHeight": 44,
+    "firstLabel": "Todas",
+    "lastLabel": "Outros",
+    "overflowPass": true,
+    "chipsScrollOnly": true,
+    "overflowing": [],
+    "focusOk": {
+      "firstFocused": true,
+      "lastFocused": true,
+      "lastVisible": true,
+      "focusVisibleOk": true
+    }
+  },
+  {
+    "width": 1440,
+    "screen": "encontrar",
+    "state": "lista",
+    "innerWidth": 1440,
+    "clientWidth": 1440,
+    "scrollWidth": 1440,
+    "chipsClient": 1080,
+    "chipsScroll": 1080,
+    "chipCount": 12,
+    "chipMinHeight": 44,
+    "firstLabel": "Todas",
+    "lastLabel": "Outros",
+    "overflowPass": true,
+    "chipsScrollOnly": true,
+    "overflowing": [],
+    "focusOk": {
+      "firstFocused": true,
+      "lastFocused": true,
+      "lastVisible": true,
+      "focusVisibleOk": true
+    }
+  },
+  {
+    "width": 1440,
+    "screen": "home",
+    "state": "",
+    "innerWidth": 1440,
+    "clientWidth": 1440,
+    "scrollWidth": 1440,
+    "chipsClient": null,
+    "chipsScroll": null,
+    "chipCount": 0,
+    "chipMinHeight": null,
+    "firstLabel": null,
+    "lastLabel": null,
+    "overflowPass": true,
+    "chipsScrollOnly": true,
+    "overflowing": [],
+    "focusOk": null
+  },
+  {
+    "width": 1440,
+    "screen": "account",
+    "state": "",
+    "innerWidth": 1440,
+    "clientWidth": 1440,
+    "scrollWidth": 1440,
+    "chipsClient": null,
+    "chipsScroll": null,
+    "chipCount": 0,
+    "chipMinHeight": null,
+    "firstLabel": null,
+    "lastLabel": null,
+    "overflowPass": true,
+    "chipsScrollOnly": true,
+    "overflowing": [],
+    "focusOk": null
+  },
+  {
+    "width": 1440,
+    "screen": "login",
+    "state": "",
+    "innerWidth": 1440,
+    "clientWidth": 1440,
+    "scrollWidth": 1440,
+    "chipsClient": null,
+    "chipsScroll": null,
+    "chipCount": 0,
+    "chipMinHeight": null,
+    "firstLabel": null,
+    "lastLabel": null,
+    "overflowPass": true,
+    "chipsScrollOnly": true,
+    "overflowing": [],
+    "focusOk": null
+  },
+  {
+    "width": 1440,
+    "screen": "pedir-bloqueado",
+    "state": "",
+    "innerWidth": 1440,
+    "clientWidth": 1440,
+    "scrollWidth": 1440,
+    "chipsClient": null,
+    "chipsScroll": null,
+    "chipCount": 0,
+    "chipMinHeight": null,
+    "firstLabel": null,
+    "lastLabel": null,
+    "overflowPass": true,
+    "chipsScrollOnly": true,
+    "overflowing": [],
+    "focusOk": null
+  }
+]

@@ -31,6 +31,10 @@ Somente protótipos isolados. Aplicação funcional inalterada.
 | Header/Footer | Tamanho da marca, densidade | Hrefs e textos obrigatórios | Sem mudança funcional |
 | Demais telas | Herdam chrome/auth refinados | Rotas, campos, regras | Revisadas na galeria |
 
+## UI-04R.1 (follow-up P0/P1)
+
+Overflow horizontal do documento em Encontrar mobile corrigido; alvos de toque dos chips restaurados a ≥44 px. Detalhes e medidas: [ui-04r1-overflow.md](./ui-04r1-overflow.md).
+
 ## Limites
 
-Protótipos estáticos não comprovam teclado, leitor de tela nem acessibilidade integral no app.
+Protótipos estáticos não comprovam leitor de tela nem acessibilidade integral no app. UI-04R.1 inclui checagem Playwright de overflow, foco e Tab nos chips.
