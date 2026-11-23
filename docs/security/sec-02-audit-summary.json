@@ -1,0 +1,23 @@
+{
+  "gate": "SEC-02",
+  "head": "ec8cfa2b2cb2ff90d16d9fba70f21d87c4efd6fc",
+  "all": { "info": 0, "low": 0, "moderate": 8, "high": 7, "critical": 2, "total": 17 },
+  "omitDev": { "info": 0, "low": 0, "moderate": 1, "high": 7, "critical": 2, "total": 10 },
+  "classification": {
+    "p0": [],
+    "p1": [
+      "@vercel/functions@3.10.4 → oidc → cli-config → zod@4.1.11 (GHSA-mrhx-c7xc-m3w5)",
+      "prisma@7.10.1 → @prisma/config → effect@3.20.0 (GHSA-7589-6fvf-x4pw); no Prisma downgrade"
+    ],
+    "p2": [
+      "vitest@3.2.4 / tinypool@1.1.1 / @vitest/mocker (dev/CI; peerOptional noise in omit=dev)",
+      "typescript-eslint* / minimatch via eslint-config-next"
+    ]
+  },
+  "safeUpdatePlan": [
+    "SEC-03a: bump @vercel/functions to >=3.11.3 only",
+    "SEC-03b: wait for Prisma effect pin or approved override effect@3.22.1",
+    "SEC-03c: Vitest 4.x for dev advisories"
+  ],
+  "nextReleaseBlockers": "None hard-blocking with evidence; recommend Vercel functions bump before public launch"
+}

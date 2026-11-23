@@ -1,0 +1,468 @@
+{
+  "all": {
+    "meta": {
+      "info": 0,
+      "low": 0,
+      "moderate": 8,
+      "high": 7,
+      "critical": 2,
+      "total": 17
+    },
+    "rows": [
+      {
+        "name": "tinypool",
+        "severity": "critical",
+        "range": "<=2.1.1",
+        "isDirect": false,
+        "fixAvailable": true,
+        "effects": [
+          "vitest"
+        ],
+        "advisories": [
+          {
+            "id": "GHSA-5gmw-xhrv-c9v3",
+            "title": "Tinypool: Prototype Pollution gadget in worker options leads to Remote Code Execution",
+            "severity": "critical",
+            "range": "<=2.1.0",
+            "url": "https://github.com/advisories/GHSA-5gmw-xhrv-c9v3"
+          },
+          {
+            "id": "GHSA-85c8-ppgw-ccpr",
+            "title": "Tinypool: Prototype Pollution Gadget to RCE in run() options",
+            "severity": "critical",
+            "range": "<2.1.2",
+            "url": "https://github.com/advisories/GHSA-85c8-ppgw-ccpr"
+          }
+        ]
+      },
+      {
+        "name": "vitest",
+        "severity": "critical",
+        "range": "<=4.1.10",
+        "isDirect": true,
+        "fixAvailable": true,
+        "effects": [],
+        "advisories": [
+          {
+            "id": "GHSA-5xrq-8626-4rwp",
+            "title": "When Vitest UI server is listening, arbitrary file can be read and executed",
+            "severity": "critical",
+            "range": "<3.2.6",
+            "url": "https://github.com/advisories/GHSA-5xrq-8626-4rwp"
+          },
+          {
+            "id": "GHSA-82fw-gwwq-j7x9",
+            "title": "Vitest: Path Traversal / Arbitrary File Read via @vitest/mocker Redirect Mock",
+            "severity": "moderate",
+            "range": ">=2.1.0 <4.1.11",
+            "url": "https://github.com/advisories/GHSA-82fw-gwwq-j7x9"
+          }
+        ]
+      },
+      {
+        "name": "@prisma/config",
+        "severity": "high",
+        "range": ">=6.13.0-dev.1",
+        "isDirect": false,
+        "fixAvailable": {
+          "name": "prisma",
+          "version": "6.12.0",
+          "isSemVerMajor": true
+        },
+        "effects": [
+          "prisma"
+        ],
+        "advisories": []
+      },
+      {
+        "name": "@vercel/cli-config",
+        "severity": "high",
+        "range": "<=0.3.5",
+        "isDirect": false,
+        "fixAvailable": true,
+        "effects": [
+          "@vercel/oidc"
+        ],
+        "advisories": []
+      },
+      {
+        "name": "@vercel/functions",
+        "severity": "high",
+        "range": "3.6.2 - 3.10.5",
+        "isDirect": true,
+        "fixAvailable": true,
+        "effects": [],
+        "advisories": []
+      },
+      {
+        "name": "@vercel/oidc",
+        "severity": "high",
+        "range": "3.6.0 - 4.0.5",
+        "isDirect": false,
+        "fixAvailable": true,
+        "effects": [
+          "@vercel/functions"
+        ],
+        "advisories": []
+      },
+      {
+        "name": "effect",
+        "severity": "high",
+        "range": "<=3.22.0",
+        "isDirect": false,
+        "fixAvailable": {
+          "name": "prisma",
+          "version": "6.12.0",
+          "isSemVerMajor": true
+        },
+        "effects": [
+          "@prisma/config"
+        ],
+        "advisories": [
+          {
+            "id": "GHSA-7589-6fvf-x4pw",
+            "title": "Effect: ReDoS in Schema.TemplateLiteral compiled regex",
+            "severity": "high",
+            "range": "<=3.22.0",
+            "url": "https://github.com/advisories/GHSA-7589-6fvf-x4pw"
+          }
+        ]
+      },
+      {
+        "name": "prisma",
+        "severity": "high",
+        "range": ">=6.13.0-dev.1",
+        "isDirect": true,
+        "fixAvailable": {
+          "name": "prisma",
+          "version": "6.12.0",
+          "isSemVerMajor": true
+        },
+        "effects": [],
+        "advisories": []
+      },
+      {
+        "name": "zod",
+        "severity": "high",
+        "range": "<4.6.6",
+        "isDirect": false,
+        "fixAvailable": true,
+        "effects": [
+          "@vercel/cli-config"
+        ],
+        "advisories": [
+          {
+            "id": "GHSA-mrhx-c7xc-m3w5",
+            "title": "Zod can exhaust memory while validating oversized constrained collections",
+            "severity": "high",
+            "range": "<4.6.6",
+            "url": "https://github.com/advisories/GHSA-mrhx-c7xc-m3w5"
+          }
+        ]
+      },
+      {
+        "name": "@typescript-eslint/eslint-plugin",
+        "severity": "moderate",
+        "range": "6.16.0 - 8.72.2",
+        "isDirect": false,
+        "fixAvailable": true,
+        "effects": [
+          "typescript-eslint"
+        ],
+        "advisories": []
+      },
+      {
+        "name": "@typescript-eslint/parser",
+        "severity": "moderate",
+        "range": "6.16.0 - 8.72.2",
+        "isDirect": false,
+        "fixAvailable": true,
+        "effects": [
+          "typescript-eslint"
+        ],
+        "advisories": []
+      },
+      {
+        "name": "@typescript-eslint/type-utils",
+        "severity": "moderate",
+        "range": "6.16.0 - 8.72.2",
+        "isDirect": false,
+        "fixAvailable": true,
+        "effects": [
+          "@typescript-eslint/eslint-plugin"
+        ],
+        "advisories": []
+      },
+      {
+        "name": "@typescript-eslint/typescript-estree",
+        "severity": "moderate",
+        "range": "6.16.0 - 8.72.2",
+        "isDirect": false,
+        "fixAvailable": true,
+        "effects": [
+          "@typescript-eslint/parser",
+          "@typescript-eslint/type-utils",
+          "@typescript-eslint/utils",
+          "typescript-eslint"
+        ],
+        "advisories": []
+      },
+      {
+        "name": "@typescript-eslint/utils",
+        "severity": "moderate",
+        "range": "6.16.0 - 8.72.2",
+        "isDirect": false,
+        "fixAvailable": true,
+        "effects": [
+          "@typescript-eslint/eslint-plugin",
+          "@typescript-eslint/type-utils",
+          "typescript-eslint"
+        ],
+        "advisories": []
+      },
+      {
+        "name": "@vitest/mocker",
+        "severity": "moderate",
+        "range": "<=4.1.11",
+        "isDirect": false,
+        "fixAvailable": true,
+        "effects": [
+          "vitest"
+        ],
+        "advisories": [
+          {
+            "id": "GHSA-82fw-gwwq-j7x9",
+            "title": "Vitest: Path Traversal / Arbitrary File Read via @vitest/mocker Redirect Mock",
+            "severity": "moderate",
+            "range": ">=2.1.0 <4.1.11",
+            "url": "https://github.com/advisories/GHSA-82fw-gwwq-j7x9"
+          },
+          {
+            "id": "GHSA-qxg6-89mg-rqv8",
+            "title": "Vitest: Code injection via unauthenticated manual mock registration",
+            "severity": "moderate",
+            "range": ">=2.1.0-beta.7 <4.1.12",
+            "url": "https://github.com/advisories/GHSA-qxg6-89mg-rqv8"
+          }
+        ]
+      },
+      {
+        "name": "minimatch",
+        "severity": "moderate",
+        "range": "7.0.0 - 11.0.0",
+        "isDirect": false,
+        "fixAvailable": true,
+        "effects": [
+          "@typescript-eslint/typescript-estree"
+        ],
+        "advisories": [
+          {
+            "id": "GHSA-g3hv-75wg-m249",
+            "title": "minimatch has potential denial of service via globparts amplification",
+            "severity": "moderate",
+            "range": ">=7.0.0 <11.0.1",
+            "url": "https://github.com/advisories/GHSA-g3hv-75wg-m249"
+          }
+        ]
+      },
+      {
+        "name": "typescript-eslint",
+        "severity": "moderate",
+        "range": "<=8.72.2",
+        "isDirect": false,
+        "fixAvailable": true,
+        "effects": [],
+        "advisories": []
+      }
+    ]
+  },
+  "prod": {
+    "meta": {
+      "info": 0,
+      "low": 0,
+      "moderate": 1,
+      "high": 7,
+      "critical": 2,
+      "total": 10
+    },
+    "rows": [
+      {
+        "name": "tinypool",
+        "severity": "critical",
+        "range": "<=2.1.1",
+        "isDirect": false,
+        "fixAvailable": true,
+        "effects": [
+          "vitest"
+        ],
+        "advisories": [
+          {
+            "id": "GHSA-5gmw-xhrv-c9v3",
+            "title": "Tinypool: Prototype Pollution gadget in worker options leads to Remote Code Execution",
+            "severity": "critical",
+            "range": "<=2.1.0",
+            "url": "https://github.com/advisories/GHSA-5gmw-xhrv-c9v3"
+          },
+          {
+            "id": "GHSA-85c8-ppgw-ccpr",
+            "title": "Tinypool: Prototype Pollution Gadget to RCE in run() options",
+            "severity": "critical",
+            "range": "<2.1.2",
+            "url": "https://github.com/advisories/GHSA-85c8-ppgw-ccpr"
+          }
+        ]
+      },
+      {
+        "name": "vitest",
+        "severity": "critical",
+        "range": "<=4.1.10",
+        "isDirect": true,
+        "fixAvailable": true,
+        "effects": [],
+        "advisories": [
+          {
+            "id": "GHSA-5xrq-8626-4rwp",
+            "title": "When Vitest UI server is listening, arbitrary file can be read and executed",
+            "severity": "critical",
+            "range": "<3.2.6",
+            "url": "https://github.com/advisories/GHSA-5xrq-8626-4rwp"
+          },
+          {
+            "id": "GHSA-82fw-gwwq-j7x9",
+            "title": "Vitest: Path Traversal / Arbitrary File Read via @vitest/mocker Redirect Mock",
+            "severity": "moderate",
+            "range": ">=2.1.0 <4.1.11",
+            "url": "https://github.com/advisories/GHSA-82fw-gwwq-j7x9"
+          }
+        ]
+      },
+      {
+        "name": "@prisma/config",
+        "severity": "high",
+        "range": ">=6.13.0-dev.1",
+        "isDirect": false,
+        "fixAvailable": {
+          "name": "prisma",
+          "version": "6.12.0",
+          "isSemVerMajor": true
+        },
+        "effects": [
+          "prisma"
+        ],
+        "advisories": []
+      },
+      {
+        "name": "@vercel/cli-config",
+        "severity": "high",
+        "range": "<=0.3.5",
+        "isDirect": false,
+        "fixAvailable": true,
+        "effects": [
+          "@vercel/oidc"
+        ],
+        "advisories": []
+      },
+      {
+        "name": "@vercel/functions",
+        "severity": "high",
+        "range": "3.6.2 - 3.10.5",
+        "isDirect": true,
+        "fixAvailable": true,
+        "effects": [],
+        "advisories": []
+      },
+      {
+        "name": "@vercel/oidc",
+        "severity": "high",
+        "range": "3.6.0 - 4.0.5",
+        "isDirect": false,
+        "fixAvailable": true,
+        "effects": [
+          "@vercel/functions"
+        ],
+        "advisories": []
+      },
+      {
+        "name": "effect",
+        "severity": "high",
+        "range": "<=3.22.0",
+        "isDirect": false,
+        "fixAvailable": {
+          "name": "prisma",
+          "version": "6.12.0",
+          "isSemVerMajor": true
+        },
+        "effects": [
+          "@prisma/config"
+        ],
+        "advisories": [
+          {
+            "id": "GHSA-7589-6fvf-x4pw",
+            "title": "Effect: ReDoS in Schema.TemplateLiteral compiled regex",
+            "severity": "high",
+            "range": "<=3.22.0",
+            "url": "https://github.com/advisories/GHSA-7589-6fvf-x4pw"
+          }
+        ]
+      },
+      {
+        "name": "prisma",
+        "severity": "high",
+        "range": ">=6.13.0-dev.1",
+        "isDirect": true,
+        "fixAvailable": {
+          "name": "prisma",
+          "version": "6.12.0",
+          "isSemVerMajor": true
+        },
+        "effects": [],
+        "advisories": []
+      },
+      {
+        "name": "zod",
+        "severity": "high",
+        "range": "<4.6.6",
+        "isDirect": false,
+        "fixAvailable": true,
+        "effects": [
+          "@vercel/cli-config"
+        ],
+        "advisories": [
+          {
+            "id": "GHSA-mrhx-c7xc-m3w5",
+            "title": "Zod can exhaust memory while validating oversized constrained collections",
+            "severity": "high",
+            "range": "<4.6.6",
+            "url": "https://github.com/advisories/GHSA-mrhx-c7xc-m3w5"
+          }
+        ]
+      },
+      {
+        "name": "@vitest/mocker",
+        "severity": "moderate",
+        "range": "<=4.1.11",
+        "isDirect": false,
+        "fixAvailable": true,
+        "effects": [
+          "vitest"
+        ],
+        "advisories": [
+          {
+            "id": "GHSA-82fw-gwwq-j7x9",
+            "title": "Vitest: Path Traversal / Arbitrary File Read via @vitest/mocker Redirect Mock",
+            "severity": "moderate",
+            "range": ">=2.1.0 <4.1.11",
+            "url": "https://github.com/advisories/GHSA-82fw-gwwq-j7x9"
+          },
+          {
+            "id": "GHSA-qxg6-89mg-rqv8",
+            "title": "Vitest: Code injection via unauthenticated manual mock registration",
+            "severity": "moderate",
+            "range": ">=2.1.0-beta.7 <4.1.12",
+            "url": "https://github.com/advisories/GHSA-qxg6-89mg-rqv8"
+          }
+        ]
+      }
+    ]
+  }
+}
