@@ -56,8 +56,15 @@ async function main() {
   console.info("declaredEnvironment", declaredEnvironment)
   console.info("founderUserIdPrefix", founderUserId.slice(0, 8))
 
-  const inspection = await inspectCommunityBootstrapState(prisma)
-  console.info("inspection", inspection)
+  let inspection: Awaited<ReturnType<typeof inspectCommunityBootstrapState>> | null = null
+  let inspectionError: string | null = null
+  try {
+    inspection = await inspectCommunityBootstrapState(prisma)
+    console.info("inspection", inspection)
+  } catch (error) {
+    inspectionError = error instanceof Error ? error.message : String(error)
+    console.warn("inspection_unavailable", inspectionError)
+  }
 
   if (!apply || !ownerAuthorized) {
     console.info(
@@ -65,10 +72,12 @@ async function main() {
         {
           status: "dry_run",
           wouldAttemptGrant: true,
+          writes: false,
           blockedIf: [
             !ownerAuthorized ? "missing --confirm=OWNER_AUTHORIZED" : null,
-            inspection.communityInitialized ? "community_already_initialized" : null,
-            inspection.realRequestCount > 0 ? "real_requests_exist" : null,
+            inspection?.communityInitialized ? "community_already_initialized" : null,
+            inspection && inspection.realRequestCount > 0 ? "real_requests_exist" : null,
+            inspectionError ? "database_unreachable_for_inspection" : null,
           ].filter(Boolean),
           nextStep:
             "Após autorização do proprietário, rode com --confirm=OWNER_AUTHORIZED (e ALLOW_REMOTE_DB_WRITE=true se Preview remoto).",
@@ -78,6 +87,10 @@ async function main() {
       ),
     )
     return
+  }
+
+  if (inspectionError) {
+    throw new Error(`Inspeção obrigatória antes do apply falhou: ${inspectionError}`)
   }
 
   // Escrita: local autorizado OU Preview remoto com ALLOW_REMOTE_DB_WRITE=true

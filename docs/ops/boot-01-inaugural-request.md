@@ -48,4 +48,12 @@ Nenhuma dessas opções deve conceder novo `admin_grant` automaticamente.
 
 ## Pendência do proprietário
 
-Autorizar explicitamente a execução do grant no banco Preview (conta fundadora + `--confirm=OWNER_AUTHORIZED`). Até lá: `PENDING DATABASE ACTION`.
+1. Rodar inspeção read-only apontando o runtime para o banco Preview isolado (sem escrita).
+2. Autorizar explicitamente a execução do grant no Preview (conta fundadora + `--confirm=OWNER_AUTHORIZED` + `ALLOW_REMOTE_DB_WRITE=true`).
+3. Criar o pedido inaugural pela UI `/pedir`.
+
+Até a autorização: `PENDING DATABASE ACTION`. Não executar grant automaticamente.
+
+## Inspeção local nesta sessão
+
+O `.env.local` apontava para `127.0.0.1/intercessao_dev`, mas o Postgres local não estava acessível (`Can't reach database server`). Contagens Preview ficam **pendentes** até inspeção com URL Preview read-only.
