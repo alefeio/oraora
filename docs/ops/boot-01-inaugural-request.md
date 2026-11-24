@@ -74,15 +74,30 @@ Se o Docker local estiver parado: marcar **LOCAL POSTGRES: BLOCKED** e não roda
 
 Opções seguras para gate próprio: descoberta do inaugural ainda `open` fora da fila; arquivo de cuidado; aviso com link direto. Sem novo `admin_grant` automático.
 
-## Inspeção Preview (somente leitura) — BOOT-01R
+## Inspeção Preview (somente leitura) — BOOT-01R / BOOT-01P
 
-Tentativa com hosts `db.prisma.io` / `pooled.db.prisma.io`, database `postgres`:
+### BOOT-01R (URLs remotas do `.env.local`)
 
-- Fingerprint: `preview_remote` / `sameDatabase: true` (sem credenciais nas evidências).
-- Contagens: **falhou** — tabelas do app ausentes (`public.prayer_request` / schema incompleto).
-- Conclusão: a URL Prisma Postgres genérica no ambiente local **não** é o schema migrado do app Preview.
-- `ELIGIBLE FOR BOOTSTRAP:` **UNKNOWN** até inspeção no banco Preview real da Vercel.
-- **Grant não executado.**
+- Fingerprints locais **≠** Preview Vercel (instância errada / obsoleta).
+- Schema do app ausente naquela conexão → `ELIGIBLE` UNKNOWN naquele alvo.
+
+### BOOT-01P (Vercel Preview autenticado)
+
+| Item | Evidência |
+|---|---|
+| Projeto | `alefeios-projects/oraora` (`prj_JAOMoEe1NysvI0TprfTRmzwMrKYL`) |
+| Recurso Preview | `oraora-preview` / `store_xYaw5J0xe3Gb9T89` → conectado **somente** `oraora (preview)` |
+| Recurso Production | `prisma-postgres-oraora` / `store_sVF0L5GhFshjZfVP` → **somente** `oraora (production)` |
+| Env scopes | `DATABASE_URL*` / `POSTGRES_URL` / `PRISMA_DATABASE_URL` exclusivos Preview ≠ Production |
+| Branch homologada | `feature/ui-05c-authenticated-surfaces` (alias git Preview Ready) |
+| Direct/runtime | `db.prisma.io` + `pooled.db.prisma.io`, database `postgres`, schema app **presente** |
+| Migrations | **4/4** aplicadas, nenhuma unfinished |
+| Contagens | users=1; real requests=0; open visible=0; open eligibility=0; admin_grant=0; bootstrap policy=ausente |
+| Fundador (candidato único) | `idPrefix=ba3pO5iO`, e-mail `ora…@gmail.com`, role `USER`, verificado, criado `2026-11-11` — **confirmar com o proprietário** |
+| Elegível | **YES** (estado comunitário vazio de bootstrap) |
+| Escritas neste gate | **NONE** |
+
+`BOOTSTRAP_PREVIEW_DATABASE=postgres` (nome do database na instância Preview; identidade real = store + fingerprint Vercel).
 
 ### Evidências de testes locais (Docker `55433` / `intercessao_test`)
 
@@ -92,8 +107,8 @@ Tentativa com hosts `db.prisma.io` / `pooled.db.prisma.io`, database `postgres`:
 
 ## Pendência do proprietário
 
-1. Fornecer/apontar a URL do banco Preview isolado **já migrado** e rodar `boot:inspect --env=preview` com `BOOTSTRAP_PREVIEW_DATABASE=<dbname>`.
-2. Autorizar grant no Preview (fundador + `--confirm=OWNER_AUTHORIZED`).
-3. Criar pedido inaugural pela UI `/pedir`.
+1. Confirmar que a conta `idPrefix=ba3pO5iO` (`ora…@gmail.com`) é a fundadora homologada.
+2. Autorizar grant **somente** em `oraora-preview` (`store_xYaw5J0xe3Gb9T89`) com `--confirm=OWNER_AUTHORIZED`.
+3. Criar pedido inaugural pela UI `/pedir` no Preview homologado.
 
 **PREVIEW GRANT EXECUTED: NO**
