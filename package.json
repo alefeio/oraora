@@ -26,6 +26,8 @@
     "db:seed:scripture": "tsx scripts/seed-scripture.ts",
     "db:seed:sprint1": "npm run db:seed:foundation && npm run db:seed:feed-policy && npm run db:seed:categories && npm run db:seed:fixtures",
     "db:seed:sprint2": "npm run db:seed:sprint1 && npm run db:seed:scripture",
+    "boot:inspect": "tsx scripts/inspect-preview-bootstrap.ts",
+    "boot:inaugural": "tsx scripts/bootstrap-inaugural-grant.ts",
     "postinstall": "prisma generate",
     "typecheck": "tsc --noEmit"
   },
