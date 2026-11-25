@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge"
 import { Card, EmptyState } from "@/components/ui/card"
 import { requireUser } from "@/lib/auth/session"
 import { PRODUCT_DISPLAY_NAME } from "@/lib/config/product"
-import { listActiveCategories, listFeedPrayerRequests, summarizeStory } from "@/modules/prayer-requests"
+import { listFeedWithFilterCategories, summarizeStory } from "@/modules/prayer-requests"
 
 export const metadata = {
   title: `Encontrar alguém para orar · ${PRODUCT_DISPLAY_NAME}`,
@@ -26,14 +26,25 @@ export default function EncontrarPage(props: PageProps) {
 }
 
 async function EncontrarContent({ searchParams }: PageProps) {
-  await requireUser()
+  const session = await requireUser()
   const params = await searchParams
-  const categorySlug = params.category?.trim() || undefined
+  const requestedCategory = params.category?.trim() || undefined
 
-  const [categories, prayerRequests] = await Promise.all([
-    listActiveCategories(),
-    listFeedPrayerRequests({ categorySlug }),
-  ])
+  const { requests: allRequests, filterCategories } = await listFeedWithFilterCategories({
+    viewerUserId: session.user.id,
+  })
+
+  // ?category= sem pedidos na fila principal → feed geral, sem erro.
+  const categorySlug =
+    requestedCategory && filterCategories.some((category) => category.slug === requestedCategory)
+      ? requestedCategory
+      : undefined
+
+  const prayerRequests = categorySlug
+    ? allRequests.filter((item) => item.category.slug === categorySlug)
+    : allRequests
+
+  const showCategoryRail = allRequests.length > 0 && filterCategories.length > 0
 
   return (
     <>
@@ -54,27 +65,29 @@ async function EncontrarContent({ searchParams }: PageProps) {
           </p>
         </header>
 
-        <nav
-          className="category-rail -mx-1 min-w-0 max-w-full overflow-x-auto px-1 pb-1"
-          aria-label="Categorias"
-        >
-          <div className="flex w-max max-w-none flex-nowrap gap-2 md:w-full md:max-w-full md:flex-wrap">
-            <CategoryChip href="/encontrar" active={!categorySlug} label="Todas" />
-            {categories.map((category) => (
-              <CategoryChip
-                key={category.id}
-                href={`/encontrar?category=${category.slug}`}
-                active={categorySlug === category.slug}
-                label={category.name}
-              />
-            ))}
-          </div>
-        </nav>
+        {showCategoryRail ? (
+          <nav
+            className="category-rail -mx-1 min-w-0 max-w-full overflow-x-auto px-1 pb-1"
+            aria-label="Categorias com pedidos na fila"
+          >
+            <div className="flex w-max max-w-none flex-nowrap gap-2 md:w-full md:max-w-full md:flex-wrap">
+              <CategoryChip href="/encontrar" active={!categorySlug} label="Todas" />
+              {filterCategories.map((category) => (
+                <CategoryChip
+                  key={category.id}
+                  href={`/encontrar?category=${category.slug}`}
+                  active={categorySlug === category.slug}
+                  label={category.name}
+                />
+              ))}
+            </div>
+          </nav>
+        ) : null}
 
         {prayerRequests.length === 0 ? (
           <EmptyState
             title="Nenhum pedido na fila principal agora"
-            description="Volte em breve ou explore outra categoria."
+            description="Volte em breve. Quando houver pedidos, os filtros de categoria aparecerão aqui."
             className="border-0 bg-surface-sage-soft"
           />
         ) : (
@@ -89,6 +102,9 @@ async function EncontrarContent({ searchParams }: PageProps) {
                     <div className="flex flex-wrap items-center gap-2 text-xs text-text-muted">
                       <Badge tone="info">{item.category.name}</Badge>
                       <span className="font-medium text-text-secondary">{item.publicLabel}</span>
+                      {item.viewerIsAuthor ? (
+                        <Badge tone="neutral">Seu pedido</Badge>
+                      ) : null}
                       {item.isSyntheticFixture ? (
                         <Badge tone="warning">fixture de teste</Badge>
                       ) : null}

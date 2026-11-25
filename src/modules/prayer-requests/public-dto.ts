@@ -28,6 +28,14 @@ type RequestRow = {
   createdAt: Date
   isSyntheticFixture: boolean
   category: CategoryRow
+  /** Uso interno de comparação — nunca serializado no DTO. */
+  authorId?: string
+}
+
+export type PublicPrayerRequestDtoOptions = {
+  feed?: { inPrimaryQueue: boolean; priorityHint: string | null }
+  /** ID do usuário autenticado no servidor; nunca espelhado no DTO. */
+  viewerUserId?: string
 }
 
 /**
@@ -36,8 +44,12 @@ type RequestRow = {
  */
 export function toPublicPrayerRequestDto(
   row: RequestRow,
-  feed?: { inPrimaryQueue: boolean; priorityHint: string | null },
+  options?: PublicPrayerRequestDtoOptions,
 ): PublicPrayerRequestDto {
+  const viewerIsAuthor = Boolean(
+    options?.viewerUserId && row.authorId && options.viewerUserId === row.authorId,
+  )
+
   return {
     id: row.id,
     title: row.title,
@@ -54,15 +66,41 @@ export function toPublicPrayerRequestDto(
       id: row.category.id,
       slug: row.category.slug,
       name: row.category.name,
+      sortOrder: row.category.sortOrder,
       safetyClass: row.category.safetyClass as SafetyClass,
     },
-    feed: feed
+    feed: options?.feed
       ? {
-          inPrimaryQueue: feed.inPrimaryQueue,
-          priorityHint: feed.priorityHint,
+          inPrimaryQueue: options.feed.inPrimaryQueue,
+          priorityHint: options.feed.priorityHint,
         }
       : undefined,
+    ...(viewerIsAuthor ? { viewerIsAuthor: true } : {}),
   }
+}
+
+/**
+ * Categorias presentes na fila principal já ranqueada, ordenadas por sortOrder/nome.
+ */
+export function categoriesFromPrimaryFeed(
+  requests: PublicPrayerRequestDto[],
+): PublicCategoryDto[] {
+  const bySlug = new Map<string, PublicCategoryDto>()
+  for (const request of requests) {
+    if (bySlug.has(request.category.slug)) continue
+    bySlug.set(request.category.slug, {
+      id: request.category.id,
+      slug: request.category.slug,
+      name: request.category.name,
+      description: null,
+      sortOrder: request.category.sortOrder,
+      safetyClass: request.category.safetyClass,
+    })
+  }
+  return [...bySlug.values()].sort((a, b) => {
+    if (a.sortOrder !== b.sortOrder) return a.sortOrder - b.sortOrder
+    return a.name.localeCompare(b.name, "pt")
+  })
 }
 
 export function toPublicCategoryDto(row: CategoryRow): PublicCategoryDto {

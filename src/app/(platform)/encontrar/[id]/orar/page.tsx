@@ -4,6 +4,7 @@ import { notFound } from "next/navigation"
 import { PrayerComposeForm } from "@/components/prayer/prayer-compose-form"
 import { SiteFooter } from "@/components/layout/site-footer"
 import { SiteHeader } from "@/components/layout/site-header"
+import { ButtonLink } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { requireUser } from "@/lib/auth/session"
 import { PRODUCT_DISPLAY_NAME } from "@/lib/config/product"
@@ -27,10 +28,38 @@ export default function OrarPage(props: PageProps) {
 }
 
 async function OrarContent({ params }: PageProps) {
-  await requireUser()
+  const session = await requireUser()
   const { id } = await params
-  const prayerRequest = await getReadablePrayerRequestById(id)
+  const prayerRequest = await getReadablePrayerRequestById(id, {
+    viewerUserId: session.user.id,
+  })
   if (!prayerRequest) notFound()
+
+  if (prayerRequest.viewerIsAuthor) {
+    return (
+      <>
+        <SiteHeader mode="app" />
+        <main className="mx-auto flex w-full max-w-2xl flex-col gap-6 px-4 py-8 sm:px-6">
+          <header className="space-y-2">
+            <h1 className="text-2xl font-bold text-primary">Seu pedido</h1>
+            <p className="text-sm leading-6 text-text-secondary">
+              Este pedido foi publicado por você. Aguarde as orações de outras pessoas da
+              comunidade. Não é possível orar pelo próprio pedido.
+            </p>
+          </header>
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <ButtonLink href={`/encontrar/${prayerRequest.id}`} size="lg">
+              Voltar ao pedido
+            </ButtonLink>
+            <ButtonLink href="/encontrar" variant="secondary" size="lg">
+              Ir ao feed
+            </ButtonLink>
+          </div>
+        </main>
+        <SiteFooter />
+      </>
+    )
+  }
 
   return (
     <>

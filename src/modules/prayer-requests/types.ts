@@ -62,12 +62,18 @@ export type PublicPrayerRequestDto = {
     id: string
     slug: string
     name: string
+    sortOrder: number
     safetyClass: SafetyClass
   }
   feed?: {
     inPrimaryQueue: boolean
     priorityHint: string | null
   }
+  /**
+   * true somente quando o servidor comparou o usuário autenticado com o autor.
+   * Não revela a identidade do autor a terceiros.
+   */
+  viewerIsAuthor?: boolean
 }
 
 export type PublicCategoryDto = {
