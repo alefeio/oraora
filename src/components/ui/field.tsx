@@ -32,8 +32,13 @@ export function TextInput(props: InputHTMLAttributes<HTMLInputElement>) {
   return <input className={controlClass} {...props} />
 }
 
-export function TextArea(props: TextareaHTMLAttributes<HTMLTextAreaElement>) {
-  return <textarea className={`${controlClass} min-h-28 leading-6`} {...props} />
+export function TextArea({
+  className = "",
+  ...props
+}: TextareaHTMLAttributes<HTMLTextAreaElement>) {
+  return (
+    <textarea className={`${controlClass} min-h-28 leading-6 ${className}`.trim()} {...props} />
+  )
 }
 
 export function Select(props: SelectHTMLAttributes<HTMLSelectElement>) {

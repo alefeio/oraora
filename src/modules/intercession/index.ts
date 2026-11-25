@@ -3,6 +3,8 @@ export { submitPrayer } from "./submit-prayer"
 export { decidePrayerValidation } from "./validate-prayer"
 export { invalidatePrayerValidation } from "./invalidate-prayer"
 export { toPrayerDto } from "./dto"
+export { getPrayerSubmissionAvailability } from "./prayer-availability"
+export { getPrayerReadAccess } from "./authorization"
 export {
   DomainError,
   PrayerNotAllowedError,
