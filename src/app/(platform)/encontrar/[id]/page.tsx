@@ -27,10 +27,14 @@ export default function PrayerRequestDetailPage(props: PageProps) {
 }
 
 async function PrayerRequestDetailContent({ params }: PageProps) {
-  await requireUser()
+  const session = await requireUser()
   const { id } = await params
-  const prayerRequest = await getReadablePrayerRequestById(id)
+  const prayerRequest = await getReadablePrayerRequestById(id, {
+    viewerUserId: session.user.id,
+  })
   if (!prayerRequest) notFound()
+
+  const isOwnRequest = prayerRequest.viewerIsAuthor === true
 
   return (
     <>
@@ -49,6 +53,7 @@ async function PrayerRequestDetailContent({ params }: PageProps) {
               <div className="flex flex-wrap items-center gap-2 text-xs text-text-muted">
                 <Badge tone="info">{prayerRequest.category.name}</Badge>
                 <span className="font-medium text-text-secondary">{prayerRequest.publicLabel}</span>
+                {isOwnRequest ? <Badge tone="neutral">Seu pedido</Badge> : null}
                 <Badge tone="neutral">{prayerRequest.status}</Badge>
                 {prayerRequest.isSyntheticFixture ? (
                   <Badge tone="warning">fixture de teste</Badge>
@@ -100,19 +105,28 @@ async function PrayerRequestDetailContent({ params }: PageProps) {
               ) : null}
             </section>
 
-            <div className="space-y-2">
-              <ButtonLink
-                href={`/encontrar/${prayerRequest.id}/orar`}
-                size="lg"
-                className="w-full"
-              >
-                Quero orar por {prayerRequest.publicLabel}
-              </ButtonLink>
-              <p className="text-center text-xs leading-5 text-text-muted">
-                Você será guiado a refletir, escolher uma Palavra (opcional) e escrever uma oração
-                individual.
-              </p>
-            </div>
+            {isOwnRequest ? (
+              <div className="space-y-2 rounded-[var(--radius-lg)] border border-border bg-surface-sage-soft px-5 py-5">
+                <p className="text-sm leading-6 text-text-secondary">
+                  Este pedido foi publicado por você. Aguarde as orações de outras pessoas da
+                  comunidade.
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <ButtonLink
+                  href={`/encontrar/${prayerRequest.id}/orar`}
+                  size="lg"
+                  className="w-full"
+                >
+                  Quero orar por {prayerRequest.publicLabel}
+                </ButtonLink>
+                <p className="text-center text-xs leading-5 text-text-muted">
+                  Você será guiado a refletir, escolher uma Palavra (opcional) e escrever uma oração
+                  individual.
+                </p>
+              </div>
+            )}
           </aside>
         </div>
       </main>

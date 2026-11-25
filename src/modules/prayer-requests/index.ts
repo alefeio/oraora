@@ -9,7 +9,13 @@ export {
   PrayerRequestCreationBlockedError,
 } from "./creation-guard"
 export { createPrayerRequest, derivePublicLabel } from "./create-request"
-export { listActiveCategories, listFeedPrayerRequests, getReadablePrayerRequestById } from "./queries"
+export {
+  listActiveCategories,
+  listFeedPrayerRequests,
+  listFeedWithFilterCategories,
+  getReadablePrayerRequestById,
+  categoriesFromPrimaryFeed,
+} from "./queries"
 export { rankPrayerRequestsForFeed, parseFeedPolicyDocument } from "./feed-ranking"
 export { toPublicPrayerRequestDto, toPublicCategoryDto, summarizeStory } from "./public-dto"
 export { INITIAL_CATEGORIES, seedCategoriesIdempotent } from "./categories"

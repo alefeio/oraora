@@ -1,7 +1,11 @@
 import { prisma } from "@/lib/db/prisma"
 import { getActivePolicy } from "@/lib/security/policies"
 import { parseFeedPolicyDocument, rankPrayerRequestsForFeed } from "./feed-ranking"
-import { toPublicCategoryDto, toPublicPrayerRequestDto } from "./public-dto"
+import {
+  categoriesFromPrimaryFeed,
+  toPublicCategoryDto,
+  toPublicPrayerRequestDto,
+} from "./public-dto"
 import type { PublicCategoryDto, PublicPrayerRequestDto } from "./types"
 
 const readableStatuses = ["open", "paused", "closed"] as const
@@ -21,6 +25,7 @@ export async function listActiveCategories(): Promise<PublicCategoryDto[]> {
 export async function listFeedPrayerRequests(input?: {
   categorySlug?: string
   now?: Date
+  viewerUserId?: string
 }): Promise<PublicPrayerRequestDto[]> {
   const now = input?.now ?? new Date()
 
@@ -53,14 +58,38 @@ export async function listFeedPrayerRequests(input?: {
 
   return ranked.map((item) =>
     toPublicPrayerRequestDto(item.row, {
-      inPrimaryQueue: item.inPrimaryQueue,
-      priorityHint: item.priorityHint,
+      feed: {
+        inPrimaryQueue: item.inPrimaryQueue,
+        priorityHint: item.priorityHint,
+      },
+      viewerUserId: input?.viewerUserId,
     }),
   )
 }
 
+/**
+ * Fila principal completa + categorias derivadas dela (mesmos critérios do ranking).
+ */
+export async function listFeedWithFilterCategories(input?: {
+  now?: Date
+  viewerUserId?: string
+}): Promise<{
+  requests: PublicPrayerRequestDto[]
+  filterCategories: PublicCategoryDto[]
+}> {
+  const requests = await listFeedPrayerRequests({
+    now: input?.now,
+    viewerUserId: input?.viewerUserId,
+  })
+  return {
+    requests,
+    filterCategories: categoriesFromPrimaryFeed(requests),
+  }
+}
+
 export async function getReadablePrayerRequestById(
   id: string,
+  options?: { viewerUserId?: string },
 ): Promise<PublicPrayerRequestDto | null> {
   const row = await prisma.prayerRequest.findUnique({
     where: { id },
@@ -93,7 +122,12 @@ export async function getReadablePrayerRequestById(
   )
 
   return toPublicPrayerRequestDto(row, {
-    inPrimaryQueue: ranked?.inPrimaryQueue ?? true,
-    priorityHint: ranked?.priorityHint ?? null,
+    feed: {
+      inPrimaryQueue: ranked?.inPrimaryQueue ?? true,
+      priorityHint: ranked?.priorityHint ?? null,
+    },
+    viewerUserId: options?.viewerUserId,
   })
 }
+
+export { categoriesFromPrimaryFeed }
