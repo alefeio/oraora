@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { ButtonLink } from "@/components/ui/button"
 import { requireUser } from "@/lib/auth/session"
 import { PRODUCT_DISPLAY_NAME } from "@/lib/config/product"
+import { getPrayerSubmissionAvailability } from "@/modules/intercession/prayer-availability"
 import { getReadablePrayerRequestById } from "@/modules/prayer-requests"
 
 export const metadata = {
@@ -35,6 +36,11 @@ async function PrayerRequestDetailContent({ params }: PageProps) {
   if (!prayerRequest) notFound()
 
   const isOwnRequest = prayerRequest.viewerIsAuthor === true
+  const availability = getPrayerSubmissionAvailability({
+    requestStatus: prayerRequest.status,
+    contentVisibility: "authenticated",
+    viewerIsAuthor: isOwnRequest,
+  })
 
   return (
     <>
@@ -105,14 +111,7 @@ async function PrayerRequestDetailContent({ params }: PageProps) {
               ) : null}
             </section>
 
-            {isOwnRequest ? (
-              <div className="space-y-2 rounded-[var(--radius-lg)] border border-border bg-surface-sage-soft px-5 py-5">
-                <p className="text-sm leading-6 text-text-secondary">
-                  Este pedido foi publicado por você. Aguarde as orações de outras pessoas da
-                  comunidade.
-                </p>
-              </div>
-            ) : (
+            {availability.canSubmit ? (
               <div className="space-y-2">
                 <ButtonLink
                   href={`/encontrar/${prayerRequest.id}/orar`}
@@ -125,6 +124,10 @@ async function PrayerRequestDetailContent({ params }: PageProps) {
                   Você será guiado a refletir, escolher uma Palavra (opcional) e escrever uma oração
                   individual.
                 </p>
+              </div>
+            ) : (
+              <div className="space-y-2 rounded-[var(--radius-lg)] border border-border bg-surface-sage-soft px-5 py-5">
+                <p className="text-sm leading-6 text-text-secondary">{availability.message}</p>
               </div>
             )}
           </aside>
