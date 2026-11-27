@@ -10,23 +10,48 @@
  * Preflight Preview RO: scripts/preflight-scripture-preview.ts
  */
 import { config as loadEnv } from "dotenv"
-import { assertDatabaseWriteAllowed, redactDatabaseTarget } from "../src/lib/db/guards"
-import { prisma } from "../src/lib/db/prisma"
-import {
-  PREVIEW_DIRECT_FINGERPRINT,
-  PREVIEW_POOLED_FINGERPRINT,
-  proveEffectivePrismaWriteTarget,
-} from "../src/lib/db/write-target"
-import { OFFICIAL_SCRIPTURE_EXPECTED } from "../src/modules/scripture/expected-counts"
-import { SCRIPTURE_PASSAGES, SCRIPTURE_TOPICS } from "../src/modules/scripture/catalog"
-import { insertMissingScriptureOnly } from "../src/modules/scripture/insert-missing"
 
-loadEnv({ path: ".env.local", quiet: true })
-loadEnv({ path: ".env", quiet: true })
+const requirePreview = process.argv.includes("--preview")
+const apply = process.argv.includes("--apply")
+const envFileArg = process.argv.find((a) => a.startsWith("--env-file="))?.slice("--env-file=".length)
+
+if (requirePreview) {
+  const previewFile = envFileArg || ".env.preview.reprocess.tmp"
+  loadEnv({ path: previewFile, quiet: true, override: true })
+  const direct =
+    process.env.DATABASE_URL_UNPOOLED?.trim() ||
+    process.env.PRISMA_DATABASE_URL?.trim() ||
+    process.env.POSTGRES_URL?.trim() ||
+    process.env.DATABASE_URL?.trim()
+  const pooled = process.env.DATABASE_URL_POOLED?.trim() || direct
+  if (!direct || !pooled || direct.includes("[SENSITIVE]") || pooled.includes("[SENSITIVE]")) {
+    throw new Error(
+      `Preview URLs inválidas. Use: vercel env pull ${previewFile} --environment preview`,
+    )
+  }
+  process.env.DIRECT_URL = direct
+  process.env.DATABASE_URL = direct
+  process.env.RUNTIME_DATABASE_URL = pooled
+  process.env.ALLOW_REMOTE_DB_WRITE = "true"
+  delete process.env.VERCEL_ENV
+  console.info("preview_env_file", previewFile)
+} else {
+  loadEnv({ path: ".env.local", quiet: true })
+  loadEnv({ path: ".env", quiet: true })
+}
 
 async function main() {
-  const apply = process.argv.includes("--apply")
-  const requirePreview = process.argv.includes("--preview")
+  const { assertDatabaseWriteAllowed, redactDatabaseTarget } = await import("../src/lib/db/guards")
+  const { prisma } = await import("../src/lib/db/prisma")
+  const {
+    PREVIEW_DIRECT_FINGERPRINT,
+    PREVIEW_POOLED_FINGERPRINT,
+    proveEffectivePrismaWriteTarget,
+  } = await import("../src/lib/db/write-target")
+  const { OFFICIAL_SCRIPTURE_EXPECTED } = await import("../src/modules/scripture/expected-counts")
+  const { SCRIPTURE_PASSAGES, SCRIPTURE_TOPICS } = await import("../src/modules/scripture/catalog")
+  const { insertMissingScriptureOnly } = await import("../src/modules/scripture/insert-missing")
+
   const target = assertDatabaseWriteAllowed()
   console.info("guard_target", redactDatabaseTarget(target))
   console.info("mode", apply ? "apply" : "dry-run")
@@ -92,13 +117,30 @@ async function main() {
     categoryLinks: c2,
     passageLinks: l2,
   })
+
+  // Inventário pós-apply por referência (sem textos).
+  const refs = await prisma.scripturePassage.findMany({
+    select: { referenceLabel: true, licenseStatus: true, textBody: true, active: true },
+    orderBy: { referenceLabel: "asc" },
+  })
+  console.info("passages_inventory", {
+    count: refs.length,
+    allReferenceOnly: refs.every((r) => r.licenseStatus === "reference_only"),
+    allTextNull: refs.every((r) => r.textBody == null),
+    allActive: refs.every((r) => r.active),
+    labels: refs.map((r) => r.referenceLabel),
+  })
+
+  await prisma.$disconnect()
 }
 
-main()
-  .catch((error) => {
-    console.error(error instanceof Error ? error.message : error)
-    process.exitCode = 1
-  })
-  .finally(async () => {
+main().catch(async (error) => {
+  console.error(error instanceof Error ? error.message : error)
+  process.exitCode = 1
+  try {
+    const { prisma } = await import("../src/lib/db/prisma")
     await prisma.$disconnect()
-  })
+  } catch {
+    /* ignore */
+  }
+})

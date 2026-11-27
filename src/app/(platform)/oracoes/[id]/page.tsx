@@ -52,7 +52,7 @@ async function PrayerStatusContent({ params }: PageProps) {
   const dto = toPrayerDto(prayer)
   const eligibility = await getRequestEligibilitySnapshot(session.user.id)
   const outcome = dto.validation?.outcome ?? "pending"
-  const isPending = outcome === "pending" || outcome === "manual_review"
+  const isFlagged = outcome === "pending" || outcome === "manual_review"
   const isAccepted = outcome === "accepted"
   const isRejected = outcome === "rejected"
   const isIntercessor = prayer.intercessorId === actor.id
@@ -67,53 +67,44 @@ async function PrayerStatusContent({ params }: PageProps) {
             Oração
           </p>
           <h1 className="text-2xl font-bold tracking-tight text-primary sm:text-3xl">
-            {isIntercessor ? "Sua oração" : "Oração recebida"}
+            {isIntercessor
+              ? isAccepted
+                ? "Sua oração foi entregue!"
+                : isFlagged
+                  ? "Sua oração foi recebida"
+                  : "Sua oração"
+              : "Oração recebida"}
           </h1>
           <hr className="brand-rule" />
         </header>
 
-        {isIntercessor ? (
-          <p
-            role="status"
-            className="rounded-[var(--radius-lg)] border border-border bg-surface-sage-soft px-5 py-4 text-sm leading-6 text-text-secondary"
-          >
-            Sua oração foi recebida. O recebimento confirma o envio; a liberação para pedir uma
-            oração depende da validação.
-          </p>
-        ) : null}
-
-        {isPending ? (
-          <section
-            role="status"
-            aria-live="polite"
-            className="space-y-2 rounded-[var(--radius-lg)] border border-border bg-warning-soft px-5 py-5"
-          >
-            <h2 className="text-sm font-semibold text-warning">Em análise</h2>
-            <p className="text-sm leading-6 text-warning">
-              Sua oração foi recebida e está aguardando validação.
-            </p>
-            <p className="text-sm leading-6 text-text-secondary">
-              A reciprocidade — o direito de pedir uma oração — depende dessa validação. Enquanto
-              isso, você pode continuar cuidando de outras pessoas no feed.
-            </p>
-          </section>
-        ) : null}
-
-        {isAccepted ? (
+        {isIntercessor && isAccepted ? (
           <section
             role="status"
             aria-live="polite"
             className="space-y-2 rounded-[var(--radius-lg)] border border-border bg-success-soft px-5 py-5"
           >
-            <h2 className="text-sm font-semibold text-success">Oração aceita</h2>
             <p className="text-sm leading-6 text-success">
-              Obrigado pelo cuidado individual. Sua oração foi considerada válida para a
-              reciprocidade da comunidade.
+              Você dedicou um momento do seu dia para cuidar de alguém. Que esse gesto de amor
+              continue alcançando outras vidas.
             </p>
           </section>
         ) : null}
 
-        {isRejected ? (
+        {isIntercessor && isFlagged ? (
+          <section
+            role="status"
+            aria-live="polite"
+            className="space-y-2 rounded-[var(--radius-lg)] border border-border bg-warning-soft px-5 py-5"
+          >
+            <p className="text-sm leading-6 text-warning">
+              Estamos verificando esta interação para manter nossa comunidade segura. Você poderá
+              acompanhar o envio na sua conta.
+            </p>
+          </section>
+        ) : null}
+
+        {isIntercessor && isRejected ? (
           <section
             role="status"
             aria-live="polite"
@@ -127,14 +118,25 @@ async function PrayerStatusContent({ params }: PageProps) {
           </section>
         ) : null}
 
+        {!isIntercessor && isAccepted ? (
+          <section
+            role="status"
+            className="rounded-[var(--radius-lg)] border border-border bg-surface-sage-soft px-5 py-4 text-sm leading-6 text-text-secondary"
+          >
+            Uma pessoa da comunidade orou por você.
+          </section>
+        ) : null}
+
         <Card className="space-y-4 p-5 sm:p-6">
           <div className="flex flex-wrap items-center gap-2">
-            <Badge
-              tone={
-                isAccepted ? "success" : isRejected ? "danger" : "warning"
-              }
-            >
-              {isPending ? "aguardando validação" : isAccepted ? "aceita" : isRejected ? "não liberou pedido" : outcome}
+            <Badge tone={isAccepted ? "success" : isRejected ? "danger" : "warning"}>
+              {isFlagged
+                ? "em verificação"
+                : isAccepted
+                  ? "entregue"
+                  : isRejected
+                    ? "não liberou pedido"
+                    : outcome}
             </Badge>
             {dto.scripture ? (
               <span className="text-sm text-text-secondary">
@@ -155,38 +157,33 @@ async function PrayerStatusContent({ params }: PageProps) {
         </Card>
 
         <section className="space-y-4">
-          {isAccepted && eligibility.canPublish ? (
+          {isIntercessor && isAccepted && eligibility.canPublish ? (
             <div className="space-y-3">
-              <p className="text-sm leading-6 text-text-secondary">{eligibility.message}</p>
+              <p className="text-sm leading-6 text-text-secondary">
+                Agora também podemos orar por você.
+              </p>
               <ButtonLink href="/pedir" size="lg">
-                Criar meu pedido
+                Compartilhar meu pedido
               </ButtonLink>
             </div>
           ) : null}
 
-          {isAccepted && !eligibility.canPublish ? (
+          {isIntercessor && isAccepted && !eligibility.canPublish ? (
             <p className="text-sm leading-6 text-text-secondary">
               {eligibility.message ||
                 "No momento você ainda não tem um direito aberto para criar um pedido. Continue intercedendo no feed."}
             </p>
           ) : null}
 
-          {isPending ? (
-            <p className="text-sm leading-6 text-text-muted">
-              O botão para criar pedido aparece somente após a validação e quando houver elegibilidade
-              aberta.
-            </p>
-          ) : null}
-
           <div className="flex flex-col gap-3 sm:flex-row">
             <ButtonLink href="/encontrar" variant="secondary" size="lg">
-              Encontrar alguém para orar
+              Continuar orando por pessoas
             </ButtonLink>
             <Link
-              href="/account"
+              href="/account/oracoes"
               className="inline-flex min-h-11 items-center justify-center text-sm font-medium text-primary underline-offset-2 hover:underline focus-visible:outline-offset-4"
             >
-              Ir para minha conta
+              Ver orações enviadas
             </Link>
           </div>
         </section>

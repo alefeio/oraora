@@ -3,7 +3,6 @@ import { beforeAll, describe, expect, it } from "vitest"
 import { prisma } from "@/lib/db/prisma"
 import { invalidatePrayerValidation } from "@/modules/intercession/invalidate-prayer"
 import { submitPrayer } from "@/modules/intercession/submit-prayer"
-import { decidePrayerValidation } from "@/modules/intercession/validate-prayer"
 import { createPrayerRequest } from "@/modules/prayer-requests/create-request"
 import {
   createDbTestRequest,
@@ -34,11 +33,7 @@ describe.runIf(enabled)("validation invalidation database", () => {
         body: "Oração posteriormente invalidada, mantendo todo o histórico.",
         idempotencyKey: `invopen_${randomUUID().slice(0, 12)}`,
       })
-      await decidePrayerValidation({
-        prayerId: prayer.prayer.id,
-        actorUserId: admin.id,
-        outcome: "accepted",
-      })
+      expect(prayer.prayer.validation?.outcome).toBe("accepted")
 
       await invalidatePrayerValidation({
         prayerId: prayer.prayer.id,
@@ -79,11 +74,7 @@ describe.runIf(enabled)("validation invalidation database", () => {
         body: "Oração aceita cujo direito será consumido antes da revisão.",
         idempotencyKey: `invused_${randomUUID().slice(0, 12)}`,
       })
-      await decidePrayerValidation({
-        prayerId: prayer.prayer.id,
-        actorUserId: admin.id,
-        outcome: "accepted",
-      })
+      expect(prayer.prayer.validation?.outcome).toBe("accepted")
       const published = await createPrayerRequest({
         authorId: intercessor.id,
         categoryId,

@@ -1,4 +1,4 @@
-import { randomUUID } from "node:crypto"
+import { createHash, randomUUID } from "node:crypto"
 import { beforeAll, describe, expect, it } from "vitest"
 import { prisma } from "@/lib/db/prisma"
 import { seedCategoriesIdempotent } from "@/modules/prayer-requests/categories"
@@ -24,6 +24,38 @@ async function createUser(label: string, role = "USER") {
   })
 }
 
+async function createQueuedPrayer(input: {
+  requestId: string
+  intercessorId: string
+  beneficiaryId: string
+  body: string
+}) {
+  const body = input.body.trim()
+  const contentHash = createHash("sha256")
+    .update(body.normalize("NFKC").toLowerCase())
+    .digest("hex")
+  return prisma.prayer.create({
+    data: {
+      requestId: input.requestId,
+      intercessorId: input.intercessorId,
+      beneficiaryId: input.beneficiaryId,
+      medium: "text",
+      body,
+      status: "submitted",
+      contentHash,
+      idempotencyKey: `queued_${randomUUID().slice(0, 12)}`,
+      validation: {
+        create: {
+          policyVersion: 1,
+          outcome: "manual_review",
+          effects: { reciprocity: null, feedCount: null, solidarity: null },
+          signals: { testFixture: true },
+        },
+      },
+    },
+  })
+}
+
 describe.runIf(enabled)("reciprocity database", () => {
   let categoryId = ""
   let adminId = ""
@@ -39,7 +71,7 @@ describe.runIf(enabled)("reciprocity database", () => {
   }, timeout)
 
   it(
-    "sem oração válida não publica; aprovação libera uma vez; consumo impede segunda",
+    "sem oração válida não publica; aceite automático libera uma vez; consumo impede segunda",
     async () => {
       const author = await createUser("Author Seed")
       const intercessor = await createUser("Intercessor A")
@@ -79,16 +111,7 @@ describe.runIf(enabled)("reciprocity database", () => {
         body: "Senhor, cuida desta pessoa com misericórdia e paz.",
         idempotencyKey: `pray_${randomUUID().slice(0, 12)}`,
       })
-      expect(submitted.prayer.validation?.outcome).toBe("pending")
-
-      const snapPending = await getRequestEligibilitySnapshot(intercessor.id)
-      expect(snapPending.canPublish).toBe(false)
-
-      await decidePrayerValidation({
-        prayerId: submitted.prayer.id,
-        actorUserId: adminId,
-        outcome: "accepted",
-      })
+      expect(submitted.prayer.validation?.outcome).toBe("accepted")
 
       const snapOpen = await getRequestEligibilitySnapshot(intercessor.id)
       expect(snapOpen.canPublish).toBe(true)
@@ -124,7 +147,7 @@ describe.runIf(enabled)("reciprocity database", () => {
   )
 
   it(
-    "orações extras e aprovação tardia não acumulam direitos",
+    "orações em fila e aprovação tardia não acumulam direitos",
     async () => {
       const author = await createUser("Author Late")
       const joao = await createUser("Joao Late")
@@ -145,34 +168,34 @@ describe.runIf(enabled)("reciprocity database", () => {
         },
       })
 
-      const p1 = await submitPrayer({
-        intercessorId: joao.id,
+      const p1 = await createQueuedPrayer({
         requestId: target.id,
+        intercessorId: joao.id,
+        beneficiaryId: author.id,
         body: "Primeira oração individual e cuidadosa pelo pedido.",
-        idempotencyKey: `late1_${randomUUID().slice(0, 10)}`,
       })
-      const p2 = await submitPrayer({
-        intercessorId: joao.id,
+      const p2 = await createQueuedPrayer({
         requestId: target.id,
+        intercessorId: joao.id,
+        beneficiaryId: author.id,
         body: "Segunda oração individual e cuidadosa pelo pedido.",
-        idempotencyKey: `late2_${randomUUID().slice(0, 10)}`,
       })
-      const p3 = await submitPrayer({
-        intercessorId: joao.id,
+      const p3 = await createQueuedPrayer({
         requestId: target.id,
+        intercessorId: joao.id,
+        beneficiaryId: author.id,
         body: "Terceira oração individual e cuidadosa pelo pedido.",
-        idempotencyKey: `late3_${randomUUID().slice(0, 10)}`,
       })
 
       await decidePrayerValidation({
-        prayerId: p1.prayer.id,
+        prayerId: p1.id,
         actorUserId: adminId,
         outcome: "accepted",
       })
       expect((await getRequestEligibilitySnapshot(joao.id)).canPublish).toBe(true)
 
       const second = await decidePrayerValidation({
-        prayerId: p2.prayer.id,
+        prayerId: p2.id,
         actorUserId: adminId,
         outcome: "accepted",
       })
@@ -191,7 +214,7 @@ describe.runIf(enabled)("reciprocity database", () => {
       })
 
       const late = await decidePrayerValidation({
-        prayerId: p3.prayer.id,
+        prayerId: p3.id,
         actorUserId: adminId,
         outcome: "accepted",
       })
@@ -205,12 +228,7 @@ describe.runIf(enabled)("reciprocity database", () => {
         body: "Nova oração após publicar meu pedido anterior.",
         idempotencyKey: `late4_${randomUUID().slice(0, 10)}`,
       })
-      const again = await decidePrayerValidation({
-        prayerId: p4.prayer.id,
-        actorUserId: adminId,
-        outcome: "accepted",
-      })
-      expect(again.eligibility.opened).toBe(true)
+      expect(p4.prayer.validation?.outcome).toBe("accepted")
       expect((await getRequestEligibilitySnapshot(joao.id)).canPublish).toBe(true)
     },
     timeout,
@@ -243,11 +261,7 @@ describe.runIf(enabled)("reciprocity database", () => {
         body: "Oração para teste de concorrência com cuidado.",
         idempotencyKey: `racepray_${randomUUID().slice(0, 10)}`,
       })
-      await decidePrayerValidation({
-        prayerId: prayer.prayer.id,
-        actorUserId: adminId,
-        outcome: "accepted",
-      })
+      expect(prayer.prayer.validation?.outcome).toBe("accepted")
 
       const attempts = await Promise.allSettled([
         createPrayerRequest({
@@ -295,7 +309,7 @@ describe.runIf(enabled)("reciprocity database", () => {
   )
 
   it(
-    "idempotência de oração e auto-oração bloqueada; feedCount só após aceite",
+    "idempotência de oração e auto-oração bloqueada; feedCount no aceite automático",
     async () => {
       const author = await createUser("Author Idem")
       const user = await createUser("Idem User")
@@ -331,6 +345,7 @@ describe.runIf(enabled)("reciprocity database", () => {
       })
       expect(second.reused).toBe(true)
       expect(second.prayer.id).toBe(first.prayer.id)
+      expect(first.prayer.validation?.outcome).toBe("accepted")
 
       await expect(
         submitPrayer({
@@ -341,14 +356,6 @@ describe.runIf(enabled)("reciprocity database", () => {
         }),
       ).rejects.toMatchObject({ code: "SELF_PRAYER_FORBIDDEN" })
 
-      const before = await prisma.prayerRequest.findUniqueOrThrow({ where: { id: target.id } })
-      expect(before.validPrayerCount).toBe(0)
-
-      await decidePrayerValidation({
-        prayerId: first.prayer.id,
-        actorUserId: adminId,
-        outcome: "accepted",
-      })
       const after = await prisma.prayerRequest.findUniqueOrThrow({ where: { id: target.id } })
       expect(after.validPrayerCount).toBe(1)
     },

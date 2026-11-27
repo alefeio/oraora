@@ -1,5 +1,5 @@
 /**
- * UI-05D.1R — vínculo permanente do domínio de homologação ao git branch do PR #13.
+ * PRAYER-VALIDATION-02R — vínculo permanente do domínio de homologação ao git branch do PR #14.
  *
  * Uso:
  *   npx tsx scripts/prepare-homologation-alias.ts --check
@@ -17,7 +17,7 @@ import path from "node:path"
 const HOMOLOG_HOST = "homologacao.oraora.ia.br"
 const PROJECT = "oraora"
 const SCOPE = "alefeios-projects"
-const BRANCH = "fix/ui-05d-1-prayer-reliability"
+const BRANCH = "feature/prayer-validation-02"
 const BETTER_AUTH_ORIGIN = `https://${HOMOLOG_HOST}`
 
 const apply = process.argv.includes("--apply")
@@ -84,7 +84,7 @@ async function main() {
   if (!apply) {
     console.info(
       aligned
-        ? "check_ok: domínio já aponta para a branch do PR #13."
+        ? "check_ok: domínio já aponta para a branch do PR #14."
         : `check_drift: gitBranch atual=${String(before.gitBranch ?? "null")}; desejado=${BRANCH}. Rode --apply.`,
     )
     return
@@ -126,7 +126,7 @@ async function main() {
         "vercel",
         "alias",
         "set",
-        "oraora-git-fix-ui-05d-1-prayer-reliability-alefeios-projects.vercel.app",
+        "oraora-git-feature-prayer-validation-02-alefeios-projects.vercel.app",
         HOMOLOG_HOST,
         "--scope",
         SCOPE,
