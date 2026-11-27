@@ -1,7 +1,11 @@
 import { z } from "zod"
 import { failure, ok } from "@/lib/api/http"
 import { requireUserApi } from "@/lib/auth/session"
+import { isTransientPrismaPostgresError } from "@/lib/db/transient"
 import { DomainError, submitPrayer } from "@/modules/intercession"
+
+/** Abaixo do orçamento de retry de conexão serverless (~16s) + margem de trabalho. */
+export const maxDuration = 25
 
 const bodySchema = z.object({
   requestId: z.string().min(1),
@@ -39,6 +43,18 @@ export async function POST(request: Request) {
     if (err instanceof DomainError) {
       return failure(err.status, err.message, { code: err.code })
     }
-    return failure(500, "Não foi possível enviar a oração.")
+    const transient = isTransientPrismaPostgresError(err)
+    console.error("prayer_submit_failed", {
+      transient,
+      name: err instanceof Error ? err.name : "Error",
+      // Sem PII / sem corpo da oração.
+    })
+    return failure(
+      transient ? 503 : 500,
+      transient
+        ? "O serviço de dados está temporariamente indisponível. Seu texto foi preservado — tente novamente com o mesmo envio."
+        : "Não foi possível enviar a oração.",
+      { code: transient ? "DB_TRANSIENT" : "PRAYER_SUBMIT_FAILED", inconclusive: true },
+    )
   }
 }

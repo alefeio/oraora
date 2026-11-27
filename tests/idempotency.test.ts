@@ -16,4 +16,13 @@ describe("idempotency helpers", () => {
     const b = fingerprintPayload({ a: 1, b: 2 })
     expect(a).toBe(b)
   })
+
+  it("fingerprint de oração considera passagem bíblica", () => {
+    const base = { requestId: "req_1", body: "Mesmo texto" }
+    const without = fingerprintPayload({ ...base, scripturePassageId: null })
+    const withA = fingerprintPayload({ ...base, scripturePassageId: "passage_a" })
+    const withB = fingerprintPayload({ ...base, scripturePassageId: "passage_b" })
+    expect(without).not.toBe(withA)
+    expect(withA).not.toBe(withB)
+  })
 })

@@ -24,6 +24,7 @@
     "db:seed:feed-policy": "tsx scripts/seed-feed-policy.ts",
     "db:seed:fixtures": "tsx scripts/seed-synthetic-fixtures.ts",
     "db:seed:scripture": "tsx scripts/seed-scripture.ts",
+    "db:insert-missing-scripture": "tsx scripts/insert-missing-scripture.ts",
     "db:seed:sprint1": "npm run db:seed:foundation && npm run db:seed:feed-policy && npm run db:seed:categories && npm run db:seed:fixtures",
     "db:seed:sprint2": "npm run db:seed:sprint1 && npm run db:seed:scripture",
     "boot:inspect": "tsx scripts/inspect-preview-bootstrap.ts",

@@ -18,6 +18,25 @@ type SuggestionsState =
   | { status: "ready"; items: Suggestion[] }
   | { status: "error" }
 
+type SubmitJson = {
+  error?: string
+  details?: { code?: string; inconclusive?: boolean }
+  prayer?: { id: string }
+  status?: "found" | "in_progress" | "not_found"
+}
+
+async function reconcileSubmission(idempotencyKey: string): Promise<SubmitJson> {
+  const res = await fetch(
+    `/api/v1/prayers/submissions?idempotencyKey=${encodeURIComponent(idempotencyKey)}`,
+    { method: "GET", headers: { Accept: "application/json" } },
+  )
+  try {
+    return (await res.json()) as SubmitJson
+  } catch {
+    return {}
+  }
+}
+
 export function PrayerComposeForm({
   requestId,
   categorySlug,
@@ -38,6 +57,8 @@ export function PrayerComposeForm({
   const [fieldError, setFieldError] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [pending, setPending] = useState(false)
+  const [reconciling, setReconciling] = useState(false)
+  const [canReconcile, setCanReconcile] = useState(false)
   const [, startTransition] = useTransition()
   const submittingRef = useRef(false)
   const idempotencyKey = useMemo(
@@ -62,6 +83,30 @@ export function PrayerComposeForm({
     }
   }, [categorySlug])
 
+  function goToPrayer(prayerId: string) {
+    startTransition(() => {
+      router.push(`/oracoes/${prayerId}`)
+      router.refresh()
+    })
+  }
+
+  async function tryReconcile(): Promise<"found" | "pending" | "missing"> {
+    setReconciling(true)
+    try {
+      const data = await reconcileSubmission(idempotencyKey)
+      if (data.status === "found" && data.prayer?.id) {
+        goToPrayer(data.prayer.id)
+        return "found"
+      }
+      if (data.status === "in_progress") return "pending"
+      return "missing"
+    } catch {
+      return "missing"
+    } finally {
+      setReconciling(false)
+    }
+  }
+
   async function onSubmit(event: FormEvent) {
     event.preventDefault()
     if (submittingRef.current || pending) return
@@ -77,75 +122,108 @@ export function PrayerComposeForm({
     setPending(true)
     setFieldError(null)
     setError(null)
+    setCanReconcile(false)
 
     try {
-      const controller = new AbortController()
-      const timeout = window.setTimeout(() => controller.abort(), 25_000)
-      let res: Response
-      try {
-        res = await fetch("/api/v1/prayers", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          signal: controller.signal,
-          body: JSON.stringify({
-            requestId,
-            body: trimmed,
-            scripturePassageId: passageId || null,
-            idempotencyKey,
-          }),
-        })
-      } finally {
-        window.clearTimeout(timeout)
-      }
+      // Sem abort prematuro no cliente: o servidor encerra dentro de maxDuration;
+      // se a resposta for inconclusiva, reconciliamos sem reenviar a transação.
+      const res = await fetch("/api/v1/prayers", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          requestId,
+          body: trimmed,
+          scripturePassageId: passageId || null,
+          idempotencyKey,
+        }),
+      })
 
-      let data: { error?: string; details?: { code?: string }; prayer?: { id: string } } = {}
+      let data: SubmitJson = {}
       try {
-        data = (await res.json()) as typeof data
+        data = (await res.json()) as SubmitJson
       } catch {
         data = {}
       }
 
       if (!res.ok) {
-        // Mantém o texto e a mesma chave de idempotência para retentativa segura.
         const code = data.details?.code
+        const inconclusive =
+          data.details?.inconclusive === true ||
+          res.status === 504 ||
+          res.status === 503 ||
+          res.status === 502
+
         if (code === "IDEMPOTENCY_PAYLOAD_CONFLICT") {
           setError(
             "Esta tentativa já foi usada com outro conteúdo. Recarregue a página para enviar uma nova oração.",
           )
-        } else {
-          setError(data.error || "Não foi possível enviar a oração. Seu texto foi preservado.")
+          submittingRef.current = false
+          setPending(false)
+          return
         }
+
+        if (inconclusive) {
+          const outcome = await tryReconcile()
+          if (outcome === "found") return
+          setCanReconcile(true)
+          setError(
+            outcome === "pending"
+              ? "O envio ainda está em andamento no servidor. Seu texto foi preservado — verifique o status sem reenviar."
+              : "A resposta ficou inconclusiva. Seu texto foi preservado — verifique se a oração já foi registrada antes de tentar de novo.",
+          )
+          submittingRef.current = false
+          setPending(false)
+          return
+        }
+
+        setError(data.error || "Não foi possível enviar a oração. Seu texto foi preservado.")
         submittingRef.current = false
         setPending(false)
         return
       }
 
       if (!data.prayer?.id) {
+        const outcome = await tryReconcile()
+        if (outcome === "found") return
+        setCanReconcile(true)
         setError(
-          "O servidor respondeu de forma inesperada. Seu texto foi preservado — tente novamente.",
+          "O servidor respondeu de forma inesperada. Seu texto foi preservado — verifique o status do envio.",
         )
         submittingRef.current = false
         setPending(false)
         return
       }
 
-      startTransition(() => {
-        router.push(`/oracoes/${data.prayer!.id}`)
-        router.refresh()
-      })
-    } catch (err) {
-      const aborted = err instanceof DOMException && err.name === "AbortError"
+      goToPrayer(data.prayer.id)
+    } catch {
+      const outcome = await tryReconcile()
+      if (outcome === "found") return
+      setCanReconcile(true)
       setError(
-        aborted
-          ? "A resposta demorou demais. Seu texto foi preservado — tente novamente com o mesmo envio."
-          : "Falha de rede. Seu texto foi preservado — tente novamente.",
+        outcome === "pending"
+          ? "A conexão falhou enquanto o servidor ainda processava. Seu texto foi preservado — verifique o status sem reenviar."
+          : "Falha de rede. Seu texto foi preservado — verifique se a oração já foi registrada antes de tentar de novo.",
       )
       submittingRef.current = false
       setPending(false)
     }
   }
 
+  async function onReconcileClick() {
+    if (reconciling || pending) return
+    setError(null)
+    const outcome = await tryReconcile()
+    if (outcome === "found") return
+    setCanReconcile(true)
+    setError(
+      outcome === "pending"
+        ? "Ainda não há confirmação final. Aguarde um instante e verifique novamente — não reenvie automaticamente."
+        : "Nenhuma oração foi encontrada com este envio. Você pode tentar novamente com a mesma chave.",
+    )
+  }
+
   const suggestionItems = suggestions.status === "ready" ? suggestions.items : []
+  const busy = pending || reconciling
 
   return (
     <form
@@ -160,7 +238,13 @@ export function PrayerComposeForm({
         role="status"
         aria-live="polite"
       >
-        {pending ? "Enviando oração…" : error ? "Houve um erro no envio." : ""}
+        {pending
+          ? "Enviando oração…"
+          : reconciling
+            ? "Verificando status do envio…"
+            : error
+              ? "Houve um erro no envio."
+              : ""}
       </p>
 
       <Field
@@ -172,9 +256,12 @@ export function PrayerComposeForm({
           id={passageIdAttr}
           value={passageId}
           onChange={(e) => setPassageId(e.target.value)}
-          disabled={pending || suggestions.status === "loading"}
+          disabled={busy || suggestions.status === "loading"}
           aria-describedby={
-            suggestions.status === "error" ? `${passageIdAttr}-hint` : undefined
+            suggestions.status === "error" ||
+            (suggestions.status === "ready" && suggestionItems.length === 0)
+              ? `${passageIdAttr}-hint`
+              : undefined
           }
         >
           <option value="">
@@ -195,7 +282,10 @@ export function PrayerComposeForm({
           </span>
         ) : null}
         {suggestions.status === "ready" && suggestionItems.length === 0 ? (
-          <FormHint>Não há sugestões para esta categoria no momento.</FormHint>
+          <FormHint id={`${passageIdAttr}-hint`}>
+            Ainda não há referências vinculadas a esta categoria. Você pode enviar a oração sem
+            selecionar uma passagem.
+          </FormHint>
         ) : null}
       </Field>
 
@@ -213,7 +303,7 @@ export function PrayerComposeForm({
           }}
           required
           rows={10}
-          disabled={pending}
+          disabled={busy}
           aria-invalid={Boolean(fieldError) || undefined}
           aria-describedby={error ? errorId : undefined}
           placeholder="Escreva aqui a sua oração…"
@@ -227,15 +317,23 @@ export function PrayerComposeForm({
         </FormError>
       ) : null}
 
-      <Button
-        type="submit"
-        disabled={pending}
-        aria-busy={pending}
-        className="w-full"
-        size="lg"
-      >
-        {pending ? "Enviando…" : "Enviar oração"}
-      </Button>
+      <div className="flex flex-col gap-3">
+        <Button type="submit" disabled={busy} aria-busy={pending} className="w-full" size="lg">
+          {pending ? "Enviando…" : "Enviar oração"}
+        </Button>
+        {canReconcile ? (
+          <Button
+            type="button"
+            variant="secondary"
+            disabled={busy}
+            aria-busy={reconciling}
+            className="w-full"
+            onClick={() => void onReconcileClick()}
+          >
+            {reconciling ? "Verificando…" : "Verificar se a oração foi registrada"}
+          </Button>
+        ) : null}
+      </div>
     </form>
   )
 }

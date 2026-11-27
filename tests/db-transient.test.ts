@@ -1,6 +1,8 @@
 import { describe, expect, it, vi } from "vitest"
 import {
   isTransientPrismaPostgresError,
+  LOCAL_CONNECT_RETRY,
+  SERVERLESS_CONNECT_RETRY,
   withTransientDbRetry,
 } from "@/lib/db/transient"
 
@@ -17,6 +19,14 @@ describe("isTransientPrismaPostgresError", () => {
     expect(isTransientPrismaPostgresError(new Error('relation "user" does not exist'))).toBe(
       false,
     )
+  })
+})
+
+describe("retry budgets", () => {
+  it("mantém orçamento serverless abaixo do maxDuration das rotas (25s)", () => {
+    expect(SERVERLESS_CONNECT_RETRY.budgetMs).toBeLessThan(25_000)
+    expect(SERVERLESS_CONNECT_RETRY.maxAttempts).toBeLessThanOrEqual(3)
+    expect(LOCAL_CONNECT_RETRY.budgetMs).toBeLessThanOrEqual(20_000)
   })
 })
 
@@ -46,5 +56,20 @@ describe("withTransientDbRetry", () => {
       }),
     ).rejects.toThrow(/password authentication failed/)
     expect(calls).toBe(1)
+  })
+
+  it("esgota orçamento sem reexecutar além do limite", async () => {
+    let calls = 0
+    const sleep = vi.fn(async () => undefined)
+    await expect(
+      withTransientDbRetry(
+        async () => {
+          calls += 1
+          throw new Error("timeout expired")
+        },
+        { delayMs: 1, maxAttempts: 3, budgetMs: 50, sleep },
+      ),
+    ).rejects.toThrow(/timeout expired/)
+    expect(calls).toBeLessThanOrEqual(3)
   })
 })

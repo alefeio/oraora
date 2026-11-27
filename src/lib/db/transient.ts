@@ -24,6 +24,27 @@ export type TransientRetryOptions = {
   sleep?: (ms: number) => Promise<void>
 }
 
+/**
+ * Orçamento de conexão para serverless: cabe abaixo de maxDuration típico (25–30s)
+ * e do tempo que o cliente aguarda a resposta.
+ */
+export const SERVERLESS_CONNECT_RETRY: Required<
+  Pick<TransientRetryOptions, "budgetMs" | "delayMs" | "maxAttempts">
+> = {
+  budgetMs: 16_000,
+  delayMs: 700,
+  maxAttempts: 3,
+}
+
+/** Local / testes: um pouco mais paciente, sem competir com limite de função. */
+export const LOCAL_CONNECT_RETRY: Required<
+  Pick<TransientRetryOptions, "budgetMs" | "delayMs" | "maxAttempts">
+> = {
+  budgetMs: 20_000,
+  delayMs: 1_000,
+  maxAttempts: 4,
+}
+
 const defaultSleep = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms))
 
 /**
@@ -34,9 +55,9 @@ export async function withTransientDbRetry<T>(
   operation: () => Promise<T>,
   options: TransientRetryOptions = {},
 ): Promise<T> {
-  const budgetMs = options.budgetMs ?? 45_000
-  const delayMs = options.delayMs ?? 1_500
-  const maxAttempts = options.maxAttempts ?? 6
+  const budgetMs = options.budgetMs ?? LOCAL_CONNECT_RETRY.budgetMs
+  const delayMs = options.delayMs ?? LOCAL_CONNECT_RETRY.delayMs
+  const maxAttempts = options.maxAttempts ?? LOCAL_CONNECT_RETRY.maxAttempts
   const sleep = options.sleep ?? defaultSleep
   const deadline = Date.now() + budgetMs
 
@@ -51,9 +72,14 @@ export async function withTransientDbRetry<T>(
       lastError = error
       if (!isTransientPrismaPostgresError(error)) throw error
       if (attempt >= maxAttempts || Date.now() >= deadline) break
-      const wait = Math.min(delayMs * attempt, 5_000)
+      const wait = Math.min(delayMs * attempt, 3_000)
       const remaining = deadline - Date.now()
       if (remaining <= 0) break
+      console.warn("transient_db_retry", {
+        attempt,
+        waitMs: Math.min(wait, remaining),
+        remainingBudgetMs: remaining,
+      })
       await sleep(Math.min(wait, remaining))
     }
   }

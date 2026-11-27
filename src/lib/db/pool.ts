@@ -2,7 +2,11 @@ import { attachDatabasePool } from "@vercel/functions"
 import { config as loadEnv } from "dotenv"
 import { Pool, type PoolClient, type PoolConfig } from "pg"
 import { normalizePostgresSslMode, resolveRuntimeDatabaseUrl } from "./connection"
-import { withTransientDbRetry } from "./transient"
+import {
+  LOCAL_CONNECT_RETRY,
+  SERVERLESS_CONNECT_RETRY,
+  withTransientDbRetry,
+} from "./transient"
 
 loadEnv({ path: ".env.local", quiet: true })
 loadEnv({ path: ".env", quiet: true })
@@ -13,15 +17,20 @@ function redactDatabaseMessage(message: string) {
   return message.replace(/postgres(?:ql)?:\/\/\S+/gi, "[redacted-url]")
 }
 
-function installTransientConnectRetry(pool: Pool) {
+function installTransientConnectRetry(pool: Pool, onVercel: boolean) {
   const originalConnect = pool.connect.bind(pool)
+  const retryOptions = onVercel ? SERVERLESS_CONNECT_RETRY : LOCAL_CONNECT_RETRY
 
   async function connectWithRetry(): Promise<PoolClient> {
-    return withTransientDbRetry(() => originalConnect())
+    return withTransientDbRetry(() => originalConnect(), retryOptions)
   }
 
   pool.connect = ((
-    callback?: (err: Error | undefined, client: PoolClient | undefined, done: (release?: boolean | Error) => void) => void,
+    callback?: (
+      err: Error | undefined,
+      client: PoolClient | undefined,
+      done: (release?: boolean | Error) => void,
+    ) => void,
   ) => {
     if (typeof callback === "function") {
       void connectWithRetry()
@@ -47,8 +56,8 @@ function createPool() {
     // Serverless: poucas conexões; idle curto evita soquetes mortos após idle-close do Prisma Postgres.
     max: onVercel ? 3 : 10,
     idleTimeoutMillis: onVercel ? 1_000 : 30_000,
-    // Upstream frio no pooled costuma falhar ~10s; orçamento um pouco maior + retry em withTransientDbRetry.
-    connectionTimeoutMillis: onVercel ? 15_000 : 10_000,
+    // Connect curto + retry orçado em SERVERLESS_CONNECT_RETRY (< maxDuration das rotas).
+    connectionTimeoutMillis: onVercel ? 8_000 : 10_000,
     allowExitOnIdle: !onVercel,
   }
   const pool = new Pool(config)
@@ -62,7 +71,7 @@ function createPool() {
     })
   })
 
-  installTransientConnectRetry(pool)
+  installTransientConnectRetry(pool, onVercel)
 
   // attachDatabasePool é específico do runtime Vercel; em testes locais atrapalha o ciclo de vida do pool.
   if (onVercel) {

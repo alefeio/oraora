@@ -16,6 +16,28 @@ export type SubmitPrayerInput = {
   idempotencyKey: string
 }
 
+function normalizeScripturePassageId(value: string | null | undefined): string | null {
+  if (typeof value !== "string") return null
+  const trimmed = value.trim()
+  return trimmed.length > 0 ? trimmed : null
+}
+
+function sameIdempotentPayload(existing: {
+  requestId: string
+  contentHash: string
+  scripturePassageId: string | null
+}, expected: {
+  requestId: string
+  contentHash: string
+  scripturePassageId: string | null
+}) {
+  return (
+    existing.requestId === expected.requestId &&
+    existing.contentHash === expected.contentHash &&
+    (existing.scripturePassageId ?? null) === (expected.scripturePassageId ?? null)
+  )
+}
+
 export async function submitPrayer(input: SubmitPrayerInput) {
   const idempotencyKey = normalizeIdempotencyKey(input.idempotencyKey)
   if (!idempotencyKey) {
@@ -29,7 +51,12 @@ export async function submitPrayer(input: SubmitPrayerInput) {
   const contentHash = createHash("sha256")
     .update(body.normalize("NFKC").toLowerCase())
     .digest("hex")
-  const requestHash = fingerprintPayload({ requestId: input.requestId, body })
+  const requestedScripturePassageId = normalizeScripturePassageId(input.scripturePassageId)
+  const requestHash = fingerprintPayload({
+    requestId: input.requestId,
+    body,
+    scripturePassageId: requestedScripturePassageId,
+  })
 
   const intercessor = await prisma.user.findUnique({ where: { id: input.intercessorId } })
   if (!intercessor || intercessor.banned) {
@@ -46,7 +73,13 @@ export async function submitPrayer(input: SubmitPrayerInput) {
     include: { validation: true, scripturePassage: true },
   })
   if (existing) {
-    if (existing.requestId !== input.requestId || existing.contentHash !== contentHash) {
+    if (
+      !sameIdempotentPayload(existing, {
+        requestId: input.requestId,
+        contentHash,
+        scripturePassageId: requestedScripturePassageId,
+      })
+    ) {
       throw new DomainError(
         "Esta chave de idempotência já foi usada com outra oração.",
         "IDEMPOTENCY_PAYLOAD_CONFLICT",
@@ -90,9 +123,9 @@ export async function submitPrayer(input: SubmitPrayerInput) {
   }
 
   let scripturePassageId: string | null = null
-  if (input.scripturePassageId) {
+  if (requestedScripturePassageId) {
     const passage = await prisma.scripturePassage.findFirst({
-      where: { id: input.scripturePassageId, active: true },
+      where: { id: requestedScripturePassageId, active: true },
     })
     if (!passage) {
       throw new DomainError("Passagem bíblica inválida.", "SCRIPTURE_NOT_FOUND", 404)
@@ -169,6 +202,7 @@ export async function submitPrayer(input: SubmitPrayerInput) {
     return { prayer: toPrayerDto(prayer), reused: false as const }
   } catch (error) {
     // Corrida de idempotência: outra requisição criou primeiro.
+    // Não reexecuta a transação — apenas reconcilia o resultado já gravado.
     const raced = await prisma.prayer.findUnique({
       where: {
         intercessorId_idempotencyKey: {
@@ -179,7 +213,13 @@ export async function submitPrayer(input: SubmitPrayerInput) {
       include: { validation: true, scripturePassage: true },
     })
     if (raced) {
-      if (raced.requestId !== input.requestId || raced.contentHash !== contentHash) {
+      if (
+        !sameIdempotentPayload(raced, {
+          requestId: input.requestId,
+          contentHash,
+          scripturePassageId: requestedScripturePassageId,
+        })
+      ) {
         throw new DomainError(
           "Esta chave de idempotência já foi usada com outra oração.",
           "IDEMPOTENCY_PAYLOAD_CONFLICT",
