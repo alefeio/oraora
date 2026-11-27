@@ -23,8 +23,15 @@ Manter no ambiente Preview (ou no deployment alvo do alias):
 
 1. Confirmar deployment Preview do commit HEAD do PR #13.
 2. Atribuir alias/domínio `homologacao.oraora.ia.br` a esse deployment (não ao Production).
-3. Confirmar que `BETTER_AUTH_URL` / `NEXT_PUBLIC_APP_URL` apontam para o domínio fixo.
+3. Confirmar que `BETTER_AUTH_URL` / `NEXT_PUBLIC_APP_URL` apontam para o domínio fixo **na branch** `fix/ui-05d-1-prayer-reliability` (não só em `feature/ui-05d-prayer-journey`).
 4. Smoke: `/api/v1/health`, login Conta B, `/account/oracoes`, reconciliação.
+
+### Executado em UI-05D.1R
+
+- Alias `homologacao.oraora.ia.br` → deployment do PR #13 / branch `fix/ui-05d-1-prayer-reliability`.
+- `BETTER_AUTH_URL` e `NEXT_PUBLIC_APP_URL` = `https://homologacao.oraora.ia.br` no Preview da branch do PR.
+- Redeploy da branch para carregar as variáveis.
+- Observação: health via CLI pode responder 401 por proteção SSO da Vercel; smoke autenticado no browser permanece necessário.
 
 ## Não fazer
 
