@@ -90,7 +90,7 @@ export async function getRequestEligibilitySnapshot(userId: string): Promise<Eli
   const pending = await prisma.prayer.findFirst({
     where: {
       intercessorId: userId,
-      validation: { outcome: "pending" },
+      validation: { outcome: { in: ["pending", "manual_review"] } },
     },
     orderBy: { createdAt: "desc" },
   })
@@ -101,7 +101,7 @@ export async function getRequestEligibilitySnapshot(userId: string): Promise<Eli
       pendingPrayerId: pending.id,
       canPublish: false,
       message:
-        "Sua oração foi recebida. Estamos verificando a interação antes de liberar seu próximo pedido.",
+        "Sua oração foi recebida. Estamos verificando esta interação para manter nossa comunidade segura.",
     }
   }
 

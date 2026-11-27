@@ -30,6 +30,7 @@
     "db:seed:sprint2": "npm run db:seed:sprint1 && npm run db:seed:scripture",
     "boot:inspect": "tsx scripts/inspect-preview-bootstrap.ts",
     "boot:inaugural": "tsx scripts/bootstrap-inaugural-grant.ts",
+    "prayer:reprocess-legacy": "tsx scripts/reprocess-legacy-prayer.ts",
     "postinstall": "prisma generate",
     "typecheck": "tsc --noEmit"
   },

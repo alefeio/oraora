@@ -2,11 +2,16 @@ import { createHash } from "node:crypto"
 import { prisma } from "@/lib/db/prisma"
 import { recordAuditEvent } from "@/lib/security/audit"
 import { fingerprintPayload, normalizeIdempotencyKey } from "@/lib/security/idempotency"
+import { applyValidationDecision } from "./apply-validation"
 import { DomainError, PrayerNotAllowedError } from "./errors"
 import { toPrayerDto } from "./dto"
+import {
+  ABUSE_RATE_LIMITS,
+  classifyPrayerSubmission,
+  VALIDATION_POLICY_VERSION,
+} from "./validation-policy-v2"
 
-const MIN_MEANINGFUL_BODY = 1
-export const VALIDATION_POLICY_VERSION = 1
+export { VALIDATION_POLICY_VERSION }
 
 export type SubmitPrayerInput = {
   intercessorId: string
@@ -22,15 +27,18 @@ function normalizeScripturePassageId(value: string | null | undefined): string |
   return trimmed.length > 0 ? trimmed : null
 }
 
-function sameIdempotentPayload(existing: {
-  requestId: string
-  contentHash: string
-  scripturePassageId: string | null
-}, expected: {
-  requestId: string
-  contentHash: string
-  scripturePassageId: string | null
-}) {
+function sameIdempotentPayload(
+  existing: {
+    requestId: string
+    contentHash: string
+    scripturePassageId: string | null
+  },
+  expected: {
+    requestId: string
+    contentHash: string
+    scripturePassageId: string | null
+  },
+) {
   return (
     existing.requestId === expected.requestId &&
     existing.contentHash === expected.contentHash &&
@@ -45,9 +53,6 @@ export async function submitPrayer(input: SubmitPrayerInput) {
   }
 
   const body = input.body.replace(/\r\n/g, "\n").trim()
-  if (body.length < MIN_MEANINGFUL_BODY) {
-    throw new DomainError("Escreva uma oração antes de enviar.", "PRAYER_BODY_REQUIRED")
-  }
   const contentHash = createHash("sha256")
     .update(body.normalize("NFKC").toLowerCase())
     .digest("hex")
@@ -133,6 +138,33 @@ export async function submitPrayer(input: SubmitPrayerInput) {
     scripturePassageId = passage.id
   }
 
+  const windowStart = new Date(Date.now() - ABUSE_RATE_LIMITS.windowMs)
+  const [submissionsInWindow, duplicateHashCount] = await Promise.all([
+    prisma.prayer.count({
+      where: {
+        intercessorId: input.intercessorId,
+        createdAt: { gte: windowStart },
+      },
+    }),
+    prisma.prayer.count({
+      where: {
+        intercessorId: input.intercessorId,
+        contentHash,
+        createdAt: { gte: windowStart },
+      },
+    }),
+  ])
+
+  const classification = classifyPrayerSubmission({
+    body,
+    submissionsInWindow,
+    duplicateHashCount,
+  })
+
+  if (classification.kind === "block_before_submit") {
+    throw new DomainError(classification.message, classification.code, 422)
+  }
+
   try {
     const prayer = await prisma.$transaction(async (tx) => {
       const reservation = await tx.idempotencyRecord.create({
@@ -144,6 +176,8 @@ export async function submitPrayer(input: SubmitPrayerInput) {
           userId: input.intercessorId,
         },
       })
+
+      // Cria com pending transitório e aplica decisão na mesma TX (atômico).
       const created = await tx.prayer.create({
         data: {
           requestId: request.id,
@@ -168,18 +202,46 @@ export async function submitPrayer(input: SubmitPrayerInput) {
                 bodyLength: body.length,
                 hasScripture: Boolean(scripturePassageId),
                 contentHash,
+                classificationSignals: classification.signals,
+                decisionSource: "system_auto",
               },
             },
           },
         },
         include: { validation: true, scripturePassage: true },
       })
+
+      await applyValidationDecision(tx, {
+        prayerId: created.id,
+        requestId: request.id,
+        intercessorId: input.intercessorId,
+        prayerCreatedAt: created.createdAt,
+        outcome: classification.outcome,
+        effects: classification.effects,
+        rationale: classification.rationale,
+        signals: {
+          bodyLength: body.length,
+          hasScripture: Boolean(scripturePassageId),
+          contentHash,
+          classificationSignals: classification.signals,
+          decisionSource: "system_auto",
+          submissionsInWindow,
+          duplicateHashCount,
+        },
+        decidedByUserId: null,
+        decisionSource: "system_auto",
+        fromOutcomes: ["pending"],
+      })
+
       await tx.idempotencyRecord.update({
         where: { id: reservation.id },
         data: {
           status: "COMPLETED",
           responseStatus: 201,
-          responseBody: { prayerId: created.id },
+          responseBody: {
+            prayerId: created.id,
+            validationOutcome: classification.outcome,
+          },
         },
       })
       await recordAuditEvent(
@@ -192,17 +254,21 @@ export async function submitPrayer(input: SubmitPrayerInput) {
           metadata: {
             requestId: request.id,
             hasScripture: Boolean(scripturePassageId),
+            validationOutcome: classification.outcome,
+            policyVersion: VALIDATION_POLICY_VERSION,
           },
         },
         tx,
       )
-      return created
+
+      return tx.prayer.findUniqueOrThrow({
+        where: { id: created.id },
+        include: { validation: true, scripturePassage: true },
+      })
     })
 
     return { prayer: toPrayerDto(prayer), reused: false as const }
   } catch (error) {
-    // Corrida de idempotência: outra requisição criou primeiro.
-    // Não reexecuta a transação — apenas reconcilia o resultado já gravado.
     const raced = await prisma.prayer.findUnique({
       where: {
         intercessorId_idempotencyKey: {

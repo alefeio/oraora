@@ -188,6 +188,18 @@ export function PrayerComposeForm({
       setError(null)
       return
     }
+    if (
+      /^(orei|am[eé]m|deus\s+aben[cç]oe|gl[oó]ria\s+(a\s+)?deus|obrigad[oa]|ok)\.?$/i.test(
+        trimmed,
+      ) ||
+      /^\.+$/.test(trimmed)
+    ) {
+      setFieldError(
+        "Dedique algumas palavras à história desta pessoa e escreva uma oração por ela.",
+      )
+      setError(null)
+      return
+    }
 
     submittingRef.current = true
     setPending(true)

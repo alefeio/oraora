@@ -31,8 +31,9 @@ function outcomeLabel(outcome: string | null) {
       return { text: "não liberou pedido", tone: "danger" as const }
     case "manual_review":
     case "pending":
+      return { text: "em verificação", tone: "warning" as const }
     default:
-      return { text: "aguardando validação", tone: "warning" as const }
+      return { text: "registrada", tone: "warning" as const }
   }
 }
 
