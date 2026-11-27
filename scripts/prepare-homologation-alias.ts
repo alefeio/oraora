@@ -1,37 +1,67 @@
 /**
- * UI-05D.1R — prepara / verifica alias de homologação → PR #13.
+ * UI-05D.1R — vínculo permanente do domínio de homologação ao git branch do PR #13.
  *
  * Uso:
  *   npx tsx scripts/prepare-homologation-alias.ts --check
- *   npx tsx scripts/prepare-homologation-alias.ts --apply   # requer confirmação operacional
+ *   npx tsx scripts/prepare-homologation-alias.ts --apply
  *
+ * Usa `vercel api` (autenticado pelo CLI) para ler/atualizar project domain.gitBranch.
+ * Alias pontual (`vercel alias set`) não altera get_project_domain.
+ * Preserva Better Auth em https://homologacao.oraora.ia.br e o banco Preview.
  * Não altera Production. Não faz merge.
  */
 import { execFileSync } from "node:child_process"
+import fs from "node:fs"
+import path from "node:path"
 
 const HOMOLOG_HOST = "homologacao.oraora.ia.br"
 const PROJECT = "oraora"
 const SCOPE = "alefeios-projects"
 const BRANCH = "fix/ui-05d-1-prayer-reliability"
+const BETTER_AUTH_ORIGIN = `https://${HOMOLOG_HOST}`
 
 const apply = process.argv.includes("--apply")
-const check = process.argv.includes("--check") || !apply
 
-function sh(bin: string, args: string[]) {
-  return execFileSync(bin, args, { encoding: "utf8" }).trim()
+function readProjectMeta() {
+  try {
+    return JSON.parse(
+      fs.readFileSync(path.join(process.cwd(), ".vercel", "project.json"), "utf8"),
+    ) as { orgId?: string; projectId?: string; projectName?: string }
+  } catch {
+    return {}
+  }
 }
 
-function main() {
+function vercelApi(endpoint: string, extraArgs: string[] = []) {
+  const npxBin = process.platform === "win32" ? "npx.cmd" : "npx"
+  const out = execFileSync(
+    npxBin,
+    ["vercel", "api", endpoint, "--scope", SCOPE, "--raw", ...extraArgs],
+    { encoding: "utf8", shell: process.platform === "win32" },
+  ).trim()
+  // CLI pode prefixar warnings; extrai o último objeto JSON.
+  const start = out.indexOf("{")
+  const end = out.lastIndexOf("}")
+  if (start < 0 || end < start) {
+    throw new Error(`vercel api sem JSON: ${out.slice(0, 200)}`)
+  }
+  return JSON.parse(out.slice(start, end + 1)) as Record<string, unknown>
+}
+
+async function main() {
+  const meta = readProjectMeta()
+  const teamId = process.env.VERCEL_TEAM_ID?.trim() || meta.orgId || ""
+  const teamQs = teamId ? `?teamId=${encodeURIComponent(teamId)}` : ""
+
   console.info(
     JSON.stringify(
       {
         host: HOMOLOG_HOST,
         project: PROJECT,
-        scope: SCOPE,
-        targetBranch: BRANCH,
+        targetGitBranch: BRANCH,
+        betterAuthUrl: BETTER_AUTH_ORIGIN,
         mode: apply ? "apply" : "check",
-        betterAuthUrl: `https://${HOMOLOG_HOST}`,
-        nextPublicAppUrl: `https://${HOMOLOG_HOST}`,
+        teamIdPresent: Boolean(teamId),
         productionWrites: 0,
         mergeMain: false,
       },
@@ -40,29 +70,82 @@ function main() {
     ),
   )
 
-  try {
-    const domains = sh("npx", ["vercel", "domains", "ls", "--scope", SCOPE])
-    console.info("domains_ls_excerpt", domains.split("\n").slice(0, 40).join("\n"))
-  } catch (error) {
-    console.warn("domains_ls_failed", error instanceof Error ? error.message : error)
-  }
+  const before = vercelApi(`/v9/projects/${PROJECT}/domains/${HOMOLOG_HOST}${teamQs}`)
+  console.info("get_project_domain", {
+    name: before.name ?? null,
+    gitBranch: before.gitBranch ?? null,
+    verified: before.verified ?? null,
+    redirect: before.redirect ?? null,
+  })
 
-  if (check && !apply) {
+  const aligned = before.gitBranch === BRANCH
+  console.info("git_branch_aligned", aligned)
+
+  if (!apply) {
     console.info(
-      "check_only: para aplicar o alias ao deployment do PR #13, rode com --apply após validar o deployment Preview.",
+      aligned
+        ? "check_ok: domínio já aponta para a branch do PR #13."
+        : `check_drift: gitBranch atual=${String(before.gitBranch ?? "null")}; desejado=${BRANCH}. Rode --apply.`,
     )
     return
   }
 
-  console.info(
-    [
-      "apply_plan:",
-      `1) Localizar deployment da branch ${BRANCH} / PR #13`,
-      `2) vercel alias set <deployment-url> ${HOMOLOG_HOST} --scope ${SCOPE} --yes`,
-      `3) Confirmar BETTER_AUTH_URL e NEXT_PUBLIC_APP_URL = https://${HOMOLOG_HOST}`,
-      "4) Smoke health + login Conta B + /account/oracoes",
-    ].join("\n"),
-  )
+  if (aligned) {
+    console.info("apply_noop: já alinhado.")
+    return
+  }
+
+  const patched = vercelApi(`/v9/projects/${PROJECT}/domains/${HOMOLOG_HOST}${teamQs}`, [
+    "-X",
+    "PATCH",
+    "-F",
+    `gitBranch=${BRANCH}`,
+  ])
+  console.info("patched_project_domain", {
+    name: patched.name ?? null,
+    gitBranch: patched.gitBranch ?? null,
+  })
+
+  const verify = vercelApi(`/v9/projects/${PROJECT}/domains/${HOMOLOG_HOST}${teamQs}`)
+  console.info("get_project_domain_after", {
+    name: verify.name ?? null,
+    gitBranch: verify.gitBranch ?? null,
+  })
+  if (verify.gitBranch !== BRANCH) {
+    throw new Error(
+      `Domínio não ficou na branch desejada (ainda ${String(verify.gitBranch ?? "null")}).`,
+    )
+  }
+
+  // Mantém o alias de deployment alinhado ao branch URL estável.
+  try {
+    const npxBin = process.platform === "win32" ? "npx.cmd" : "npx"
+    execFileSync(
+      npxBin,
+      [
+        "vercel",
+        "alias",
+        "set",
+        "oraora-git-fix-ui-05d-1-prayer-reliability-alefeios-projects.vercel.app",
+        HOMOLOG_HOST,
+        "--scope",
+        SCOPE,
+      ],
+      { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"], shell: process.platform === "win32" },
+    )
+    console.info("alias_set_ok", HOMOLOG_HOST)
+  } catch (error) {
+    console.warn(
+      "alias_set_warn",
+      error instanceof Error ? error.message : error,
+    )
+  }
+
+  console.info("better_auth_origin_preserved", BETTER_AUTH_ORIGIN)
+  console.info("preview_db_isolation", "unchanged")
 }
 
-main()
+main().catch((error) => {
+  console.error(error instanceof Error ? error.message : error)
+  process.exitCode = 1
+})

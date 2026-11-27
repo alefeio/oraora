@@ -60,9 +60,12 @@ async function main() {
     return
   }
 
+  // TLS: sslmode da URL (normalize para verify-full no runtime Prisma).
+  // Preflight RO não usa rejectUnauthorized:false.
   const client = new pg.Client({
-    connectionString: direct,
-    ssl: { rejectUnauthorized: false },
+    connectionString: direct.includes("sslmode=")
+      ? direct.replace(/sslmode=(require|prefer|verify-ca)/i, "sslmode=verify-full")
+      : `${direct}${direct.includes("?") ? "&" : "?"}sslmode=verify-full`,
     connectionTimeoutMillis: 20_000,
     query_timeout: 20_000,
   })

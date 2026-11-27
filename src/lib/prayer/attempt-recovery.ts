@@ -12,27 +12,34 @@ export type PrayerAttemptHandle = {
 }
 
 const STORAGE_PREFIX = "oraora:prayer-attempt:v1"
+const CHANGE_EVENT = "oraora:prayer-attempt-change"
+
+type SnapshotEntry = {
+  raw: string | null
+  value: PrayerAttemptHandle | null
+}
+
+/** Cache de snapshots: mesma referência enquanto o raw não muda. */
+const snapshotCache = new Map<string, SnapshotEntry>()
 
 function storageKey(accountUserId: string, requestId: string) {
   return `${STORAGE_PREFIX}:${accountUserId}:${requestId}`
 }
 
-function canUseSessionStorage() {
-  return typeof window !== "undefined" && typeof window.sessionStorage !== "undefined"
+export function canUseSessionStorage() {
+  try {
+    return typeof window !== "undefined" && typeof window.sessionStorage !== "undefined"
+  } catch {
+    return false
+  }
 }
 
 export function createPrayerIdempotencyKey(requestId: string) {
   return `pray_${requestId}_${crypto.randomUUID().replace(/-/g, "").slice(0, 16)}`
 }
 
-export function readPrayerAttemptHandle(
-  accountUserId: string,
-  requestId: string,
-): PrayerAttemptHandle | null {
-  if (!canUseSessionStorage()) return null
+function parseHandle(raw: string, requestId: string): PrayerAttemptHandle | null {
   try {
-    const raw = window.sessionStorage.getItem(storageKey(accountUserId, requestId))
-    if (!raw) return null
     const parsed = JSON.parse(raw) as Partial<PrayerAttemptHandle>
     if (
       typeof parsed.requestId !== "string" ||
@@ -56,23 +63,119 @@ export function readPrayerAttemptHandle(
   }
 }
 
+function readRaw(accountUserId: string, requestId: string): string | null {
+  if (!canUseSessionStorage()) return null
+  try {
+    return window.sessionStorage.getItem(storageKey(accountUserId, requestId))
+  } catch {
+    return null
+  }
+}
+
+function notifyChange(key: string) {
+  if (typeof window === "undefined") return
+  window.dispatchEvent(new CustomEvent(CHANGE_EVENT, { detail: { key } }))
+}
+
+/**
+ * Snapshot estável para useSyncExternalStore:
+ * retorna a mesma referência de objeto enquanto o conteúdo serializado não mudar.
+ */
+export function getPrayerAttemptSnapshot(
+  accountUserId: string,
+  requestId: string,
+): PrayerAttemptHandle | null {
+  const key = storageKey(accountUserId, requestId)
+  const raw = readRaw(accountUserId, requestId)
+  const cached = snapshotCache.get(key)
+  if (cached && cached.raw === raw) {
+    return cached.value
+  }
+  const value = raw ? parseHandle(raw, requestId) : null
+  snapshotCache.set(key, { raw, value })
+  return value
+}
+
+/** Server snapshot: sempre null (sem sessionStorage). */
+export function getPrayerAttemptServerSnapshot(): null {
+  return null
+}
+
+/**
+ * Inscreve listeners em mudanças locais (write/clear) e no evento `storage` cross-tab.
+ */
+export function subscribePrayerAttempt(
+  accountUserId: string,
+  requestId: string,
+  onStoreChange: () => void,
+): () => void {
+  if (typeof window === "undefined") return () => undefined
+
+  const key = storageKey(accountUserId, requestId)
+
+  const onCustom = (event: Event) => {
+    const detail = (event as CustomEvent<{ key?: string }>).detail
+    if (!detail?.key || detail.key === key) onStoreChange()
+  }
+  const onStorage = (event: StorageEvent) => {
+    if (event.storageArea !== window.sessionStorage) return
+    if (event.key !== null && event.key !== key) return
+    // Invalida cache para forçar novo snapshot na próxima leitura.
+    snapshotCache.delete(key)
+    onStoreChange()
+  }
+
+  window.addEventListener(CHANGE_EVENT, onCustom)
+  window.addEventListener("storage", onStorage)
+  return () => {
+    window.removeEventListener(CHANGE_EVENT, onCustom)
+    window.removeEventListener("storage", onStorage)
+  }
+}
+
+export function readPrayerAttemptHandle(
+  accountUserId: string,
+  requestId: string,
+): PrayerAttemptHandle | null {
+  return getPrayerAttemptSnapshot(accountUserId, requestId)
+}
+
 export function writePrayerAttemptHandle(
   accountUserId: string,
   handle: Omit<PrayerAttemptHandle, "updatedAt"> & { updatedAt?: string },
 ) {
   if (!canUseSessionStorage()) return
+  const key = storageKey(accountUserId, handle.requestId)
   const payload: PrayerAttemptHandle = {
     requestId: handle.requestId,
     idempotencyKey: handle.idempotencyKey,
     scripturePassageId: handle.scripturePassageId ?? null,
     updatedAt: handle.updatedAt ?? new Date().toISOString(),
   }
-  window.sessionStorage.setItem(storageKey(accountUserId, handle.requestId), JSON.stringify(payload))
+  try {
+    window.sessionStorage.setItem(key, JSON.stringify(payload))
+  } catch {
+    return
+  }
+  snapshotCache.delete(key)
+  notifyChange(key)
 }
 
 export function clearPrayerAttemptHandle(accountUserId: string, requestId: string) {
   if (!canUseSessionStorage()) return
-  window.sessionStorage.removeItem(storageKey(accountUserId, requestId))
+  const key = storageKey(accountUserId, requestId)
+  try {
+    window.sessionStorage.removeItem(key)
+  } catch {
+    return
+  }
+  snapshotCache.delete(key)
+  notifyChange(key)
+}
+
+/** Apenas para testes: limpa o cache de snapshots. */
+export function resetPrayerAttemptSnapshotCacheForTests() {
+  snapshotCache.clear()
 }
 
 export type ReconcileOutcome = "found" | "in_progress" | "not_found" | "unavailable"

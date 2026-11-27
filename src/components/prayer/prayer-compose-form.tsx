@@ -16,10 +16,11 @@ import { Field, FormError, FormHint, Select, TextArea } from "@/components/ui/fi
 import {
   clearPrayerAttemptHandle,
   createPrayerIdempotencyKey,
+  getPrayerAttemptServerSnapshot,
+  getPrayerAttemptSnapshot,
   interpretReconcileResponse,
-  readPrayerAttemptHandle,
+  subscribePrayerAttempt,
   writePrayerAttemptHandle,
-  type PrayerAttemptHandle,
   type ReconcileOutcome,
 } from "@/lib/prayer/attempt-recovery"
 
@@ -43,13 +44,11 @@ type SubmitJson = {
   status?: ReconcileOutcome
 }
 
-const emptySubscribe = () => () => undefined
-
-function useRestoredAttempt(accountUserId: string, requestId: string): PrayerAttemptHandle | null {
+function useRestoredAttempt(accountUserId: string, requestId: string) {
   return useSyncExternalStore(
-    emptySubscribe,
-    () => readPrayerAttemptHandle(accountUserId, requestId),
-    () => null,
+    (onStoreChange) => subscribePrayerAttempt(accountUserId, requestId, onStoreChange),
+    () => getPrayerAttemptSnapshot(accountUserId, requestId),
+    getPrayerAttemptServerSnapshot,
   )
 }
 

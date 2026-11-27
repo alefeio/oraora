@@ -24,11 +24,15 @@ export type TransientRetryOptions = {
   maxAttempts?: number
   /**
    * Teto por tentativa individual. Nunca excede o tempo restante do orçamento.
-   * Sem valor, cada tentativa usa apenas o restante do prazo.
    */
   attemptTimeoutMs?: number
   sleep?: (ms: number) => Promise<void>
   now?: () => number
+  /**
+   * Chamado quando a operação original resolve depois do timeout do race.
+   * Usado para liberar PoolClient tardio sem vazar conexão.
+   */
+  onLateResult?: (value: unknown) => void
 }
 
 /**
@@ -56,31 +60,63 @@ export const LOCAL_CONNECT_RETRY: Required<
 
 const defaultSleep = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms))
 
-class BudgetTimeoutError extends Error {
+export class BudgetTimeoutError extends Error {
   constructor(remainingMs: number) {
     super(`budget_exhausted: attempt exceeded remaining ${remainingMs}ms`)
     this.name = "BudgetTimeoutError"
   }
 }
 
-async function withAttemptDeadline<T>(
+/**
+ * Executa operação com prazo. Promise.race não cancela a operação original:
+ * se ela resolver depois do timeout, `onLateResult` recebe o valor para cleanup
+ * (ex.: liberar PoolClient).
+ */
+export async function withAttemptDeadline<T>(
   operation: () => Promise<T>,
   timeoutMs: number,
-  now: () => number,
+  options: {
+    now?: () => number
+    onLateResult?: (value: T) => void
+  } = {},
 ): Promise<T> {
   if (timeoutMs <= 0) throw new BudgetTimeoutError(timeoutMs)
 
+  const now = options.now ?? Date.now
+  let winner: "pending" | "operation" | "timeout" = "pending"
   let timer: ReturnType<typeof setTimeout> | undefined
   const started = now()
+
+  const operationPromise = Promise.resolve()
+    .then(() => operation())
+    .then((value) => {
+      if (winner === "timeout") {
+        options.onLateResult?.(value)
+        // Mantém a promise rejeitada para não “ganhar” de novo após cleanup.
+        throw new BudgetTimeoutError(0)
+      }
+      winner = "operation"
+      return value
+    })
+    .catch((error: unknown) => {
+      if (winner === "timeout") {
+        // Erro tardio: engole para evitar unhandledRejection após timeout.
+        return undefined as never
+      }
+      throw error
+    })
+
+  const timeoutPromise = new Promise<T>((_, reject) => {
+    timer = setTimeout(() => {
+      if (winner === "pending") {
+        winner = "timeout"
+        reject(new BudgetTimeoutError(Math.max(0, timeoutMs - (now() - started))))
+      }
+    }, timeoutMs)
+  })
+
   try {
-    return await Promise.race([
-      operation(),
-      new Promise<T>((_, reject) => {
-        timer = setTimeout(() => {
-          reject(new BudgetTimeoutError(Math.max(0, timeoutMs - (now() - started))))
-        }, timeoutMs)
-      }),
-    ])
+    return await Promise.race([operationPromise, timeoutPromise])
   } finally {
     if (timer) clearTimeout(timer)
   }
@@ -114,7 +150,10 @@ export async function withTransientDbRetry<T>(
     const attemptCap = Math.min(attemptTimeoutMs, remainingBefore)
 
     try {
-      return await withAttemptDeadline(operation, attemptCap, now)
+      return await withAttemptDeadline(operation, attemptCap, {
+        now,
+        onLateResult: options.onLateResult as ((value: T) => void) | undefined,
+      })
     } catch (error) {
       lastError = error
       if (!isTransientPrismaPostgresError(error)) throw error

@@ -1,8 +1,10 @@
 import { describe, expect, it, vi } from "vitest"
 import {
+  BudgetTimeoutError,
   isTransientPrismaPostgresError,
   LOCAL_CONNECT_RETRY,
   SERVERLESS_CONNECT_RETRY,
+  withAttemptDeadline,
   withTransientDbRetry,
 } from "@/lib/db/transient"
 
@@ -30,6 +32,41 @@ describe("retry budgets", () => {
     )
     expect(SERVERLESS_CONNECT_RETRY.budgetMs + 5_000).toBeLessThanOrEqual(20_000)
     expect(LOCAL_CONNECT_RETRY.budgetMs).toBeLessThanOrEqual(12_000)
+  })
+})
+
+describe("withAttemptDeadline late result", () => {
+  it("libera resultado tardio após timeout (PoolClient simulado)", async () => {
+    const late: Array<{ released: boolean }> = []
+    let resolveConnect: ((value: { released: boolean; release: (x?: boolean) => void }) => void) | null =
+      null
+
+    const pending = withAttemptDeadline(
+      () =>
+        new Promise<{ released: boolean; release: (x?: boolean) => void }>((resolve) => {
+          resolveConnect = resolve
+        }),
+      40,
+      {
+        onLateResult: (client) => {
+          client.release(true)
+          late.push(client)
+        },
+      },
+    )
+
+    await expect(pending).rejects.toBeInstanceOf(BudgetTimeoutError)
+
+    const client = {
+      released: false,
+      release(force?: boolean) {
+        this.released = Boolean(force) || true
+      },
+    }
+    resolveConnect!(client)
+    await new Promise((r) => setTimeout(r, 20))
+    expect(late).toHaveLength(1)
+    expect(late[0]!.released).toBe(true)
   })
 })
 
@@ -117,4 +154,40 @@ describe("withTransientDbRetry", () => {
     expect(calls).toBeLessThanOrEqual(3)
     expect(now).toBeLessThanOrEqual(160)
   })
+
+  it("libera conexões tardias em falhas repetidas com pool saturado simulado", async () => {
+    const released: number[] = []
+    let issued = 0
+    let now = 0
+
+    await expect(
+      withTransientDbRetry(
+        async () => {
+          const id = ++issued
+          // Simula aquisição lenta que completa depois do attemptTimeout.
+          return await new Promise<{ id: number }>((resolve) => {
+            setTimeout(() => resolve({ id }), 60)
+          })
+        },
+        {
+          budgetMs: 120,
+          delayMs: 5,
+          maxAttempts: 3,
+          attemptTimeoutMs: 25,
+          sleep: async (ms) => {
+            now += ms
+            await new Promise((r) => setTimeout(r, 0))
+          },
+          now: () => now + Date.now() * 0, // wall for timers; budget via attempt timeouts
+          onLateResult: (value) => {
+            released.push((value as { id: number }).id)
+          },
+        },
+      ),
+    ).rejects.toThrow(/budget_exhausted/)
+
+    await new Promise((r) => setTimeout(r, 120))
+    expect(released.length).toBeGreaterThanOrEqual(1)
+    expect(issued).toBeGreaterThanOrEqual(1)
+  }, 5_000)
 })

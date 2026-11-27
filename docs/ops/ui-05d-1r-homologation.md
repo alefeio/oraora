@@ -29,9 +29,15 @@ Manter no ambiente Preview (ou no deployment alvo do alias):
 ### Executado em UI-05D.1R
 
 - Alias `homologacao.oraora.ia.br` → deployment do PR #13 / branch `fix/ui-05d-1-prayer-reliability`.
+- **Vínculo permanente:** `PATCH /v9/projects/oraora/domains/homologacao.oraora.ia.br` com `gitBranch=fix/ui-05d-1-prayer-reliability` (confirmado via `get_project_domain`).
 - `BETTER_AUTH_URL` e `NEXT_PUBLIC_APP_URL` = `https://homologacao.oraora.ia.br` no Preview da branch do PR.
 - Redeploy da branch para carregar as variáveis.
 - Observação: health via CLI pode responder 401 por proteção SSO da Vercel; smoke autenticado no browser permanece necessário.
+
+```bash
+npx tsx scripts/prepare-homologation-alias.ts --check
+npx tsx scripts/prepare-homologation-alias.ts --apply
+```
 
 ## Não fazer
 

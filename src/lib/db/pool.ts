@@ -17,14 +17,28 @@ function redactDatabaseMessage(message: string) {
   return message.replace(/postgres(?:ql)?:\/\/\S+/gi, "[redacted-url]")
 }
 
+function releaseLateClient(client: PoolClient) {
+  try {
+    client.release(true)
+    console.warn("pool_late_client_released", { reason: "connect_budget_timeout" })
+  } catch (error) {
+    console.error("pool_late_client_release_failed", {
+      name: error instanceof Error ? error.name : "Error",
+      message: error instanceof Error ? redactDatabaseMessage(error.message) : "unknown",
+    })
+  }
+}
+
 function installTransientConnectRetry(pool: Pool, onVercel: boolean) {
   const originalConnect = pool.connect.bind(pool)
   const retryOptions = onVercel ? SERVERLESS_CONNECT_RETRY : LOCAL_CONNECT_RETRY
 
   async function connectWithRetry(): Promise<PoolClient> {
-    return withTransientDbRetry(() => originalConnect(), {
+    return withTransientDbRetry(() => originalConnect() as Promise<PoolClient>, {
       ...retryOptions,
-      attemptTimeoutMs: retryOptions.attemptTimeoutMs,
+      onLateResult: (value) => {
+        releaseLateClient(value as PoolClient)
+      },
     })
   }
 
