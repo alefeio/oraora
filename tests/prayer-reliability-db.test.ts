@@ -152,7 +152,7 @@ describe.runIf(enabled)("UI-05D.1 prayer reliability + scripture", () => {
   )
 
   it(
-    "reconciliação de chave inexistente retorna not_found",
+    "reconciliação de chave inexistente retorna not_found e bloqueia conta suspensa",
     async () => {
       const user = await createDbTestUser("Reconcile Missing")
       const result = await reconcilePrayerSubmission({
@@ -160,6 +160,49 @@ describe.runIf(enabled)("UI-05D.1 prayer reliability + scripture", () => {
         idempotencyKey: `missing_${randomUUID().slice(0, 12)}`,
       })
       expect(result.status).toBe("not_found")
+
+      const banned = await createDbTestUser("Reconcile Banned", "USER", true)
+      await expect(
+        reconcilePrayerSubmission({
+          intercessorId: banned.id,
+          idempotencyKey: `banrec_${randomUUID().slice(0, 12)}`,
+        }),
+      ).rejects.toMatchObject({ code: "ACCOUNT_SUSPENDED" })
+    },
+    dbTestTimeout,
+  )
+
+  it(
+    "lista orações enviadas apenas do titular",
+    async () => {
+      const { listSentPrayersForIntercessor } = await import(
+        "@/modules/intercession/list-sent-prayers"
+      )
+      const owner = await createDbTestUser("List Owner")
+      const a = await createDbTestUser("List Intercessor A")
+      const b = await createDbTestUser("List Intercessor B")
+      const request = await createDbTestRequest(owner.id, categoryId)
+      await submitPrayer({
+        intercessorId: a.id,
+        requestId: request.id,
+        body: "Oração do titular A.",
+        idempotencyKey: `lista_${randomUUID().slice(0, 12)}`,
+      })
+      await submitPrayer({
+        intercessorId: b.id,
+        requestId: request.id,
+        body: "Oração do titular B.",
+        idempotencyKey: `listb_${randomUUID().slice(0, 12)}`,
+      })
+
+      const onlyA = await listSentPrayersForIntercessor({ intercessorId: a.id })
+      expect(onlyA.some((row) => row.requestId === request.id)).toBe(true)
+      const idsA = new Set(onlyA.map((row) => row.id))
+      const onlyB = await listSentPrayersForIntercessor({ intercessorId: b.id })
+      expect(onlyB.some((row) => row.requestId === request.id)).toBe(true)
+      for (const row of onlyB) {
+        expect(idsA.has(row.id)).toBe(false)
+      }
     },
     dbTestTimeout,
   )

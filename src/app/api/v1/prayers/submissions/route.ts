@@ -1,10 +1,14 @@
 import { z } from "zod"
 import { failure, ok } from "@/lib/api/http"
 import { requireUserApi } from "@/lib/auth/session"
+import { isTransientPrismaPostgresError } from "@/lib/db/transient"
 import { DomainError, reconcilePrayerSubmission } from "@/modules/intercession"
 
-/** Consulta leve — orçamento curto. */
-export const maxDuration = 15
+/**
+ * Reconciliação: auth + 1–2 consultas.
+ * Orçamento de conexão serverless (8s) cabe abaixo deste limite.
+ */
+export const maxDuration = 20
 
 const querySchema = z.object({
   idempotencyKey: z.string().min(8).max(128),
@@ -23,7 +27,7 @@ export async function GET(request: Request) {
     idempotencyKey: url.searchParams.get("idempotencyKey") ?? "",
   })
   if (!parsed.success) {
-    return failure(400, "Chave de idempotência inválida.")
+    return failure(400, "Chave de idempotência inválida.", { code: "INVALID_IDEMPOTENCY_KEY" })
   }
 
   try {
@@ -36,9 +40,15 @@ export async function GET(request: Request) {
     if (err instanceof DomainError) {
       return failure(err.status, err.message, { code: err.code })
     }
+    const transient = isTransientPrismaPostgresError(err)
     console.error("prayer_reconcile_failed", {
+      transient,
       name: err instanceof Error ? err.name : "Error",
     })
-    return failure(500, "Não foi possível verificar o status do envio.")
+    // 200 com status unavailable: o cliente não deve interpretar como not_found.
+    return ok({
+      status: "unavailable" as const,
+      reason: transient ? "db_transient" : "unexpected",
+    })
   }
 }

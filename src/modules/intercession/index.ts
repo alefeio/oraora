@@ -1,6 +1,8 @@
 export const INTERCESSION_CONTEXT = "intercession" as const
 export { submitPrayer } from "./submit-prayer"
 export { reconcilePrayerSubmission } from "./reconcile-submission"
+export { listSentPrayersForIntercessor } from "./list-sent-prayers"
+
 
 export { decidePrayerValidation } from "./validate-prayer"
 export { invalidatePrayerValidation } from "./invalidate-prayer"

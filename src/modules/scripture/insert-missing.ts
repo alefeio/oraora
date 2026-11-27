@@ -127,6 +127,10 @@ export async function insertMissingScriptureOnly(
         }
       }
     }
+  }, {
+    // Transação única: tudo entra ou nada. Timeout adequado ao catálogo pequeno.
+    maxWait: 5_000,
+    timeout: 20_000,
   })
 
   return result

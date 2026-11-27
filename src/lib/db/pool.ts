@@ -22,7 +22,10 @@ function installTransientConnectRetry(pool: Pool, onVercel: boolean) {
   const retryOptions = onVercel ? SERVERLESS_CONNECT_RETRY : LOCAL_CONNECT_RETRY
 
   async function connectWithRetry(): Promise<PoolClient> {
-    return withTransientDbRetry(() => originalConnect(), retryOptions)
+    return withTransientDbRetry(() => originalConnect(), {
+      ...retryOptions,
+      attemptTimeoutMs: retryOptions.attemptTimeoutMs,
+    })
   }
 
   pool.connect = ((
@@ -56,8 +59,8 @@ function createPool() {
     // Serverless: poucas conexões; idle curto evita soquetes mortos após idle-close do Prisma Postgres.
     max: onVercel ? 3 : 10,
     idleTimeoutMillis: onVercel ? 1_000 : 30_000,
-    // Connect curto + retry orçado em SERVERLESS_CONNECT_RETRY (< maxDuration das rotas).
-    connectionTimeoutMillis: onVercel ? 8_000 : 10_000,
+    // Connect curto: cada tentativa cabe em attemptTimeoutMs do retry serverless (3.5s).
+    connectionTimeoutMillis: onVercel ? 3_000 : 5_000,
     allowExitOnIdle: !onVercel,
   }
   const pool = new Pool(config)

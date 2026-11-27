@@ -23,10 +23,13 @@ describe("isTransientPrismaPostgresError", () => {
 })
 
 describe("retry budgets", () => {
-  it("mantém orçamento serverless abaixo do maxDuration das rotas (25s)", () => {
-    expect(SERVERLESS_CONNECT_RETRY.budgetMs).toBeLessThan(25_000)
-    expect(SERVERLESS_CONNECT_RETRY.maxAttempts).toBeLessThanOrEqual(3)
-    expect(LOCAL_CONNECT_RETRY.budgetMs).toBeLessThanOrEqual(20_000)
+  it("mantém orçamento serverless abaixo do maxDuration da reconciliação (20s) e orações (25s)", () => {
+    expect(SERVERLESS_CONNECT_RETRY.budgetMs).toBeLessThanOrEqual(8_000)
+    expect(SERVERLESS_CONNECT_RETRY.attemptTimeoutMs).toBeLessThanOrEqual(
+      SERVERLESS_CONNECT_RETRY.budgetMs,
+    )
+    expect(SERVERLESS_CONNECT_RETRY.budgetMs + 5_000).toBeLessThanOrEqual(20_000)
+    expect(LOCAL_CONNECT_RETRY.budgetMs).toBeLessThanOrEqual(12_000)
   })
 })
 
@@ -40,7 +43,7 @@ describe("withTransientDbRetry", () => {
         if (calls < 3) throw new Error("Failed to connect to upstream database")
         return "ok"
       },
-      { delayMs: 10, maxAttempts: 5, budgetMs: 5_000, sleep },
+      { delayMs: 10, maxAttempts: 5, budgetMs: 5_000, attemptTimeoutMs: 1_000, sleep },
     )
     expect(result).toBe("ok")
     expect(calls).toBe(3)
@@ -58,18 +61,60 @@ describe("withTransientDbRetry", () => {
     expect(calls).toBe(1)
   })
 
-  it("esgota orçamento sem reexecutar além do limite", async () => {
+  it("corta tentativa pendurada antes de estourar o orçamento", async () => {
+    const started = Date.now()
     let calls = 0
-    const sleep = vi.fn(async () => undefined)
     await expect(
       withTransientDbRetry(
         async () => {
           calls += 1
-          throw new Error("timeout expired")
+          await new Promise(() => {
+            /* hang forever */
+          })
+          return "never"
         },
-        { delayMs: 1, maxAttempts: 3, budgetMs: 50, sleep },
+        {
+          budgetMs: 150,
+          delayMs: 15,
+          maxAttempts: 5,
+          attemptTimeoutMs: 40,
+          sleep: (ms) => new Promise((resolve) => setTimeout(resolve, ms)),
+        },
       ),
-    ).rejects.toThrow(/timeout expired/)
+    ).rejects.toThrow(/budget_exhausted/)
+
+    const elapsed = Date.now() - started
+    expect(calls).toBeGreaterThanOrEqual(1)
+    expect(calls).toBeLessThanOrEqual(4)
+    expect(elapsed).toBeLessThan(800)
+  }, 5_000)
+
+  it("respeita deadline com relógio simulado entre tentativas", async () => {
+    let now = 0
+    const sleep = vi.fn(async (ms: number) => {
+      now += ms
+    })
+    let calls = 0
+
+    await expect(
+      withTransientDbRetry(
+        async () => {
+          calls += 1
+          now += 45
+          throw new Error("ETIMEDOUT")
+        },
+        {
+          budgetMs: 100,
+          delayMs: 20,
+          maxAttempts: 10,
+          attemptTimeoutMs: 80,
+          sleep,
+          now: () => now,
+        },
+      ),
+    ).rejects.toThrow(/ETIMEDOUT|budget_exhausted/)
+
     expect(calls).toBeLessThanOrEqual(3)
+    expect(now).toBeLessThanOrEqual(160)
   })
 })

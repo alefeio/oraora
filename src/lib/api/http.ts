@@ -4,7 +4,7 @@ export function json(data: unknown, status = 200) {
   return NextResponse.json(data, {
     status,
     headers: {
-      "Cache-Control": "no-store",
+      "Cache-Control": "private, no-store",
     },
   })
 }
