@@ -3,7 +3,8 @@ import { PRODUCT_DISPLAY_NAME, PRODUCT_NAME_IS_PROVISIONAL } from "@/lib/config/
 import { pool } from "@/lib/db/pool"
 import { isTransientPrismaPostgresError } from "@/lib/db/transient"
 
-export const maxDuration = 30
+/** Orçamento alinhado ao retry serverless de conexão (~16s) + margem. */
+export const maxDuration = 25
 
 export async function GET() {
   const timestamp = new Date().toISOString()

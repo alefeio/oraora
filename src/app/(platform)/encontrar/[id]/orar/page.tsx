@@ -153,6 +153,7 @@ async function OrarContent({ params }: PageProps) {
             requestId={prayerRequest.id}
             categorySlug={prayerRequest.category.slug}
             publicLabel={prayerRequest.publicLabel}
+            accountUserId={session.user.id}
           />
         </section>
       </main>
