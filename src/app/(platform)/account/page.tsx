@@ -71,6 +71,9 @@ async function AccountContent() {
               <ButtonLink href="/account/oracoes" variant="secondary" className="w-full">
                 Orações enviadas
               </ButtonLink>
+              <ButtonLink href="/account/oracoes-recebidas" variant="secondary" className="w-full">
+                Orações recebidas
+              </ButtonLink>
               <ButtonLink href="/pedir" variant="secondary" className="w-full">
                 Pedir oração
               </ButtonLink>

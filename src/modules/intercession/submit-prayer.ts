@@ -2,6 +2,7 @@ import { createHash } from "node:crypto"
 import { prisma } from "@/lib/db/prisma"
 import { recordAuditEvent } from "@/lib/security/audit"
 import { fingerprintPayload, normalizeIdempotencyKey } from "@/lib/security/idempotency"
+import { lockIntercessorUser } from "@/modules/reciprocity/eligibility"
 import { applyValidationDecision } from "./apply-validation"
 import { DomainError, PrayerNotAllowedError } from "./errors"
 import { toPrayerDto } from "./dto"
@@ -44,6 +45,14 @@ function sameIdempotentPayload(
     existing.contentHash === expected.contentHash &&
     (existing.scripturePassageId ?? null) === (expected.scripturePassageId ?? null)
   )
+}
+
+function isUniqueViolation(error: unknown): boolean {
+  if (!error || typeof error !== "object") return false
+  const code = "code" in error ? String((error as { code?: string }).code) : ""
+  if (code === "P2002") return true
+  const message = error instanceof Error ? error.message : String(error)
+  return /unique constraint|Unique constraint/i.test(message)
 }
 
 export async function submitPrayer(input: SubmitPrayerInput) {
@@ -138,35 +147,48 @@ export async function submitPrayer(input: SubmitPrayerInput) {
     scripturePassageId = passage.id
   }
 
-  const windowStart = new Date(Date.now() - ABUSE_RATE_LIMITS.windowMs)
-  const [submissionsInWindow, duplicateHashCount] = await Promise.all([
-    prisma.prayer.count({
-      where: {
-        intercessorId: input.intercessorId,
-        createdAt: { gte: windowStart },
-      },
-    }),
-    prisma.prayer.count({
-      where: {
-        intercessorId: input.intercessorId,
-        contentHash,
-        createdAt: { gte: windowStart },
-      },
-    }),
-  ])
-
-  const classification = classifyPrayerSubmission({
+  // Pré-checagem rápida (UX) — a classificação decisiva ocorre DENTRO da TX com contagens travadas.
+  const early = classifyPrayerSubmission({
     body,
-    submissionsInWindow,
-    duplicateHashCount,
+    submissionsInWindow: 0,
+    duplicateHashCount: 0,
   })
-
-  if (classification.kind === "block_before_submit") {
-    throw new DomainError(classification.message, classification.code, 422)
+  if (early.kind === "block_before_submit") {
+    throw new DomainError(early.message, early.code, 422)
   }
 
   try {
     const prayer = await prisma.$transaction(async (tx) => {
+      // Serializa o intercessor antes de contar frequência/duplicata e abrir elegibilidade.
+      await lockIntercessorUser(tx, input.intercessorId)
+
+      const windowStart = new Date(Date.now() - ABUSE_RATE_LIMITS.windowMs)
+      const [submissionsInWindow, duplicateHashCount] = await Promise.all([
+        tx.prayer.count({
+          where: {
+            intercessorId: input.intercessorId,
+            createdAt: { gte: windowStart },
+          },
+        }),
+        tx.prayer.count({
+          where: {
+            intercessorId: input.intercessorId,
+            contentHash,
+            createdAt: { gte: windowStart },
+          },
+        }),
+      ])
+
+      const classification = classifyPrayerSubmission({
+        body,
+        submissionsInWindow,
+        duplicateHashCount,
+      })
+
+      if (classification.kind === "block_before_submit") {
+        throw new DomainError(classification.message, classification.code, 422)
+      }
+
       const reservation = await tx.idempotencyRecord.create({
         data: {
           scope: "prayer.submit",
@@ -177,7 +199,6 @@ export async function submitPrayer(input: SubmitPrayerInput) {
         },
       })
 
-      // Cria com pending transitório e aplica decisão na mesma TX (atômico).
       const created = await tx.prayer.create({
         data: {
           requestId: request.id,
@@ -269,30 +290,33 @@ export async function submitPrayer(input: SubmitPrayerInput) {
 
     return { prayer: toPrayerDto(prayer), reused: false as const }
   } catch (error) {
-    const raced = await prisma.prayer.findUnique({
-      where: {
-        intercessorId_idempotencyKey: {
-          intercessorId: input.intercessorId,
-          idempotencyKey,
+    // Após P2002 a TX abortou — não reutilizar o cliente da TX; ler fora.
+    if (isUniqueViolation(error) || error instanceof DomainError === false) {
+      const raced = await prisma.prayer.findUnique({
+        where: {
+          intercessorId_idempotencyKey: {
+            intercessorId: input.intercessorId,
+            idempotencyKey,
+          },
         },
-      },
-      include: { validation: true, scripturePassage: true },
-    })
-    if (raced) {
-      if (
-        !sameIdempotentPayload(raced, {
-          requestId: input.requestId,
-          contentHash,
-          scripturePassageId: requestedScripturePassageId,
-        })
-      ) {
-        throw new DomainError(
-          "Esta chave de idempotência já foi usada com outra oração.",
-          "IDEMPOTENCY_PAYLOAD_CONFLICT",
-          409,
-        )
+        include: { validation: true, scripturePassage: true },
+      })
+      if (raced) {
+        if (
+          !sameIdempotentPayload(raced, {
+            requestId: input.requestId,
+            contentHash,
+            scripturePassageId: requestedScripturePassageId,
+          })
+        ) {
+          throw new DomainError(
+            "Esta chave de idempotência já foi usada com outra oração.",
+            "IDEMPOTENCY_PAYLOAD_CONFLICT",
+            409,
+          )
+        }
+        return { prayer: toPrayerDto(raced), reused: true as const }
       }
-      return { prayer: toPrayerDto(raced), reused: true as const }
     }
     throw error
   }

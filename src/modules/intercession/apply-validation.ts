@@ -1,6 +1,7 @@
 import type { Prisma } from "@/generated/prisma/client"
 import { recordAuditEvent } from "@/lib/security/audit"
 import {
+  lockIntercessorUser,
   lockPrayerRequest,
   maybeOpenEligibilityFromAcceptedPrayer,
   rebuildValidPrayerCount,
@@ -36,6 +37,8 @@ export type ApplyValidationDecisionInput = {
  * Usado por auto-validação, admin e reprocessamento — sem simular ADMIN.
  */
 export async function applyValidationDecision(tx: Tx, input: ApplyValidationDecisionInput) {
+  // Ordem canônica: intercessor → pedido (alinhado a submitPrayer; evita deadlock).
+  await lockIntercessorUser(tx, input.intercessorId)
   await lockPrayerRequest(tx, input.requestId)
 
   // manual_review: decidedAt permanece nulo até decisão humana.

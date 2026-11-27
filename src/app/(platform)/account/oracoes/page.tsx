@@ -110,6 +110,9 @@ async function SentPrayersContent() {
           <ButtonLink href="/account" variant="secondary">
             Voltar à conta
           </ButtonLink>
+          <ButtonLink href="/account/oracoes-recebidas" variant="ghost">
+            Orações recebidas
+          </ButtonLink>
           <ButtonLink href="/encontrar" variant="ghost">
             Ir ao feed
           </ButtonLink>

@@ -189,10 +189,11 @@ export function PrayerComposeForm({
       return
     }
     if (
-      /^(orei|am[eé]m|deus\s+aben[cç]oe|gl[oó]ria\s+(a\s+)?deus|obrigad[oa]|ok)\.?$/i.test(
+      /^(orei|am[eé]m|deus\s+aben[cç]oe|gl[oó]ria\s+(a\s+)?deus|obrigad[oa]|ok|teste)\.?$/i.test(
         trimmed,
       ) ||
-      /^\.+$/.test(trimmed)
+      /^\.+$/.test(trimmed) ||
+      /^(asdf+|qwer(ty)?|xxx+|aaa+|1234+)$/i.test(trimmed.replace(/\s+/g, ""))
     ) {
       setFieldError(
         "Dedique algumas palavras à história desta pessoa e escreva uma oração por ela.",

@@ -230,7 +230,23 @@ describe.runIf(enabled)("automatic validation V2 database", () => {
         ownerAuthorization: "OWNER_AUTHORIZED",
       })
       expect(again.integrity.eligibleForReprocess).toBe(false)
+
+      const v2Flagged = await createQueuedPrayer({
+        requestId: request.id,
+        intercessorId: intercessor.id,
+        beneficiaryId: owner.id,
+        body: "Texto sinalizado pela política V2 para revisão humana.",
+        outcome: "manual_review",
+      })
+      await prisma.prayerValidation.update({
+        where: { prayerId: v2Flagged.id },
+        data: { policyVersion: 2 },
+      })
+      const skipped = await reprocessLegacyPrayer({ prayerId: v2Flagged.id })
+      expect(skipped.integrity.eligibleForReprocess).toBe(false)
+      expect(skipped.integrity.skipReason).toBe("v2_manual_review_requires_human")
     },
     dbTestTimeout,
   )
 })
+

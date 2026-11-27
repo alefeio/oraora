@@ -12,13 +12,17 @@ export type ReprocessLegacyPrayerInput = {
   prayerId: string
   /** Dry-run por padrão — nunca aplica sem apply=true + autorização. */
   apply?: boolean
-  /** Deve ser OWNER_AUTHORIZED para apply em Preview. */
+  /** Deve ser OWNER_AUTHORIZED para apply. */
   ownerAuthorization?: string
+  /** Quando true, exige proveEffectivePrismaWriteTarget Preview (feito no script). */
+  requirePreviewProof?: boolean
 }
 
 export type ReprocessLegacyPrayerResult = {
   prayerId: string
   intercessorId: string
+  beneficiaryId: string
+  requestId: string
   currentOutcome: string
   policyVersionCurrent: number
   classification: {
@@ -32,7 +36,13 @@ export type ReprocessLegacyPrayerResult = {
     hasValidation: boolean
     bodyNonEmpty: boolean
     contentHashMatches: boolean
+    statusSubmitted: boolean
+    intercessorActive: boolean
+    beneficiaryMatchesRequest: boolean
+    noPriorEffectsApplied: boolean
+    noHumanDecision: boolean
     eligibleForReprocess: boolean
+    skipReason: string | null
   }
   dryRun: boolean
   applied: boolean
@@ -40,16 +50,29 @@ export type ReprocessLegacyPrayerResult = {
   message: string
 }
 
+function effectsAlreadyApplied(effects: unknown): boolean {
+  if (!effects || typeof effects !== "object") return false
+  const e = effects as { reciprocity?: boolean | null; feedCount?: boolean | null }
+  return e.reciprocity === true || e.reciprocity === false || e.feedCount === true || e.feedCount === false
+}
+
 /**
- * Reprocessamento controlado de um único registro legado (pending / manual_review).
- * Sem massa. Sem simular ADMIN. Dry-run por padrão.
+ * Reprocessamento controlado de UM registro legado.
+ * - Não libera automaticamente `manual_review` da política V2.
+ * - Não sobrescreve decisão humana (`decidedByUserId`).
+ * - Não reaplica se efeitos já foram gravados.
+ * Dry-run por padrão. Sem massa. Sem simular ADMIN.
  */
 export async function reprocessLegacyPrayer(
   input: ReprocessLegacyPrayerInput,
 ): Promise<ReprocessLegacyPrayerResult> {
   const prayer = await prisma.prayer.findUnique({
     where: { id: input.prayerId },
-    include: { validation: true },
+    include: {
+      validation: true,
+      request: { select: { id: true, authorId: true, title: true, isSyntheticFixture: true } },
+      intercessor: { select: { id: true, banned: true } },
+    },
   })
   if (!prayer) throw new PrayerNotFoundError()
   if (!prayer.validation) {
@@ -61,6 +84,11 @@ export async function reprocessLegacyPrayer(
     .update(body.normalize("NFKC").toLowerCase())
     .digest("hex")
   const contentHashMatches = prayer.contentHash === contentHash
+  const statusSubmitted = prayer.status === "submitted"
+  const intercessorActive = Boolean(prayer.intercessor && !prayer.intercessor.banned)
+  const beneficiaryMatchesRequest = prayer.beneficiaryId === prayer.request.authorId
+  const noPriorEffectsApplied = !effectsAlreadyApplied(prayer.validation.effects)
+  const noHumanDecision = prayer.validation.decidedByUserId == null
 
   const windowStart = new Date(Date.now() - ABUSE_RATE_LIMITS.windowMs)
   const [submissionsInWindow, duplicateHashCount] = await Promise.all([
@@ -87,8 +115,32 @@ export async function reprocessLegacyPrayer(
     duplicateHashCount,
   })
 
-  const eligibleOutcomes = new Set(["pending", "manual_review"])
-  const eligibleForReprocess = eligibleOutcomes.has(prayer.validation.outcome)
+  let skipReason: string | null = null
+  const outcome = prayer.validation.outcome
+  const policyVersion = prayer.validation.policyVersion
+
+  // manual_review da V2: fila humana — script de legado não libera automaticamente.
+  if (outcome === "manual_review" && policyVersion >= VALIDATION_POLICY_VERSION) {
+    skipReason = "v2_manual_review_requires_human"
+  } else if (!["pending", "manual_review"].includes(outcome)) {
+    skipReason = "outcome_not_reprocessable"
+  } else if (!noHumanDecision) {
+    skipReason = "human_decision_preserved"
+  } else if (!noPriorEffectsApplied) {
+    skipReason = "effects_already_applied"
+  } else if (!statusSubmitted) {
+    skipReason = "status_not_submitted"
+  } else if (!intercessorActive) {
+    skipReason = "intercessor_inactive"
+  } else if (!beneficiaryMatchesRequest) {
+    skipReason = "beneficiary_mismatch"
+  } else if (!contentHashMatches) {
+    skipReason = "content_hash_mismatch"
+  } else if (body.length < 1) {
+    skipReason = "empty_body"
+  }
+
+  const eligibleForReprocess = skipReason === null
 
   const classificationView =
     classification.kind === "block_before_submit"
@@ -108,18 +160,28 @@ export async function reprocessLegacyPrayer(
   const base: ReprocessLegacyPrayerResult = {
     prayerId: prayer.id,
     intercessorId: prayer.intercessorId,
-    currentOutcome: prayer.validation.outcome,
-    policyVersionCurrent: prayer.validation.policyVersion,
+    beneficiaryId: prayer.beneficiaryId,
+    requestId: prayer.requestId,
+    currentOutcome: outcome,
+    policyVersionCurrent: policyVersion,
     classification: classificationView,
     integrity: {
       hasValidation: true,
       bodyNonEmpty: body.length > 0,
       contentHashMatches,
+      statusSubmitted,
+      intercessorActive,
+      beneficiaryMatchesRequest,
+      noPriorEffectsApplied,
+      noHumanDecision,
       eligibleForReprocess,
+      skipReason,
     },
     dryRun: true,
     applied: false,
-    message: "Dry-run concluído. Nenhuma escrita realizada.",
+    message: skipReason
+      ? `Dry-run: não elegível (${skipReason}). Nenhuma escrita.`
+      : "Dry-run concluído. Nenhuma escrita realizada.",
   }
 
   if (
@@ -148,16 +210,8 @@ export async function reprocessLegacyPrayer(
 
   if (!eligibleForReprocess) {
     throw new DomainError(
-      "Esta oração não está em pending/manual_review — reprocessamento recusado.",
+      `Reprocessamento recusado: ${skipReason}.`,
       "REPROCESS_NOT_ELIGIBLE",
-      409,
-    )
-  }
-
-  if (!contentHashMatches) {
-    throw new DomainError(
-      "Integridade do contentHash falhou — reprocessamento recusado.",
-      "CONTENT_HASH_MISMATCH",
       409,
     )
   }
@@ -170,6 +224,7 @@ export async function reprocessLegacyPrayer(
     )
   }
 
+  // Nunca promover automatic_review V2 via este caminho (já coberto por skipReason).
   const applied = await prisma.$transaction(async (tx) => {
     return applyValidationDecision(tx, {
       prayerId: prayer.id,

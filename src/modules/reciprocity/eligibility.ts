@@ -12,9 +12,23 @@ export type EligibilitySnapshot = {
 }
 
 /**
+ * Serializa operações do mesmo intercessor (frequência, elegibilidade).
+ * Ordem canônica de locks: usuário → pedido (evita deadlock).
+ */
+export async function lockIntercessorUser(tx: Prisma.TransactionClient, userId: string) {
+  await tx.user.update({
+    where: { id: userId },
+    data: { updatedAt: new Date() },
+  })
+}
+
+/**
  * Concede elegibilidade a partir de oração aceita, respeitando:
  * - no máximo uma open por usuário;
  * - aprovação tardia não reabre direito após publicação posterior à oração.
+ *
+ * Exige que o chamador já tenha serializado o usuário (`lockIntercessorUser`)
+ * quando houver risco de concorrência — não tenta ler após P2002 na mesma TX.
  */
 export async function maybeOpenEligibilityFromAcceptedPrayer(
   tx: Db,
@@ -52,25 +66,15 @@ export async function maybeOpenEligibilityFromAcceptedPrayer(
     return { opened: false, reason: "late_validation_after_publish" }
   }
 
-  try {
-    const created = await tx.requestEligibility.create({
-      data: {
-        userId: input.userId,
-        sourceType: "prayer",
-        sourcePrayerId: input.prayerId,
-        status: "open",
-      },
-    })
-    return { opened: true, reason: "opened", eligibilityId: created.id }
-  } catch {
-    const stillOpen = await tx.requestEligibility.findFirst({
-      where: { userId: input.userId, status: "open" },
-    })
-    if (stillOpen) {
-      return { opened: false, reason: "already_open", eligibilityId: stillOpen.id }
-    }
-    throw new Error("Falha ao abrir elegibilidade de pedido.")
-  }
+  const created = await tx.requestEligibility.create({
+    data: {
+      userId: input.userId,
+      sourceType: "prayer",
+      sourcePrayerId: input.prayerId,
+      status: "open",
+    },
+  })
+  return { opened: true, reason: "opened", eligibilityId: created.id }
 }
 
 export async function getRequestEligibilitySnapshot(userId: string): Promise<EligibilitySnapshot> {
